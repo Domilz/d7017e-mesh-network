@@ -1,0 +1,139 @@
+asyncapi: 2.2.0
+tags:
+  - name: External
+  - name: GPS
+
+info:
+  title: Mobilaris GPS API
+  version: 1.0.0
+  description: |
+    External GPS interface for publishing GPS location data to Mobilaris Location Engine.
+
+servers:
+  RabbitMQ:
+    url: mq.{site}:{mqtt_port}
+    description: Mobilaris RabbitMQ Broker
+    variables:
+      site:
+        description: Site URL
+        examples:
+          - broker.example.com
+      mqtt_port:
+        description: MQTT Port
+        default: "1883"
+    protocol: mqtt
+    protocolVersion: 1.0.0
+    bindings:
+      mqtt:
+        cleanSession: true
+    security:
+      - user_pass: []
+
+channels:
+  GPS:
+    description: Endpoint for GPS data
+    publish:
+      message:
+        $ref: '#/components/messages/Request'
+    bindings:
+      mqtt:
+        topic: gps
+
+components:
+  securitySchemes:
+    user_pass:
+      type: userPassword
+  schemas:
+    Delay:
+      description: Specifies a delay introduced by tag, device or service
+      required:
+        - name
+        - sent
+        - received
+      properties:
+        name:
+          type: string
+          description: Name of service / device introducing delay
+          example: gpstag
+        sent:
+          $ref: '#/components/schemas/Timestamp'
+        received:
+          $ref: '#/components/schemas/Timestamp'
+      type: object
+    Reading:
+      description: Reading object containing one reading for one tag
+      required:
+        - id
+        - latitude
+        - longitude
+        - altitude
+      properties:
+        id:
+          type: string
+          description: MAC address of device / tag. Formatted aa:bb.cc:dd:ee:f1
+          example: aa:bb:cc:dd:ee:f1
+        latitude:
+          type: number
+          description: GPS latitude value
+          example: 65.58686312151238
+        longitude:
+          type: number
+          description: GPS longitude value
+          example: 22.166388265414902
+        altitude:
+          type: number
+          description: GPS altitude value
+          example: 15.12345
+        accuracy:
+          $ref: '#/components/schemas/Accuracy'
+        chain_delay:
+          items:
+            $ref: '#/components/schemas/Delay'
+          type: array
+
+
+      type: object
+    Request:
+      required:
+        - readings
+      properties:
+        readings:
+          items:
+            $ref: '#/components/schemas/Reading'
+          type: array
+      type: object
+    Timestamp:
+      description: Unix time(UTC) divided into seconds and nano seconds.
+      required:
+        - nanos
+        - seconds
+      properties:
+        nanos:
+          type: number
+          example: 3299600
+        seconds:
+          type: number
+          example: 1639658351
+      type: object
+
+    Accuracy:
+      description: Accuracy of reading.
+      required:
+        - horizontal_accuracy_meters
+        - vertical_accuracy_meters
+      properties:
+        horizontal_accuracy_meters:
+          type: number
+          description: Horizontal accuracy in meters
+          example: 3.14
+        vertical_accuracy_meters:
+          type: number
+          description: Vertical accuracy in meters
+          example: 3.14
+      type: object
+  messages:
+    Request:
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/Request'
+      description: Root message object

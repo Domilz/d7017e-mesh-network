@@ -1,0 +1,124 @@
+asyncapi: 2.2.0
+tags:
+  - name: External
+  - name: XYZ
+
+info:
+  title: Mobilaris XYZ API
+  version: 1.0.0
+  description: |
+    External XYZ interface for publishing xyz data to Mobilaris Location Engine.
+
+servers:
+  RabbitMQ:
+    url: mq.{site}:{mqtt_port}
+    description: Mobilaris RabbitMQ Broker
+    variables:
+      site:
+        description: Site URL
+        examples:
+          - broker.example.com
+      mqtt_port:
+        description: MQTT Port
+        default: "1883"
+    protocol: mqtt
+    protocolVersion: 1.0.0
+    bindings:
+      mqtt:
+        cleanSession: true
+    security:
+      - user_pass: []
+
+channels:
+  xyz:
+    description: Endpoint for xyz data
+    publish:
+      message:
+        $ref: '#/components/messages/Request'
+    bindings:
+      mqtt:
+        topic: xyz
+
+components:
+  securitySchemes:
+    user_pass:
+      type: userPassword
+  schemas:
+    Delay:
+      description: Specifies a delay introduced by tag, device or service. The received_time is the timestamp when a service, device etc. receives a position, while sent_time is the timestamp when the position is sent from the service, device etc. after being processed (Optional)
+      required:
+        - name
+        - sent_time
+        - received_time
+      properties:
+        name:
+          type: string
+          description: Name of service / device introducing delay
+          example: ext_pos_src
+        sent_time:
+          $ref: '#/components/schemas/Timestamp'
+        received_time:
+          $ref: '#/components/schemas/Timestamp'
+      type: object
+    Position:
+      description: Position object containing one position for one tag
+      required:
+        - accuracy
+        - x
+        - y
+        - z
+        - tag_id
+      properties:
+        chain_delay:
+          items:
+            $ref: '#/components/schemas/Delay'
+          type: array
+        x:
+          type: number
+          description: x coordinate
+          example: 800.5
+        y:
+          type: number
+          description: y coordinate
+          example: 550
+        z:
+          type: number
+          description: z coordinate
+          example: -350.83
+        accuracy:
+          type: integer
+          description: Accuracy of position.
+          example: 5
+        tag_id:
+          type: string
+          description: MAC address of device / tag. Formatted aa:bb.cc:dd:ee:f1
+          example: aa:bb:cc:dd:ee:f1
+      type: object
+    Request:
+      required:
+        - position
+      properties:
+        position:
+          items:
+            $ref: '#/components/schemas/Position'
+          type: array
+      type: object
+    Timestamp:
+      description: Unix time(UTC) divided into seconds and nano seconds.
+      required:
+        - nanos
+        - seconds
+      properties:
+        nanos:
+          type: integer
+          example: 3299600
+        seconds:
+          type: integer
+          example: 1639658351
+      type: object
+  messages:
+    Request:
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/Request'
+      description: Root message object

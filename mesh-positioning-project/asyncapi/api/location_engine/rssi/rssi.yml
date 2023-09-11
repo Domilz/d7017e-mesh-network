@@ -1,0 +1,137 @@
+asyncapi: 2.2.0
+tags:
+  - name: External
+  - name: RSSI
+  - name: Wifi
+  - name: BLE
+  - name: LTE
+
+info:
+  title: Mobilaris RSSI API
+  version: 1.0.0
+  description: |
+    External RSSI interface for publishing RSSI based data to Mobilaris Location Engine.
+
+servers:
+  RabbitMQ:
+    url: mq.{site}:{mqtt_port}
+    description: Mobilaris RabbitMQ Broker
+    variables:
+      site:
+        description: Site URL
+        examples:
+          - broker.example.com
+      mqtt_port:
+        description: MQTT Port
+        default: "1883"
+    protocol: mqtt
+    protocolVersion: 1.0.0
+    bindings:
+      mqtt:
+        cleanSession: true
+    security:
+      - user_pass: []
+
+channels:
+  Wifi:
+    description: Endpoint for wifi data
+    publish:
+      message:
+        $ref: '#/components/messages/Request'
+    bindings:
+      mqtt:
+        topic: rssi/ap
+  BLE:
+    description: Endpoint for BLE data
+    publish:
+      message:
+        $ref: '#/components/messages/Request'
+    bindings:
+      mqtt:
+        topic: rssi/ble
+  LTE:
+    description: Endpoint for LTE data
+    publish:
+      message:
+        $ref: '#/components/messages/Request'
+    bindings:
+      mqtt:
+        topic: rssi/lte
+components:
+  securitySchemes:
+    user_pass:
+      type: userPassword
+  schemas:
+    Delay:
+      description: Specifies a delay introduced by tag, device or service
+      required:
+        - name
+        - sent
+        - received
+      properties:
+        name:
+          type: string
+          description: Name of service / device introducing delay
+          example: tagbackend
+        sent:
+          $ref: '#/components/schemas/Timestamp'
+        received:
+          $ref: '#/components/schemas/Timestamp'
+      type: object
+    Reading:
+      description: Reading object containing one reading for one tag
+      required:
+        - chain_delay
+        - rp_id
+        - rssi
+        - tag_id
+        - type
+      properties:
+        chain_delay:
+          items:
+            $ref: '#/components/schemas/Delay'
+          type: array
+        rp_id:
+          type: string
+          description: MAC address of reference point (ap, ble) or cellID for lte.
+          example: aa:bb:cc:dd:ee:f0
+        rssi:
+          type: integer
+          example: -78
+        tag_id:
+          type: string
+          description: MAC address of device / tag. Formatted aa:bb.cc:dd:ee:f1
+          example: aa:bb:cc:dd:ee:f1
+        type:
+          type: string
+          description: Type of reading, could be AP, BLE or LTE.
+          example: BLE
+      type: object
+    Request:
+      required:
+        - readings
+      properties:
+        readings:
+          items:
+            $ref: '#/components/schemas/Reading'
+          type: array
+      type: object
+    Timestamp:
+      description: Unix time(UTC) divided into seconds and nano seconds.
+      required:
+        - nanos
+        - seconds
+      properties:
+        nanos:
+          type: integer
+          example: 3299600
+        seconds:
+          type: integer
+          example: 1639658351
+      type: object
+  messages:
+    Request:
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/Request'
+      description: Root message object
