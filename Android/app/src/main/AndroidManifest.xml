@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- If your app targets Android 13 (API level 33)
          or higher, you must declare the NEARBY_WIFI_DEVICES permission. -->
     <!-- <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" -->
@@ -17,6 +19,7 @@
          attribute. -->
     <!-- android:maxSdkVersion="32" /> -->
 
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
