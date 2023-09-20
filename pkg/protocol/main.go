@@ -3,26 +3,26 @@ package main
 import (
 	"fmt"
 
-	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/protobuffer"
+	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/pb"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func main() {
 
-	mockReading := &protobuffer.Reading{
-		TagId:    "123",
+	mockReading := &pb.Reading{
+		TagId:    "MOCKTAG",
 		DeviceId: "321",
 		Rssi:     69,
 		Ts: &timestamp.Timestamp{
-			Seconds: 666,
-			Nanos:   999,
+			Seconds: timestamppb.Now().Seconds,
 		},
 	}
 
-	mockState := &protobuffer.State{
+	mockState := &pb.State{
 		TagId: "666",
-		Readings: []*protobuffer.Reading{
-			mockReading,
+		Readings: map[string]*pb.Reading{
+			mockReading.TagId: mockReading,
 		},
 	}
 

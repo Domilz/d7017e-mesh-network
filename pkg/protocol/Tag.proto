@@ -2,14 +2,14 @@ syntax = "proto3";
 
 package protocol;
 
-option go_package = "/protobuffer";
+option go_package = "/pb";
 
 import "google/protobuf/timestamp.proto";
 
 
 message State {
     string tag_id               = 1; // ID of tag
-    repeated Reading readings   = 2; // List of readings made by reporter
+    map<string, Reading> readings   = 2; // List of readings made by reporter
 }
 
 message Reading {
