@@ -7,11 +7,11 @@ import (
 func InsertSingleReading(state *pb.State, reading *pb.Reading) {
 	_, key := state.Readings[reading.TagId]
 
-	if !key || less(state.Readings[reading.TagId], reading) {
+	if !key || findLatestTimestamp(state.Readings[reading.TagId], reading) {
 		state.Readings[reading.TagId] = reading
 	}
 }
 
-func less(reading *pb.Reading, otherReading *pb.Reading) bool {
+func findLatestTimestamp(reading *pb.Reading, otherReading *pb.Reading) bool {
 	return reading.Ts.Seconds <= otherReading.Ts.Seconds
 }
