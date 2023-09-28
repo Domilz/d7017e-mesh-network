@@ -1,4 +1,4 @@
-# d7017e - Peer-to-peer mesh network for underground positioning application
+# d7017e - Mesh network for position propagation in underground mines
 Implementing a mesh network for Epiroc in the course D7017E.
 
 # Project overview
