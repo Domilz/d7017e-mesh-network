@@ -12,17 +12,17 @@ type StateHandler struct {
 	mutex       sync.RWMutex
 }
 
-func (stateHandler *StateHandler) lock() {
-	stateHandler.mutex.Lock()
-}
-func (stateHandler *StateHandler) unLock() {
-	stateHandler.mutex.Unlock()
-}
 func (stateHandler *StateHandler) initStateHandler(id string) {
 	stateHandler.lock()
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
 	stateHandler.unLock()
+}
+func (stateHandler *StateHandler) lock() {
+	stateHandler.mutex.Lock()
+}
+func (stateHandler *StateHandler) unLock() {
+	stateHandler.mutex.Unlock()
 }
 func (stateHandler *StateHandler) getReading(id string) *pb.Reading {
 	stateHandler.lock()

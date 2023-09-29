@@ -1,6 +1,7 @@
 package utlis
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/pb"
@@ -38,8 +39,11 @@ func TestInsertSingleReading(t *testing.T) {
 		TagId:    "666",
 		Readings: []*pb.Reading{mockReading, mockReading2},
 	}
-
-	assert.Equal(t, expectedMockState, sh.getState())
+	actualState := sh.getState()
+	sort.SliceStable(actualState.Readings, func(i, j int) bool {
+		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
+	})
+	assert.Equal(t, expectedMockState, actualState)
 
 }
 
@@ -165,6 +169,9 @@ func TestInsertMultipleReading(t *testing.T) {
 		Readings: []*pb.Reading{mockReading, mockReading2, mockReading3, mockReading4},
 	}
 	actualState := sh.getState()
+	sort.SliceStable(actualState.Readings, func(i, j int) bool {
+		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
+	})
 	assert.Equal(t, expectedMockState, actualState)
 
 }
