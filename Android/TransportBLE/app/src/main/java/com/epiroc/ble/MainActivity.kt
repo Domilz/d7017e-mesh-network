@@ -21,7 +21,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TransportBLETheme {
-                Navigation()
+                Navigation(
+                    onBluetoothStateChanged = {
+                        showBluetoothDialog()
+                    }
+                )
             }
         }
     }
@@ -34,11 +38,11 @@ class MainActivity : ComponentActivity() {
     private fun showBluetoothDialog() {
         if (!bluetoothAdapter.isEnabled) {
             val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startBLuetoothIntentForResult.launch(enableBluetoothIntent)
+            startBluetoothIntentForResult.launch(enableBluetoothIntent)
         }
     }
 
-    private val startBLuetoothIntentForResult =
+    private val startBluetoothIntentForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {result ->
             if (result.resultCode != Activity.RESULT_OK) {
                 showBluetoothDialog()
