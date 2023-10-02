@@ -10,6 +10,7 @@ service StatePropagation {
     rpc Propagation(stream State) returns (stream State) {}
 }
 
+
 message State {
     string tag_id               = 1; // ID of tag
     repeated Reading readings   = 2; // List of readings made by reporter

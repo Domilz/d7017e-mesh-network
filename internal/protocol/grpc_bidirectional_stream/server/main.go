@@ -7,7 +7,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/grpc_bidirectional_stream/protofiles/tag"
+	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 	"github.com/Domilz/d7017e-mesh-network/internal/protocol/utils"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc"
