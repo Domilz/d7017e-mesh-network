@@ -27,7 +27,6 @@ type State struct {
 	unknownFields protoimpl.UnknownFields
 
 	TagId string `protobuf:"bytes,1,opt,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"` // ID of tag
-	// map<string, Reading> readings   = 2; // List of readings made by reporter
 	Readings []*Reading `protobuf:"bytes,2,rep,name=readings,proto3" json:"readings,omitempty"` // List of readings made by reporter
 }
 
