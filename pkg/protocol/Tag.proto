@@ -9,7 +9,7 @@ import "google/protobuf/timestamp.proto";
 
 message State {
     string tag_id               = 1; // ID of tag
-    map<string, Reading> readings   = 2; // List of readings made by reporter
+    repeated Reading readings   = 2; // List of readings made by reporter
 }
 
 message Reading {

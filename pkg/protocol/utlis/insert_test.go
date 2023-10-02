@@ -1,6 +1,7 @@
 package utlis
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/pb"
@@ -29,24 +30,20 @@ func TestInsertSingleReading(t *testing.T) {
 		},
 	}
 
-	mockState := &pb.State{
-		TagId: "666",
-		Readings: map[string]*pb.Reading{
-			mockReading.TagId: mockReading,
-		},
-	}
-
-	InsertSingleReading(mockState, mockReading2)
+	sh := StateHandler{}
+	sh.initStateHandler("666")
+	sh.InsertSingleReading(mockReading)
+	sh.InsertSingleReading(mockReading2)
 
 	expectedMockState := &pb.State{
-		TagId: "666",
-		Readings: map[string]*pb.Reading{
-			mockReading.TagId:  mockReading,
-			mockReading2.TagId: mockReading2,
-		},
+		TagId:    "666",
+		Readings: []*pb.Reading{mockReading, mockReading2},
 	}
-
-	assert.Equal(t, expectedMockState, mockState)
+	actualState := sh.getState()
+	sort.SliceStable(actualState.Readings, func(i, j int) bool {
+		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
+	})
+	assert.Equal(t, expectedMockState, actualState)
 
 }
 
@@ -73,16 +70,13 @@ func TestLessTimeDontInsertSingleReading(t *testing.T) {
 		},
 	}
 
-	mockState := &pb.State{
-		TagId: "666",
-		Readings: map[string]*pb.Reading{
-			mockReading.TagId: mockReading,
-		},
-	}
+	sh := StateHandler{}
+	sh.initStateHandler("666")
+	sh.InsertSingleReading(mockReading)
+	sh.InsertSingleReading(mockReading2)
+	reading := sh.getReading(mockReading.TagId)
 
-	InsertSingleReading(mockState, mockReading2)
-
-	assert.Equal(t, time, mockState.Readings[mockReading.TagId].Ts.Seconds)
+	assert.Equal(t, time, reading.Ts.Seconds)
 
 }
 
@@ -109,16 +103,13 @@ func TestMoreTimeInsertSingleReading(t *testing.T) {
 		},
 	}
 
-	mockState := &pb.State{
-		TagId: "666",
-		Readings: map[string]*pb.Reading{
-			mockReading.TagId: mockReading,
-		},
-	}
+	sh := StateHandler{}
+	sh.initStateHandler("666")
 
-	InsertSingleReading(mockState, mockReading2)
-
-	assert.Equal(t, time2, mockState.Readings[mockReading.TagId].Ts.Seconds)
+	sh.InsertSingleReading(mockReading)
+	sh.InsertSingleReading(mockReading2)
+	reading := sh.getReading(mockReading.TagId)
+	assert.Equal(t, time2, reading.Ts.Seconds)
 
 }
 
@@ -150,33 +141,37 @@ func TestInsertMultipleReading(t *testing.T) {
 			Seconds: timestamppb.Now().Seconds,
 		},
 	}
+	mockReading4 := &pb.Reading{
+		TagId:    "MOCKTAG4",
+		DeviceId: "3214",
+		Rssi:     10,
+		Ts: &timestamp.Timestamp{
+			Seconds: timestamppb.Now().Seconds,
+		},
+	}
 
 	mockState := &pb.State{
-		TagId: "666",
-		Readings: map[string]*pb.Reading{
-			mockReading.TagId:  mockReading,
-			mockReading2.TagId: mockReading2,
-		},
+		TagId:    "666",
+		Readings: []*pb.Reading{mockReading, mockReading2},
 	}
 
 	mockState2 := &pb.State{
-		TagId: "669",
-		Readings: map[string]*pb.Reading{
-			mockReading3.TagId: mockReading3,
-		},
+		TagId:    "669",
+		Readings: []*pb.Reading{mockReading3, mockReading4},
 	}
 
-	InsertMultipleReadings(mockState.Readings, mockState2)
-
+	sh := StateHandler{}
+	sh.initStateHandler("669")
+	sh.InsertMultipleReadings(mockState)
+	sh.InsertMultipleReadings(mockState2)
 	expectedMockState := &pb.State{
-		TagId: "669",
-		Readings: map[string]*pb.Reading{
-			mockReading3.TagId: mockReading3,
-			mockReading.TagId:  mockReading,
-			mockReading2.TagId: mockReading2,
-		},
+		TagId:    "669",
+		Readings: []*pb.Reading{mockReading, mockReading2, mockReading3, mockReading4},
 	}
-
-	assert.Equal(t, expectedMockState, mockState2)
+	actualState := sh.getState()
+	sort.SliceStable(actualState.Readings, func(i, j int) bool {
+		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
+	})
+	assert.Equal(t, expectedMockState, actualState)
 
 }
