@@ -30,21 +30,21 @@ func main() {
 	defer conn.Close()
 
 	// Create a gRPC client
-	propagationClient := pb.NewStatePropagationClient(conn)
+	propogationClient := pb.NewStatePropogationClient(conn)
 
 	// Prepare and send the client request
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	request := prepareRequest()
-	propagationStream, err := openBidirectionalStream(ctx, propagationClient)
+	propogationStream, err := openBidirectionalStream(ctx, propogationClient)
 	if err != nil {
 		log.Fatalf("error opening stream: %v", err)
 	}
-	sendRequestToStream(propagationStream, request)
+	sendRequestToStream(propogationStream, request)
 
 	// Receive and process the server response
-	response, err := receiveAndProcessResponse(propagationStream)
+	response, err := receiveAndProcessResponse(propogationStream)
 	if err != nil {
 		log.Fatalf("error receiving stream: %v", err)
 	}
@@ -53,7 +53,7 @@ func main() {
 	utils.PrintFormattedState(response)
 
 	// Close the stream
-	if err := closeStream(propagationStream); err != nil {
+	if err := closeStream(propogationStream); err != nil {
 		log.Println(err)
 	}
 }
@@ -85,19 +85,19 @@ func prepareRequest() *pb.State {
 	return request
 }
 
-func openBidirectionalStream(ctx context.Context, client pb.StatePropagationClient) (pb.StatePropagation_PropagationClient, error) {
-	propagationStream, err := client.Propagation(ctx)
-	return propagationStream, err
+func openBidirectionalStream(ctx context.Context, client pb.StatePropogationClient) (pb.StatePropogation_PropogationClient, error) {
+	propogationStream, err := client.Propogation(ctx)
+	return propogationStream, err
 }
 
-func sendRequestToStream(stream pb.StatePropagation_PropagationClient, request *pb.State) {
+func sendRequestToStream(stream pb.StatePropogation_PropogationClient, request *pb.State) {
 	err := stream.Send(request)
 	if err != nil {
 		log.Fatalf("error when sending request: %v", err)
 	}
 }
 
-func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*pb.State, error) {
+func receiveAndProcessResponse(stream pb.StatePropogation_PropogationClient) (*pb.State, error) {
 	response, err := stream.Recv()
 	if err == io.EOF {
 		return nil, err
@@ -108,7 +108,7 @@ func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*p
 	return nil, err
 }
 
-func closeStream(stream pb.StatePropagation_PropagationClient) error {
+func closeStream(stream pb.StatePropogation_PropogationClient) error {
 	err := stream.CloseSend()
 	return err
 }

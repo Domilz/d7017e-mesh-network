@@ -20,10 +20,10 @@ var (
 )
 
 type server struct {
-	pb.UnimplementedStatePropagationServer
+	pb.UnimplementedStatePropogationServer
 }
 
-func (s *server) Propagation(srv pb.StatePropagation_PropagationServer) error {
+func (s *server) Propogation(srv pb.StatePropogation_PropogationServer) error {
 	log.Println("Fetching state stream from client...")
 
 	ctx := srv.Context()
@@ -44,7 +44,7 @@ func (s *server) Propagation(srv pb.StatePropagation_PropagationServer) error {
 	}
 }
 
-func processClientRequest(srv pb.StatePropagation_PropagationServer) error {
+func processClientRequest(srv pb.StatePropogation_PropogationServer) error {
 	request, err := srv.Recv()
 	if err == io.EOF {
 		return err
@@ -62,7 +62,7 @@ func processClientRequest(srv pb.StatePropagation_PropagationServer) error {
 	return nil
 }
 
-func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationServer) error {
+func handleClientRequest(request *pb.State, srv pb.StatePropogation_PropogationServer) error {
 	// Print the `State` and `Reading` from the client
 	utils.PrintFormattedState(request)
 
@@ -103,7 +103,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterStatePropagationServer(s, &server{})
+	pb.RegisterStatePropogationServer(s, &server{})
 
 	log.Printf("server listening at: %s", *serverAddress)
 

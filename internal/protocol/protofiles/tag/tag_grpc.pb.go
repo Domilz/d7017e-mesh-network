@@ -18,45 +18,45 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// StatePropagationClient is the client API for StatePropagation service.
+// StatePropogationClient is the client API for StatePropogation service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type StatePropagationClient interface {
-	Propagation(ctx context.Context, opts ...grpc.CallOption) (StatePropagation_PropagationClient, error)
+type StatePropogationClient interface {
+	Propogation(ctx context.Context, opts ...grpc.CallOption) (StatePropogation_PropogationClient, error)
 }
 
-type statePropagationClient struct {
+type statePropogationClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewStatePropagationClient(cc grpc.ClientConnInterface) StatePropagationClient {
-	return &statePropagationClient{cc}
+func NewStatePropogationClient(cc grpc.ClientConnInterface) StatePropogationClient {
+	return &statePropogationClient{cc}
 }
 
-func (c *statePropagationClient) Propagation(ctx context.Context, opts ...grpc.CallOption) (StatePropagation_PropagationClient, error) {
-	stream, err := c.cc.NewStream(ctx, &StatePropagation_ServiceDesc.Streams[0], "/protocol.StatePropagation/Propagation", opts...)
+func (c *statePropogationClient) Propogation(ctx context.Context, opts ...grpc.CallOption) (StatePropogation_PropogationClient, error) {
+	stream, err := c.cc.NewStream(ctx, &StatePropogation_ServiceDesc.Streams[0], "/protocol.StatePropogation/Propogation", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &statePropagationPropagationClient{stream}
+	x := &statePropogationPropogationClient{stream}
 	return x, nil
 }
 
-type StatePropagation_PropagationClient interface {
+type StatePropogation_PropogationClient interface {
 	Send(*State) error
 	Recv() (*State, error)
 	grpc.ClientStream
 }
 
-type statePropagationPropagationClient struct {
+type statePropogationPropogationClient struct {
 	grpc.ClientStream
 }
 
-func (x *statePropagationPropagationClient) Send(m *State) error {
+func (x *statePropogationPropogationClient) Send(m *State) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *statePropagationPropagationClient) Recv() (*State, error) {
+func (x *statePropogationPropogationClient) Recv() (*State, error) {
 	m := new(State)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -64,53 +64,53 @@ func (x *statePropagationPropagationClient) Recv() (*State, error) {
 	return m, nil
 }
 
-// StatePropagationServer is the server API for StatePropagation service.
-// All implementations must embed UnimplementedStatePropagationServer
+// StatePropogationServer is the server API for StatePropogation service.
+// All implementations must embed UnimplementedStatePropogationServer
 // for forward compatibility
-type StatePropagationServer interface {
-	Propagation(StatePropagation_PropagationServer) error
-	mustEmbedUnimplementedStatePropagationServer()
+type StatePropogationServer interface {
+	Propogation(StatePropogation_PropogationServer) error
+	mustEmbedUnimplementedStatePropogationServer()
 }
 
-// UnimplementedStatePropagationServer must be embedded to have forward compatible implementations.
-type UnimplementedStatePropagationServer struct {
+// UnimplementedStatePropogationServer must be embedded to have forward compatible implementations.
+type UnimplementedStatePropogationServer struct {
 }
 
-func (UnimplementedStatePropagationServer) Propagation(StatePropagation_PropagationServer) error {
-	return status.Errorf(codes.Unimplemented, "method Propagation not implemented")
+func (UnimplementedStatePropogationServer) Propogation(StatePropogation_PropogationServer) error {
+	return status.Errorf(codes.Unimplemented, "method Propogation not implemented")
 }
-func (UnimplementedStatePropagationServer) mustEmbedUnimplementedStatePropagationServer() {}
+func (UnimplementedStatePropogationServer) mustEmbedUnimplementedStatePropogationServer() {}
 
-// UnsafeStatePropagationServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to StatePropagationServer will
+// UnsafeStatePropogationServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to StatePropogationServer will
 // result in compilation errors.
-type UnsafeStatePropagationServer interface {
-	mustEmbedUnimplementedStatePropagationServer()
+type UnsafeStatePropogationServer interface {
+	mustEmbedUnimplementedStatePropogationServer()
 }
 
-func RegisterStatePropagationServer(s grpc.ServiceRegistrar, srv StatePropagationServer) {
-	s.RegisterService(&StatePropagation_ServiceDesc, srv)
+func RegisterStatePropogationServer(s grpc.ServiceRegistrar, srv StatePropogationServer) {
+	s.RegisterService(&StatePropogation_ServiceDesc, srv)
 }
 
-func _StatePropagation_Propagation_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(StatePropagationServer).Propagation(&statePropagationPropagationServer{stream})
+func _StatePropogation_Propogation_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(StatePropogationServer).Propogation(&statePropogationPropogationServer{stream})
 }
 
-type StatePropagation_PropagationServer interface {
+type StatePropogation_PropogationServer interface {
 	Send(*State) error
 	Recv() (*State, error)
 	grpc.ServerStream
 }
 
-type statePropagationPropagationServer struct {
+type statePropogationPropogationServer struct {
 	grpc.ServerStream
 }
 
-func (x *statePropagationPropagationServer) Send(m *State) error {
+func (x *statePropogationPropogationServer) Send(m *State) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *statePropagationPropagationServer) Recv() (*State, error) {
+func (x *statePropogationPropogationServer) Recv() (*State, error) {
 	m := new(State)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -118,17 +118,17 @@ func (x *statePropagationPropagationServer) Recv() (*State, error) {
 	return m, nil
 }
 
-// StatePropagation_ServiceDesc is the grpc.ServiceDesc for StatePropagation service.
+// StatePropogation_ServiceDesc is the grpc.ServiceDesc for StatePropogation service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var StatePropagation_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protocol.StatePropagation",
-	HandlerType: (*StatePropagationServer)(nil),
+var StatePropogation_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protocol.StatePropogation",
+	HandlerType: (*StatePropogationServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Propagation",
-			Handler:       _StatePropagation_Propagation_Handler,
+			StreamName:    "Propogation",
+			Handler:       _StatePropogation_Propogation_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
