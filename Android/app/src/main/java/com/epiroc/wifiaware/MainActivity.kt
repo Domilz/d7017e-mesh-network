@@ -1,5 +1,7 @@
 package com.epiroc.wifiaware
 
+import PublishActivity
+import SubscribeActivity
 import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -22,7 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.core.content.edit
+import androidx.navigation.NavHost
 import com.epiroc.wifiaware.ui.theme.WifiAwareTransportTheme
+
 
 class MainActivity : ComponentActivity() {
     private var wifiAwareSession: WifiAwareSession? = null
@@ -55,16 +60,32 @@ class MainActivity : ComponentActivity() {
                 ) {
                     WifiAwareContent(acquisitionMessage)
                 }
+                val navController = remeberNavConteoller()
+
+                NavHost(
+                    navController = navController,
+                    startDestination = "main"
+                ) {
+                    composable("main") {
+                        WifiAwareContent(acquisitionMessage, navController)
+                    }
+                    composable("publish") {
+                        PublishActivity(navController)
+                    }
+                    composable("subscribe") {
+                        SubscribeActivity(navController)
+                    }
+                }
             }
         }
     }
-    private fun wifiAwareState(context: Context) {
+    private fun wifiAwareState(context: Context): String {
+        var wifiAwareAvailable = ""
         wifiAwareManager = context.getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager?
         val filter = IntentFilter(WifiAwareManager.ACTION_WIFI_AWARE_STATE_CHANGED)
         val myReceiver = object : BroadcastReceiver() {
-
             override fun onReceive(context: Context, intent: Intent) {
-                var wifiAwareAvailable: String
+
                 // discard current sessions
                 if (wifiAwareManager?.isAvailable == true) {
                     // I think
@@ -74,10 +95,11 @@ class MainActivity : ComponentActivity() {
                     // Probably
                     wifiAwareAvailable = "has Wifi Aware off"
                 }
-                printContent(wifiAwareAvailable)
+
             }
         }
         context.registerReceiver(myReceiver, filter)
+        return wifiAwareAvailable
     }
 
     private fun acquireWifiAwareSession(context: Context): String {
@@ -130,6 +152,7 @@ class MainActivity : ComponentActivity() {
         var publishMessage by remember { mutableStateOf("") }
         var subscribeMessage by remember { mutableStateOf("") }
 
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -138,7 +161,7 @@ class MainActivity : ComponentActivity() {
             Button(
                 onClick = {
                     if (checkWifiAwareAvailability()) {
-                        publishMessage = "Publish Using Wifi Aware started..."
+                        publishMessage = "Publish Using Wifi Aware started...:" + wifiAwareSession.toString()
                         publishUsingWifiAware()
                     } else {
                         hasWifiAware = "Wifi Aware is not available."
@@ -152,7 +175,7 @@ class MainActivity : ComponentActivity() {
             Button(
                 onClick = {
                     if (checkWifiAwareAvailability()) {
-                        subscribeMessage = "Subscribe to Wifi Aware Sessions started..."
+                        subscribeMessage = "Subscribe to Wifi Aware Sessions started...:" + currentSession.toString()
                         subscribeToWifiAwareSessions()
                     } else {
                         hasWifiAware = "Wifi Aware is not available."
@@ -161,6 +184,28 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text("Subscribe to Wifi Aware Sessions")
+            }
+
+            Button(
+                onClick = {
+                    // Start the PublishActivity when this button is clicked
+                    val intent = Intent(this@MainActivity, PublishActivity::class.java)
+                    startActivity(intent)
+                },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Go to Publish Activity")
+            }
+
+            Button(
+                onClick = {
+                    // Start the SubscribeActivity when this button is clicked
+                    val intent = Intent(this@MainActivity, SubscribeActivity::class.java)
+                    startActivity(intent)
+                },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Go to Subscribe Activity")
             }
 
             Text(
@@ -178,10 +223,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.padding(16.dp)
             )
 
-            Text(
-                text = subscribeMessage, // Display the subscribe message here
-                modifier = Modifier.padding(16.dp)
-            )
+
         }
     }
 
@@ -189,23 +231,13 @@ class MainActivity : ComponentActivity() {
         return packageManager.hasSystemFeature(PackageManager.FEATURE_WIFI_AWARE)
     }
 
-    private fun printContent(text: String) {
-        setContent {
-            WifiAwareTransportTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Print(text)
-                }
-            }
-        }
-    }
 
     private fun subscribeToWifiAwareSessions() {
         if (wifiAwareSession == null) {
-            printContent("SUBSCRIBE: Wifi Aware session is not available")
+            val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+            sharedPreferences.edit {
+                putString("subscribe_message", "SUBSCRIBE: Wifi Aware session is not available")
+            }
             return
         }
 
@@ -218,15 +250,33 @@ class MainActivity : ComponentActivity() {
         val handler = Handler(mainLooper) // Use the main looper.
 
         val discoverySessionCallback = object : DiscoverySessionCallback() {
+
             override fun onSubscribeStarted(session: SubscribeDiscoverySession) {
-                //printContent("SUBSCRIBE: SubscribeStarted")
+
                 currentSession = session
+
             }
+
+            override fun onServiceDiscovered(
+                peerHandle: PeerHandle?,
+                serviceSpecificInfo: ByteArray?,
+                matchFilter: MutableList<ByteArray>?
+            ) {
+                super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
+                if (peerHandle != null) {
+                    currentSession!!.sendMessage(peerHandle,2,serviceSpecificInfo)
+                }
+            }
+
+
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 // Handle incoming data here.
                 val messageText = String(message, Charsets.UTF_8)
-                printContent("SUBSCRIBE: MessageReceived from $peerHandle: $messageText")
+                val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+                sharedPreferences.edit {
+                    putString("subscribe_message", "SUBSCRIBE: MessageReceived from $peerHandle: $messageText")
+                }
 
                 // Optionally, you can establish a connection with the sender (Device A).
                 // For simplicity, you can store the PeerHandle in a list of connected devices.
@@ -288,23 +338,23 @@ class MainActivity : ComponentActivity() {
                     }
 
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                        printContent("PUBLISH:  MessageReceived")
+                        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+                        sharedPreferences.edit {
+                            putString("publish_message", "PUBLISH:  MessageReceived from $peerHandle message: ${message.toString()}")
+                        }
                     }
                 }, handler)
             }
         } else {
             // Wi-Fi Aware session is not available.
-            printContent("PUBLISH: Wifi Aware session is not available")
+            val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+            sharedPreferences.edit {
+                putString("publish_message", "PUBLISH: Wifi Aware session is not available")
+            }
         }
     }
 
-    @Composable
-    fun Print(hasWifiAware: String, modifier: Modifier = Modifier) {
-        Text(
-            text = "This user $hasWifiAware",
-            modifier = modifier
-        )
-    }
+
 
     @Preview(showBackground = true)
     @Composable
