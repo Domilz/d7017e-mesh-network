@@ -1,9 +1,9 @@
-package utlis
+package utils
 
 import (
 	"sync"
 
-	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/pb"
+	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 )
 
 type StateHandler struct {
@@ -18,18 +18,22 @@ func (stateHandler *StateHandler) initStateHandler(id string) {
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
 	stateHandler.unLock()
 }
+
 func (stateHandler *StateHandler) lock() {
 	stateHandler.mutex.Lock()
 }
+
 func (stateHandler *StateHandler) unLock() {
 	stateHandler.mutex.Unlock()
 }
+
 func (stateHandler *StateHandler) getReading(id string) *pb.Reading {
 	stateHandler.lock()
 	r := stateHandler.readingsMap[id]
 	stateHandler.unLock()
 	return r
 }
+
 func (stateHandler *StateHandler) getState() *pb.State {
 	s := pb.State{TagId: stateHandler.TagId}
 

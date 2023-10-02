@@ -1,10 +1,10 @@
-package utlis
+package utils
 
 import (
 	"sort"
 	"testing"
 
-	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/pb"
+	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"

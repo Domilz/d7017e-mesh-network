@@ -2,9 +2,13 @@ syntax = "proto3";
 
 package protocol;
 
-option go_package = "/pb";
+option go_package = "/";
 
 import "google/protobuf/timestamp.proto";
+
+service StatePropagation {
+    rpc Propagation(stream State) returns (stream State) {}
+}
 
 
 message State {

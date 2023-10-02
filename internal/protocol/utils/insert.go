@@ -1,7 +1,7 @@
-package utlis
+package utils
 
 import (
-	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/pb"
+	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 )
 
 func (stateHandler *StateHandler) InsertMultipleReadings(state *pb.State) {
