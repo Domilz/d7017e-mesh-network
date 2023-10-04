@@ -40,7 +40,8 @@ class HomeScreenViewModel(
         Manifest.permission.NEARBY_WIFI_DEVICES
     )
 
-    var currentSession: SubscribeDiscoverySession? = null
+    var currentSubSession: SubscribeDiscoverySession? = null
+    var currentPubSession: PublishDiscoverySession? = null
     val connectedDevices = mutableListOf<PeerHandle>()
     var wifiAwareManager: WifiAwareManager? = null
 
@@ -69,7 +70,7 @@ class HomeScreenViewModel(
         val discoverySessionCallback = object : DiscoverySessionCallback() {
             override fun onSubscribeStarted(session: SubscribeDiscoverySession) {
 
-                currentSession = session
+                currentSubSession = session
 
             }
 
@@ -81,7 +82,7 @@ class HomeScreenViewModel(
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
                 if (peerHandle != null) {
                     subscribeMessageLiveData.value = "SUBSCRIBE: Connected to  $peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()}"
-                    currentSession!!.sendMessage(peerHandle,2,serviceSpecificInfo)
+                    currentSubSession!!.sendMessage(peerHandle,0,serviceSpecificInfo)
                 }
             }
 
@@ -90,7 +91,8 @@ class HomeScreenViewModel(
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 // Handle incoming data here.
 
-                subscribeMessageLiveData.value = "SUBSCRIBE: MessageReceived from $peerHandle: ${message.toString()}"
+
+                subscribeMessageLiveData.value = "SUBSCRIBE: MessageReceived from $peerHandle message: ${message.decodeToString()}"
 
 
                 // Optionally, you can establish a connection with the sender (Device A).
@@ -98,13 +100,6 @@ class HomeScreenViewModel(
                 // You should have a mechanism to manage and maintain these connections.
                 connectedDevices.add(peerHandle)
 
-                // Respond to the sender (Device A) if needed.
-                val responseMessage = "Hello from Device B!"
-                currentSession?.sendMessage(
-                    peerHandle,
-                    0, // Message type (0 for unsolicited)
-                    responseMessage.toByteArray(Charsets.UTF_8)
-                )
             }
         }
 
@@ -150,11 +145,25 @@ class HomeScreenViewModel(
                 // Permissions are granted, proceed with publishing.
                 wifiAwareSession!!.publish(config, object : DiscoverySessionCallback() {
                     override fun onPublishStarted(session: PublishDiscoverySession) {
+                        currentPubSession = session
                         //printContent("PUBLISH:  PublishStarted")
                     }
 
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                         publishMessageLiveData.value = "PUBLISH:  MessageReceived from $peerHandle message: ${message.toString()}"
+                        // Respond to the sender (Device A) if needed.
+                        //val responseMessage = "Hello from pub device!"
+                        val size = 255
+                        val byteValue = 0x01.toByte()
+
+                        val byteArray = ByteArray(size) { byteValue }
+
+                        currentPubSession?.sendMessage(
+                            peerHandle,
+                            0, // Message type (0 for unsolicited)
+                            //responseMessage.toByteArray(Charsets.UTF_8)
+                            byteArray
+                        )
 
                     }
                 }, handler)
