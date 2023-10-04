@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
@@ -31,7 +32,7 @@ class ConnectionBLEManager @Inject constructor(
 
     override val data: MutableSharedFlow<Resource<ConnectionResult>> = MutableSharedFlow()
 
-    private val DEVICE_ADDRESS = "57:24:BA:06:4A:AE"
+    private val DEVICE_ADDRESS = "57:BC:15:0C:3A:BC"
     // private val DEVICE_NAME = "Maltes S20 FE"
     private val DEVICE_NAME = "OnePlus 6T"
 
@@ -119,7 +120,7 @@ class ConnectionBLEManager @Inject constructor(
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             with(gatt) {
-                // Print table
+                printGattTable()
                 coroutineScope.launch {
                     data.emit(Resource.Loading(message = "Adjusting MTU space..."))
                 }
@@ -128,22 +129,144 @@ class ConnectionBLEManager @Inject constructor(
         }
 
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
-            println(mtu)
-            val characteristic = findCharacteristic(INDOOR_SERVICE_UUID, INDOOR_CHARACTERISTIC_NORHT_UUID)
+            val characteristic = findCharacteristic(INDOOR_SERVICE_UUID, INDOOR_CHARACTERISTIC_EAST_UUID)
             if(characteristic == null) {
                 coroutineScope.launch {
                     data.emit(Resource.Error(errorMessage = "Could not find indoor publisher"))
                 }
                 return
             }
-            var connResult = ConnectionResult("Found character", connectionState = ConnectionState.Connected)
-            coroutineScope.launch { data.emit(Resource.Success(connResult)) }
-            // enableNotification(characteristic)
+            coroutineScope.launch {
+                data.emit(Resource.Loading(message = "MTU changed.."))
+            }
+
+            enableNotification(characteristic)
+            gatt.readCharacteristic(characteristic)
          }
+
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray,
+            status: Int
+        ) {
+            with(characteristic) {
+                when (uuid) {
+                    UUID.fromString(INDOOR_CHARACTERISTIC_EAST_UUID) -> {
+                        val coord = value.last().toString()
+                        val result = ConnectionResult(coord, ConnectionState.Connected)
+
+                        coroutineScope.launch{
+                            data.emit(
+                                Resource.Success(data = result)
+                            )
+                        }
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+
+        @Deprecated("Deprecated in Java")
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            status: Int
+        ) {
+            with(characteristic) {
+                when (uuid) {
+                    UUID.fromString(INDOOR_CHARACTERISTIC_EAST_UUID) -> {
+                        val coord = value.last().toString()
+                        val result = ConnectionResult(coord, ConnectionState.Connected)
+
+                        coroutineScope.launch{
+                            data.emit(
+                                Resource.Success(data = result)
+                            )
+                        }
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray
+        ) {
+            with(characteristic) {
+                when (uuid) {
+                    UUID.fromString(INDOOR_CHARACTERISTIC_EAST_UUID) -> {
+                        val coord = value.last().toString()
+                        val result = ConnectionResult(coord, ConnectionState.Connected)
+
+                        coroutineScope.launch{
+                            data.emit(
+                                Resource.Success(data = result)
+                            )
+                        }
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+
+        @Deprecated("Deprecated in Java")
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic
+        ) {
+            with(characteristic) {
+                when (uuid) {
+                    UUID.fromString(INDOOR_CHARACTERISTIC_EAST_UUID) -> {
+
+                        val coord = value.last()
+                        val result = ConnectionResult(coord.toString(), ConnectionState.Connected)
+
+                        coroutineScope.launch {
+                            data.emit(
+                                Resource.Success(data = result)
+                            )
+                        }
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
     }
 
+    private fun enableNotification(characteristic: BluetoothGattCharacteristic) {
+        val cccdUuid = UUID.fromString(CCCD_DESCRIPTOR_UUID)
+        val payload = when {
+            characteristic.isIndicatable() -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+            characteristic.isNotifiable() -> BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            else -> return
+        }
 
+        characteristic.getDescriptor(cccdUuid)?.let { cccdDescriptor ->
+            if(gatt?.setCharacteristicNotification(characteristic, true) == false){
+                Log.d("BLEReceiveManager","set characteristics notification failed")
+                return
+            }
+            writeDescription(cccdDescriptor, payload)
+        }
+    }
 
+    private fun writeDescription(descriptor: BluetoothGattDescriptor, payload: ByteArray){
+        gatt?.let { gatt ->
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+                descriptor.value = payload
+                gatt.writeDescriptor(descriptor)
+            } else {
+                gatt.writeDescriptor(descriptor, payload)
+            }
+        } ?: error("Not connected to a BLE device!")
+    }
 
     private fun findCharacteristic(serviceUUID: String, characteristicsUUID: String) : BluetoothGattCharacteristic? {
         return gatt?.services?.find { service ->
