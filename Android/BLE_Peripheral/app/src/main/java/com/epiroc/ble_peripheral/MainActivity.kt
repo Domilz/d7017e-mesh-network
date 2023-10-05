@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
             value: ByteArray?
         ) {
             // Handle write requests for characteristics here
+
         }
     }
 
