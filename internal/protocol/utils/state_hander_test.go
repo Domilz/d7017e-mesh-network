@@ -2,6 +2,7 @@ package utils
 
 import (
 	"sort"
+	"strconv"
 	"sync"
 	"testing"
 
@@ -163,4 +164,42 @@ func TestMultipleGetState(t *testing.T) {
 		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
 	})
 	assert.Equal(t, expectedMockState, actualState)
+}
+
+func TestGetStatesReadingLimit(t *testing.T) {
+
+	mockReadings := generateMockReading(9)
+
+	mockStates := []*pb.State{
+		{TagId: "666", Readings: []*pb.Reading{mockReadings[0], mockReadings[1], mockReadings[2], mockReadings[3]}},
+		{TagId: "666", Readings: []*pb.Reading{mockReadings[4], mockReadings[5], mockReadings[6], mockReadings[7]}},
+		{TagId: "666", Readings: []*pb.Reading{mockReadings[8]}},
+	}
+
+	sh := StateHandler{}
+	sh.initStateHandler("666")
+	sh.InsertMultipleReadings(&pb.State{TagId: "666", Readings: mockReadings})
+	actualStates := sh.getStatesReadingLimit(4)
+	assert.Equal(t, mockStates[0], actualStates[0])
+	assert.Equal(t, mockStates[1], actualStates[1])
+	assert.Equal(t, mockStates[2], actualStates[2])
+
+}
+
+// For testing
+func generateMockReading(count int) []*pb.Reading {
+	var readings []*pb.Reading
+	for i := 1; i <= count; i++ {
+		mockReading := &pb.Reading{
+			TagId:    "MOCKTAG" + strconv.Itoa(i),
+			DeviceId: "00" + strconv.Itoa(i),
+			Rssi:     10,
+			Ts: &timestamp.Timestamp{
+				Seconds: timestamppb.Now().Seconds,
+			},
+		}
+		readings = append(readings, mockReading)
+	}
+	return readings
+
 }

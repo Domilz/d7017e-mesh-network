@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"sort"
 	"sync"
 
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
@@ -43,4 +45,37 @@ func (stateHandler *StateHandler) getState() *pb.State {
 	}
 	stateHandler.unLock()
 	return &s
+}
+
+func (stateHandler *StateHandler) getStateSorted() *pb.State {
+	state := stateHandler.getState()
+	sort.SliceStable(state.Readings, func(i, j int) bool {
+		return state.Readings[i].TagId < state.Readings[j].TagId
+	})
+	return state
+
+}
+
+func (stateHandler *StateHandler) getStatesReadingLimit(limit int) []*pb.State {
+
+	states := []*pb.State{}
+	stateWhole := stateHandler.getStateSorted() //Not sure how to implement a test for getStatesReadingLimit if this is not sorted (using the getState function)
+	stateChunk := &pb.State{TagId: stateWhole.TagId, Readings: []*pb.Reading{}}
+	i := 0
+	for _, reading := range stateWhole.Readings {
+		stateChunk.Readings = append(stateChunk.Readings, reading)
+		fmt.Println(reading)
+		i++
+		if i >= limit {
+			states = append(states, stateChunk)
+			stateChunk = &pb.State{TagId: stateWhole.TagId, Readings: []*pb.Reading{}}
+			i = 0
+		}
+
+	}
+	if len(stateChunk.Readings) != 0 {
+		states = append(states, stateChunk)
+	}
+	return states
+
 }
