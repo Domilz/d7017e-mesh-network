@@ -18,11 +18,12 @@ import android.net.wifi.aware.WifiAwareManager
 import android.net.wifi.aware.WifiAwareSession
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 
@@ -30,9 +31,14 @@ class HomeScreenViewModel(
     private val context: Context,
     private val packageManager: PackageManager
 ): ViewModel() {
+    val hasWifiAwareText: MutableState<String> = mutableStateOf("")
+    val publishMessageLiveData: MutableState<String> = mutableStateOf("")
+    val subscribeMessageLiveData: MutableState<String> = mutableStateOf("")
 
-    val subscribeMessageLiveData = MutableLiveData<String>("No status available")
-    val publishMessageLiveData = MutableLiveData<String>("No status available")
+
+    val currentPubString: MutableState<String> = mutableStateOf("")
+    val currentSubString: MutableState<String> = mutableStateOf("")
+
 
     var wifiAwareSession: WifiAwareSession? = null
     val permissionsToRequest = arrayOf(
@@ -43,10 +49,9 @@ class HomeScreenViewModel(
     var currentSubSession: SubscribeDiscoverySession? = null
     var currentPubSession: PublishDiscoverySession? = null
     val connectedDevices = mutableListOf<PeerHandle>()
+    val messagesReceived = mutableListOf<String>()
     var wifiAwareManager: WifiAwareManager? = null
 
-    private val _publishMessage = MutableLiveData<String>()
-   // val publishMessage: LiveData<String> = _publishMessage
     fun checkWifiAwareAvailability(): Boolean {
         return packageManager.hasSystemFeature(PackageManager.FEATURE_WIFI_AWARE)
     }
@@ -92,13 +97,19 @@ class HomeScreenViewModel(
                 // Handle incoming data here.
 
 
-                subscribeMessageLiveData.value = "SUBSCRIBE: MessageReceived from $peerHandle message: ${message.decodeToString()}"
+
 
 
                 // Optionally, you can establish a connection with the sender (Device A).
                 // For simplicity, you can store the PeerHandle in a list of connected devices.
                 // You should have a mechanism to manage and maintain these connections.
                 connectedDevices.add(peerHandle)
+              //  Thread.sleep(100)
+                //messagesReceived.add(message.decodeToString())
+                Log.d("rec","received the following:${message.decodeToString()}")
+                if(message.decodeToString() == "500"){
+                    subscribeMessageLiveData.value = "SUBSCRIBE: MessageReceived from $peerHandle message: ${message.decodeToString()}"
+                }
 
             }
         }
@@ -152,19 +163,13 @@ class HomeScreenViewModel(
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                         publishMessageLiveData.value = "PUBLISH:  MessageReceived from $peerHandle message: ${message.toString()}"
                         // Respond to the sender (Device A) if needed.
-                        //val responseMessage = "Hello from pub device!"
-                        val size = 255
-                        val byteValue = 0x01.toByte()
-
-                        val byteArray = ByteArray(size) { byteValue }
-
+                        val byteArrayToSend = "tag_id:\"20\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
                         currentPubSession?.sendMessage(
                             peerHandle,
                             0, // Message type (0 for unsolicited)
-                            //responseMessage.toByteArray(Charsets.UTF_8)
-                            byteArray
+                            byteArrayToSend.toByteArray(Charsets.UTF_8)
                         )
-
+                            //Thread.sleep(50)
                     }
                 }, handler)
             }
@@ -182,9 +187,9 @@ class HomeScreenViewModel(
             override fun onReceive(context: Context, intent: Intent) {
                 // discard current sessions
                 if (wifiAwareManager?.isAvailable == true) {
-                    wifiAwareAvailable = "has Wifi Aware on"
+                    hasWifiAwareText.value = "has Wifi Aware on"
                 } else {
-                    wifiAwareAvailable = "has Wifi Aware off"
+                    hasWifiAwareText.value = "has Wifi Aware off"
                 }
             }
         }

@@ -27,15 +27,6 @@ var wifiAwareManager: WifiAwareManager? = null
 lateinit var navController: NavHostController
 @Composable
 fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel){
-    //val viewModel = viewModel<HomeScreenViewModel>(factory = HomeScreenViewModelFactory(context, packageManager))
-
-    var acquisitionMessage = viewModel.availability()
-
-    var hasWifiAware by remember { mutableStateOf("Checking Wifi Aware availability...") }
-    var publishMessage by remember { mutableStateOf("") }
-    var subscribeMessage by remember { mutableStateOf("") }
-
-
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -44,10 +35,11 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel)
         Button(
             onClick = {
                 if (viewModel.checkWifiAwareAvailability()) {
-                    publishMessage = "Publish Using Wifi Aware started...:" + wifiAwareSession.toString()
+                    viewModel.currentPubString.value = "Publish Using Wifi Aware started...:" + viewModel.currentPubSession.toString()
                     viewModel.publishUsingWifiAware()
+
                 } else {
-                    hasWifiAware = "Wifi Aware is not available."
+                    viewModel.hasWifiAwareText.value = "Wifi Aware is not available."
                 }
             },
             modifier = Modifier.padding(8.dp)
@@ -58,53 +50,36 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel)
         Button(
             onClick = {
                 if (viewModel.checkWifiAwareAvailability()) {
-                    subscribeMessage = "Subscribe to Wifi Aware Sessions started...:" + currentSession.toString()
+
+                    viewModel.currentSubString.value = "Subscribe to Wifi Aware Sessions started...:" + viewModel.currentSubSession.toString()
                     viewModel.subscribeToWifiAwareSessions()
                 } else {
-                    hasWifiAware = "Wifi Aware is not available."
+                    viewModel.hasWifiAwareText.value = "Wifi Aware is not available."
                 }
             },
             modifier = Modifier.padding(8.dp)
         ) {
-            Text("Subscribe to Wifi Aware Sessions")
+            Text("Subscribe Using Wifi Aware")
         }
 
-        Button(
-            onClick = {
-                navController.navigate(route = Screen.Publish.route)
-            },
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text("Go to Publish Activity")
-        }
-
-        Button(
-            onClick = {
-                navController.navigate(route = Screen.Subscribe.route)
-
-            },
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text("Go to Subscribe Activity")
-        }
 
         Text(
-            text = acquisitionMessage,
+            text = viewModel.availability(),
             modifier = Modifier.padding(16.dp)
         )
 
         Text(
-            text = hasWifiAware,
+            text = viewModel.hasWifiAwareText.value,
             modifier = Modifier.padding(16.dp)
         )
 
         Text(
-            text = publishMessage, // Display the publish message here
+            text = viewModel.publishMessageLiveData.value,
             modifier = Modifier.padding(16.dp)
         )
 
         Text(
-            text = subscribeMessage, // Display the subscribe message here
+            text = viewModel.subscribeMessageLiveData.value,
             modifier = Modifier.padding(16.dp)
         )
 
