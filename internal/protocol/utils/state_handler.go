@@ -35,9 +35,9 @@ func (stateHandler *StateHandler) getReading(id string) *pb.Reading {
 }
 
 func (stateHandler *StateHandler) getState() *pb.State {
-	s := pb.State{TagId: stateHandler.TagId}
 
 	stateHandler.lock()
+	s := pb.State{TagId: stateHandler.TagId}
 	for _, reading := range stateHandler.readingsMap {
 		s.Readings = append(s.Readings, reading)
 	}
