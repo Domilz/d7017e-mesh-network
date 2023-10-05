@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.epiroc.ble.app-mergeDebugResources-2:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
+                    }
+                }
+            ]
+        }
+    ]
+}

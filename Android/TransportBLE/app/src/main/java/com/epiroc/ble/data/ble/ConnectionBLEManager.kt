@@ -32,7 +32,7 @@ class ConnectionBLEManager @Inject constructor(
 
     override val data: MutableSharedFlow<Resource<ConnectionResult>> = MutableSharedFlow()
 
-    private val DEVICE_ADDRESS = "57:BC:15:0C:3A:BC"
+    private val DEVICE_ADDRESS = "6D:65:37:B3:7E:21"
     // private val DEVICE_NAME = "Maltes S20 FE"
     private val DEVICE_NAME = "OnePlus 6T"
 

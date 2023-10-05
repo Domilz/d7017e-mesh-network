@@ -1,0 +1,60 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.epiroc.ble.app-mergeDebugResources-2:/values-or/values-or.xml",
+            "map": [
+                {
+                    "source": "/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/e0efe263ef5bc15de2c048f1592d5d89/transformed/material3-1.0.0/res/values-or/values-or.xml",
+                    "from": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,141,212",
+                        "endColumns": "85,70,83",
+                        "endOffsets": "136,207,291"
+                    },
+                    "to": {
+                        "startLines": "11,14,16",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "1024,1302,1459",
+                        "endColumns": "85,70,83",
+                        "endOffsets": "1105,1368,1538"
+                    }
+                },
+                {
+                    "source": "/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/res/values-or/values-or.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,158,260,363,468,569,671,790",
+                        "endColumns": "102,101,102,104,100,101,118,100",
+                        "endOffsets": "153,255,358,463,564,666,785,886"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8,26",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,208,310,413,518,619,721,2263",
+                        "endColumns": "102,101,102,104,100,101,118,100",
+                        "endOffsets": "203,305,408,513,614,716,835,2359"
+                    }
+                },
+                {
+                    "source": "/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/2b13c011dc367b3fcf39297ed77f33d2/transformed/ui-release/res/values-or/values-or.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,202,289,381,481,567,644,742,830,917,987,1057,1135,1217,1287,1370,1437",
+                        "endColumns": "96,86,91,99,85,76,97,87,86,69,69,77,81,69,82,66,118",
+                        "endOffsets": "197,284,376,476,562,639,737,825,912,982,1052,1130,1212,1282,1365,1432,1551"
+                    },
+                    "to": {
+                        "startLines": "9,10,12,13,15,17,18,19,20,21,22,23,24,25,27,28,29",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "840,937,1110,1202,1373,1543,1620,1718,1806,1893,1963,2033,2111,2193,2364,2447,2514",
+                        "endColumns": "96,86,91,99,85,76,97,87,86,69,69,77,81,69,82,66,118",
+                        "endOffsets": "932,1019,1197,1297,1454,1615,1713,1801,1888,1958,2028,2106,2188,2258,2442,2509,2628"
+                    }
+                }
+            ]
+        }
+    ]
+}
