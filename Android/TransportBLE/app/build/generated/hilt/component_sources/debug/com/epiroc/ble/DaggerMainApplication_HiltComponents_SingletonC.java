@@ -9,11 +9,15 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import com.epiroc.ble.data.ble.ConnectionBLEManager;
+import com.epiroc.ble.data.ble.PeripheralBLEManager;
 import com.epiroc.ble.di.AppModule;
 import com.epiroc.ble.di.AppModule_ProvideBluetoothAdapterFactory;
 import com.epiroc.ble.di.AppModule_ProvideConnectionBLEManagerFactory;
+import com.epiroc.ble.di.AppModule_ProvidePeripheralBLEManagerFactory;
 import com.epiroc.ble.screens.BleListViewModel;
 import com.epiroc.ble.screens.BleListViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.epiroc.ble.screens.PeripheralViewModel;
+import com.epiroc.ble.screens.PeripheralViewModel_HiltModules_KeyModule_ProvideFactory;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.flags.HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule;
@@ -31,7 +35,9 @@ import dagger.hilt.android.internal.modules.ApplicationContextModule;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
+import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
+import dagger.internal.SetBuilder;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -372,7 +378,7 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return Collections.<String>singleton(BleListViewModel_HiltModules_KeyModule_ProvideFactory.provide());
+      return SetBuilder.<String>newSetBuilder(2).add(BleListViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(PeripheralViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
     }
 
     @Override
@@ -405,6 +411,8 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     private Provider<BleListViewModel> bleListViewModelProvider;
 
+    private Provider<PeripheralViewModel> peripheralViewModelProvider;
+
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
         ViewModelLifecycle viewModelLifecycleParam) {
@@ -419,11 +427,12 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
       this.bleListViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.peripheralViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
     }
 
     @Override
     public Map<String, Provider<ViewModel>> getHiltViewModelMap() {
-      return Collections.<String, Provider<ViewModel>>singletonMap("com.epiroc.ble.screens.BleListViewModel", ((Provider) bleListViewModelProvider));
+      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(2).put("com.epiroc.ble.screens.BleListViewModel", ((Provider) bleListViewModelProvider)).put("com.epiroc.ble.screens.PeripheralViewModel", ((Provider) peripheralViewModelProvider)).build();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -449,6 +458,9 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
         switch (id) {
           case 0: // com.epiroc.ble.screens.BleListViewModel 
           return (T) new BleListViewModel(singletonCImpl.provideConnectionBLEManagerProvider.get());
+
+          case 1: // com.epiroc.ble.screens.PeripheralViewModel 
+          return (T) new PeripheralViewModel(singletonCImpl.providePeripheralBLEManagerProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -533,6 +545,8 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     private Provider<ConnectionBLEManager> provideConnectionBLEManagerProvider;
 
+    private Provider<PeripheralBLEManager> providePeripheralBLEManagerProvider;
+
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
       initialize(applicationContextModuleParam);
@@ -543,6 +557,7 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
       this.provideBluetoothAdapterProvider = DoubleCheck.provider(new SwitchingProvider<BluetoothAdapter>(singletonCImpl, 0));
       this.provideConnectionBLEManagerProvider = DoubleCheck.provider(new SwitchingProvider<ConnectionBLEManager>(singletonCImpl, 1));
+      this.providePeripheralBLEManagerProvider = DoubleCheck.provider(new SwitchingProvider<PeripheralBLEManager>(singletonCImpl, 2));
     }
 
     @Override
@@ -583,6 +598,9 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
           case 1: // com.epiroc.ble.data.ble.ConnectionBLEManager 
           return (T) AppModule_ProvideConnectionBLEManagerFactory.provideConnectionBLEManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideBluetoothAdapterProvider.get());
+
+          case 2: // com.epiroc.ble.data.ble.PeripheralBLEManager 
+          return (T) AppModule_ProvidePeripheralBLEManagerFactory.providePeripheralBLEManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideBluetoothAdapterProvider.get());
 
           default: throw new AssertionError(id);
         }

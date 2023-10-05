@@ -4,8 +4,6 @@ package com.epiroc.ble.screens
 import com.epiroc.ble.data.ConnectionState
 import com.epiroc.ble.screens.permissions.PermissionUtils
 import com.epiroc.ble.screens.permissions.SystemBroadcastReceiver
-
-
 import android.bluetooth.BluetoothAdapter
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -36,7 +34,6 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 fun BleListScreen(
     onBluetoothStateChanged:()->Unit,
     viewModel: BleListViewModel = hiltViewModel()
-
 ) {
 
     SystemBroadcastReceiver(systemAction = BluetoothAdapter.ACTION_STATE_CHANGED){ bluetoothState ->

@@ -2,8 +2,10 @@ package com.epiroc.ble.di
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import android.bluetooth.le.BluetoothLeAdvertiser
 import android.content.Context
 import com.epiroc.ble.data.ble.ConnectionBLEManager
+import com.epiroc.ble.data.ble.PeripheralBLEManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,5 +30,14 @@ object AppModule {
         bluetoothAdapter: BluetoothAdapter
     ): ConnectionBLEManager {
         return ConnectionBLEManager(bluetoothAdapter,context)
+    }
+
+    @Provides
+    @Singleton
+    fun providePeripheralBLEManager(
+        @ApplicationContext context: Context,
+        bluetoothAdapter: BluetoothAdapter
+    ) : PeripheralBLEManager {
+        return PeripheralBLEManager(bluetoothAdapter, context)
     }
 }

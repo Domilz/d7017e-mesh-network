@@ -19,10 +19,15 @@ fun Navigation(
         composable(Screen.BleListScreen.route){
             BleListScreen(onBluetoothStateChanged)
         }
+
+        composable(Screen.PeripheralScreen.route) {
+            PeripheralScreen(onBluetoothStateChanged)
+        }
     }
 }
 
 sealed class Screen(val route:String) {
     object HomeScreen:Screen("home_screen")
     object BleListScreen:Screen("ble_list_screen")
+    object PeripheralScreen:Screen("peripheral_screen")
 }
