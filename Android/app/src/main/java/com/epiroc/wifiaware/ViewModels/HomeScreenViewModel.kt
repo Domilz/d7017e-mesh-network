@@ -87,7 +87,14 @@ class HomeScreenViewModel(
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
                 if (peerHandle != null) {
                     subscribeMessageLiveData.value = "SUBSCRIBE: Connected to  $peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()}"
-                    currentSubSession!!.sendMessage(peerHandle,0,serviceSpecificInfo)
+                    val byteArrayToSend = "tag_id:\"SUBSCRIBE\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
+
+                    currentSubSession?.sendMessage(
+                        peerHandle,
+                        0, // Message type (0 for unsolicited)
+                        byteArrayToSend.toByteArray(Charsets.UTF_8)
+                    )
+
                 }
             }
 
@@ -95,21 +102,16 @@ class HomeScreenViewModel(
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 // Handle incoming data here.
-
-
-
-
-
                 // Optionally, you can establish a connection with the sender (Device A).
                 // For simplicity, you can store the PeerHandle in a list of connected devices.
                 // You should have a mechanism to manage and maintain these connections.
                 connectedDevices.add(peerHandle)
-              //  Thread.sleep(100)
+
                 //messagesReceived.add(message.decodeToString())
                 Log.d("rec","received the following:${message.decodeToString()}")
-                if(message.decodeToString() == "500"){
-                    subscribeMessageLiveData.value = "SUBSCRIBE: MessageReceived from $peerHandle message: ${message.decodeToString()}"
-                }
+
+                subscribeMessageLiveData.value = "SUBSCRIBE: MessageReceived from $peerHandle message: ${message.decodeToString()}"
+
 
             }
         }
@@ -161,9 +163,9 @@ class HomeScreenViewModel(
                     }
 
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                        publishMessageLiveData.value = "PUBLISH:  MessageReceived from $peerHandle message: ${message.toString()}"
+                        publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
                         // Respond to the sender (Device A) if needed.
-                        val byteArrayToSend = "tag_id:\"20\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
+                        val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
                         currentPubSession?.sendMessage(
                             peerHandle,
                             0, // Message type (0 for unsolicited)
