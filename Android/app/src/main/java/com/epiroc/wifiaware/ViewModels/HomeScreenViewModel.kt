@@ -1,12 +1,18 @@
 package com.epiroc.wifiaware.ViewModels
 
 import android.Manifest
+import android.R.attr.port
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.wifi.aware.AttachCallback
+import android.net.wifi.aware.DiscoverySession
 import android.net.wifi.aware.DiscoverySessionCallback
 import android.net.wifi.aware.IdentityChangedListener
 import android.net.wifi.aware.PeerHandle
@@ -15,6 +21,8 @@ import android.net.wifi.aware.PublishDiscoverySession
 import android.net.wifi.aware.SubscribeConfig
 import android.net.wifi.aware.SubscribeDiscoverySession
 import android.net.wifi.aware.WifiAwareManager
+import android.net.wifi.aware.WifiAwareNetworkInfo
+import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
 import android.os.Handler
 import android.os.Looper
@@ -25,6 +33,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.io.PrintWriter
+import java.lang.Exception
+import java.net.BindException
+import java.net.ServerSocket
 
 
 class HomeScreenViewModel(
@@ -46,11 +62,13 @@ class HomeScreenViewModel(
         Manifest.permission.NEARBY_WIFI_DEVICES
     )
 
-    var currentSubSession: SubscribeDiscoverySession? = null
-    var currentPubSession: PublishDiscoverySession? = null
+    var currentSubSession: DiscoverySession? = null
+    var currentPubSession: DiscoverySession? = null
     val connectedDevices = mutableListOf<PeerHandle>()
     val messagesReceived = mutableListOf<String>()
     var wifiAwareManager: WifiAwareManager? = null
+    var connectivityManager: ConnectivityManager? = null
+    var currentNetworkCapabilities: NetworkCapabilities? = null
 
     fun checkWifiAwareAvailability(): Boolean {
         return packageManager.hasSystemFeature(PackageManager.FEATURE_WIFI_AWARE)
@@ -86,6 +104,7 @@ class HomeScreenViewModel(
             ) {
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
                 if (peerHandle != null) {
+
                     subscribeMessageLiveData.value = "SUBSCRIBE: Connected to  $peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()}"
                     val byteArrayToSend = "tag_id:\"SUBSCRIBE\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
 
@@ -111,6 +130,62 @@ class HomeScreenViewModel(
                 Log.d("rec","received the following:${message.decodeToString()}")
 
                 subscribeMessageLiveData.value = "SUBSCRIBE: MessageReceived from $peerHandle message: ${message.decodeToString()}"
+
+
+
+                val networkSpecifier =
+                    currentSubSession?.let {
+                        WifiAwareNetworkSpecifier.Builder(it, peerHandle)
+                            .setPskPassphrase("somePassword")
+                            .build()
+                    }
+                val myNetworkRequest = NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
+                    .setNetworkSpecifier(networkSpecifier)
+                    .build()
+                val callback = object : ConnectivityManager.NetworkCallback() {
+
+                    override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                        currentNetworkCapabilities = networkCapabilities
+                        onAvailable(network)
+                    }
+
+                    override fun onAvailable(network: Network) {
+                        if(currentNetworkCapabilities != null){
+                            val peerAwareInfo = currentNetworkCapabilities?.transportInfo as WifiAwareNetworkInfo
+                            val peerIpv6 = peerAwareInfo.peerIpv6Addr
+                            val peerPort = peerAwareInfo.port
+
+                            val socket = network.getSocketFactory().createSocket(peerIpv6, 1337)
+                            try {
+                                // Get the output stream from the socket
+                                val outputStream = socket.getOutputStream()
+
+                                // Create a PrintWriter for writing data to the output stream
+                                val printWriter = PrintWriter(OutputStreamWriter(outputStream))
+
+                                // Send data to the server
+                                val dataToSend = "Hello, server!"
+                                printWriter.println(dataToSend)
+                                printWriter.flush()
+
+                                // Close the PrintWriter and the socket when done
+                                printWriter.close()
+                                socket.close()
+                            } catch (e: IOException) {
+                                // Handle any IO errors that may occur
+                                e.printStackTrace()
+                            }
+                        }
+
+                    }
+
+                    override fun onLost(network: Network) {
+                        Log.d("onLost","CONNECTION LOST $network")
+                    }
+                }
+                //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                connectivityManager?.requestNetwork(myNetworkRequest, callback);
 
 
             }
@@ -163,6 +238,66 @@ class HomeScreenViewModel(
                     }
 
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
+                        val ss = ServerSocket(0)
+                        val port = ss.localPort
+
+
+                        val networkSpecifier = WifiAwareNetworkSpecifier.Builder(currentPubSession!!, peerHandle)
+                            .setPskPassphrase("somePassword")
+                            .setPort(1337)
+                            .build()
+                        val myNetworkRequest = NetworkRequest.Builder()
+                            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
+                            .setNetworkSpecifier(networkSpecifier)
+                            .build()
+                        val callback = object : ConnectivityManager.NetworkCallback() {
+                            override fun onAvailable(network: Network) {
+                                try {
+
+                                    // Create a ServerSocket and bind it to a specific port
+                                    val serverSocket = ServerSocket(1337)
+
+                                    // Accept incoming connections from clients
+                                    val clientSocket = serverSocket.accept()
+
+                                    // Get the input stream from the client socket
+                                    val inputStream = clientSocket.getInputStream()
+
+                                    // Create a BufferedReader to read data from the client
+                                    val reader = BufferedReader(InputStreamReader(inputStream))
+
+                                    // Read data from the client
+                                    val receivedData = reader.readLine()
+                                    publishMessageLiveData.value = "PUBLISH: MessageReceived in network $network message: $receivedData"
+                                    Log.d("INFO FROM CLIENT","Received from client: $receivedData")
+
+                                    // Close the reader and client socket when done
+                                    reader.close()
+                                    clientSocket.close()
+                                }  catch (e: Exception) {
+                                    if (e is BindException && e.message?.contains("Address already in use") == true) {
+
+                                    } else {
+                                        // Handle other IOExceptions
+                                    }
+                                }
+                            }
+
+                            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                                Log.d("onCapabilitiesChanged","onCapabilitiesChanged")
+                            }
+
+                            override fun onLost(network: Network) {
+                                Log.d("onLost","CONNECTION LOST $network")
+                            }
+                        }
+                       // connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                        connectivityManager?.requestNetwork(myNetworkRequest, callback);
+
+
+
+
+
                         publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
                         // Respond to the sender (Device A) if needed.
                         val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
@@ -172,6 +307,8 @@ class HomeScreenViewModel(
                             byteArrayToSend.toByteArray(Charsets.UTF_8)
                         )
                             //Thread.sleep(50)
+
+
                     }
                 }, handler)
             }
@@ -179,11 +316,13 @@ class HomeScreenViewModel(
             // Wi-Fi Aware session is not available.
             publishMessageLiveData.value = ("PUBLISH: Wifi Aware session is not available")
         }
+
     }
 
     private fun wifiAwareState(): String {
         var wifiAwareAvailable = ""
         wifiAwareManager = context.getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager?
+        connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val filter = IntentFilter(WifiAwareManager.ACTION_WIFI_AWARE_STATE_CHANGED)
         val myReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
