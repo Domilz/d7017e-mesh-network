@@ -141,6 +141,7 @@ func TestInsertMultipleReading(t *testing.T) {
 			Seconds: timestamppb.Now().Seconds,
 		},
 	}
+
 	mockReading4 := &pb.Reading{
 		TagId:    "MOCKTAG4",
 		DeviceId: "3214",
