@@ -14,6 +14,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.epiroc.wifiaware.Screen
 import com.epiroc.wifiaware.ViewModels.HomeScreenViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 var wifiAwareSession: WifiAwareSession? = null
 val permissionsToRequest = arrayOf(
@@ -38,15 +42,18 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel)
                     viewModel.currentPubString.value = "Publish Using Wifi Aware started...:" + viewModel.currentPubSession.toString()
                     viewModel.publishUsingWifiAware()
 
+                    viewModel.currentSubString.value = "Subscribe to Wifi Aware Sessions started...:" + viewModel.currentSubSession.toString()
+                    viewModel.subscribeToWifiAwareSessions()
+
                 } else {
                     viewModel.hasWifiAwareText.value = "Wifi Aware is not available."
                 }
             },
             modifier = Modifier.padding(8.dp)
         ) {
-            Text("Publish Using Wifi Aware")
+            Text("Publish and Subscribe Using Wifi Aware")
         }
-
+/*
         Button(
             onClick = {
                 if (viewModel.checkWifiAwareAvailability()) {
@@ -62,6 +69,8 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel)
             Text("Subscribe Using Wifi Aware")
         }
 
+
+ */
 
         Text(
             text = viewModel.availability(),

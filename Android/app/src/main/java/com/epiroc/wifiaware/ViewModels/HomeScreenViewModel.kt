@@ -104,7 +104,7 @@ class HomeScreenViewModel(
             ) {
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
                 if (peerHandle != null) {
-
+                    Thread.sleep(100)
                     subscribeMessageLiveData.value = "SUBSCRIBE: Connected to  $peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()}"
                     val byteArrayToSend = "tag_id:\"SUBSCRIBE\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
 
@@ -146,6 +146,8 @@ class HomeScreenViewModel(
                 val callback = object : ConnectivityManager.NetworkCallback() {
 
                     override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                        Thread.sleep(100)
+                        Log.d("onCapabilitiesChanged","SUBSCRIBE onCapabilitiesChanged incoming: $networkCapabilities")
                         currentNetworkCapabilities = networkCapabilities
                         onAvailable(network)
                     }
@@ -163,15 +165,25 @@ class HomeScreenViewModel(
 
                                 // Create a PrintWriter for writing data to the output stream
                                 val printWriter = PrintWriter(OutputStreamWriter(outputStream))
+                                val startTime = System.currentTimeMillis()
+                                val duration = 10 * 60 * 1000 // 10 minutes in milliseconds
+                                for(i in 1..5) {
+                                    Thread.sleep(3000)
+                                    val dataToSend = "Hello, server! Count: $i"
+                                    printWriter.println(dataToSend)
+                                    printWriter.flush()
 
-                                // Send data to the server
-                                val dataToSend = "Hello, server!"
-                                printWriter.println(dataToSend)
-                                printWriter.flush()
+                                    /*
+                                    if(System.currentTimeMillis() - startTime > duration){
+                                        break
+                                    }
+
+                                     */
+                                }
 
                                 // Close the PrintWriter and the socket when done
                                 printWriter.close()
-                                socket.close()
+                                //socket.close()
                             } catch (e: IOException) {
                                 // Handle any IO errors that may occur
                                 e.printStackTrace()
@@ -180,8 +192,11 @@ class HomeScreenViewModel(
 
                     }
 
+
+
                     override fun onLost(network: Network) {
-                        Log.d("onLost","CONNECTION LOST $network")
+                        Log.d("onLost","SUBSCRIBE CONNECTION LOST $network")
+                        subscribeMessageLiveData.value = "SUBSCRIBE: the connection is lost"
                     }
                 }
                 //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -256,24 +271,37 @@ class HomeScreenViewModel(
 
                                     // Create a ServerSocket and bind it to a specific port
                                     val serverSocket = ServerSocket(1337)
-
-                                    // Accept incoming connections from clients
                                     val clientSocket = serverSocket.accept()
 
-                                    // Get the input stream from the client socket
-                                    val inputStream = clientSocket.getInputStream()
-
                                     // Create a BufferedReader to read data from the client
-                                    val reader = BufferedReader(InputStreamReader(inputStream))
+                                    val reader = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
 
-                                    // Read data from the client
-                                    val receivedData = reader.readLine()
-                                    publishMessageLiveData.value = "PUBLISH: MessageReceived in network $network message: $receivedData"
-                                    Log.d("INFO FROM CLIENT","Received from client: $receivedData")
+                                    // Read data from the client in a loop
+                                    var line: String?
+                                    while (true) {
+                                        line = reader.readLine()
+                                        if (line == null || line.isEmpty()) {
+                                            break // Exit the loop when no more data is available or an empty line is received
+                                        }
+                                        messagesReceived.add(line.toString())
+                                        publishMessageLiveData.value = "PUBLISH: MessageReceived in network $network message: $line"
+                                        Log.d("INFO FROM CLIENT","Received from client: $line")
+                                    }
+                                    publishMessageLiveData.value = "PUBLISH: while loop now done and the count of the list is ${messagesReceived.count()}"
+                                    // Close the client socket
+                                    clientSocket.close()
+
+
+
+                                    // Accept incoming connections from clients
+
+
+
+
 
                                     // Close the reader and client socket when done
                                     reader.close()
-                                    clientSocket.close()
+
                                 }  catch (e: Exception) {
                                     if (e is BindException && e.message?.contains("Address already in use") == true) {
 
@@ -284,11 +312,13 @@ class HomeScreenViewModel(
                             }
 
                             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-                                Log.d("onCapabilitiesChanged","onCapabilitiesChanged")
+                                Thread.sleep(100)
+                                Log.d("onCapabilitiesChanged","PUBLISH onCapabilitiesChanged incoming: $networkCapabilities")
                             }
 
                             override fun onLost(network: Network) {
-                                Log.d("onLost","CONNECTION LOST $network")
+                                Log.d("onLost","PUBLISH CONNECTION LOST $network")
+                                publishMessageLiveData.value = "PUBLISH: the connection is lost"
                             }
                         }
                        // connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
