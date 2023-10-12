@@ -167,8 +167,8 @@ class HomeScreenViewModel(
                                 val printWriter = PrintWriter(OutputStreamWriter(outputStream))
                                 val startTime = System.currentTimeMillis()
                                 val duration = 10 * 60 * 1000 // 10 minutes in milliseconds
-                                for(i in 1..5) {
-                                    Thread.sleep(3000)
+                                for(i in 1..50000) {
+                                    //Thread.sleep(3000)
                                     val dataToSend = "Hello, server! Count: $i"
                                     printWriter.println(dataToSend)
                                     printWriter.flush()

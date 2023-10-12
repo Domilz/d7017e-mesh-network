@@ -25,12 +25,14 @@ val permissionsToRequest = arrayOf(
     Manifest.permission.NEARBY_WIFI_DEVICES
 )
 
+
 private var currentSession: SubscribeDiscoverySession? = null
 private val connectedDevices = mutableListOf<PeerHandle>()
 var wifiAwareManager: WifiAwareManager? = null
 lateinit var navController: NavHostController
 @Composable
 fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel){
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -38,6 +40,9 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel)
     ) {
         Button(
             onClick = {
+
+
+
                 if (viewModel.checkWifiAwareAvailability()) {
                     viewModel.currentPubString.value = "Publish Using Wifi Aware started...:" + viewModel.currentPubSession.toString()
                     viewModel.publishUsingWifiAware()
