@@ -68,9 +68,9 @@ func handleClientRequest(request *pb.State, srv pb.StatePropogation_PropogationS
 
 	// Mocked `Reading`
 	reading := &pb.Reading{
-		TagId:    "10",
-		DeviceId: "11",
-		Rssi:     20,
+		TagId: "10",
+		RpId:  "11",
+		Rssi:  20,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 			Nanos:   timestamppb.Now().Nanos,
