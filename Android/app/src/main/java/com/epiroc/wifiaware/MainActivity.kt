@@ -34,6 +34,7 @@ class MainActivity : ComponentActivity() {
                 navController = rememberNavController()
                 val viewModel = viewModel<HomeScreenViewModel>(factory = HomeScreenViewModelFactory(context = LocalContext.current, packageManager))
                 NavHost(navController = navController, startDestination = Screen.Home.route){
+
                     composable(Screen.Home.route) {
                         HomeScreen(navController,viewModel)
                     }

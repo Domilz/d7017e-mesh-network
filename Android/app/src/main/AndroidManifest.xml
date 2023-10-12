@@ -40,6 +40,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name="com.epiroc.wifiaware.Services.WifiAwareForegroundService"
+            android:exported="false" />
     </application>
+
+
 
 </manifest>
