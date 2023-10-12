@@ -346,7 +346,6 @@ class HomeScreenViewModel(
             // Wi-Fi Aware session is not available.
             publishMessageLiveData.value = ("PUBLISH: Wifi Aware session is not available")
         }
-
     }
 
     private fun wifiAwareState(): String {

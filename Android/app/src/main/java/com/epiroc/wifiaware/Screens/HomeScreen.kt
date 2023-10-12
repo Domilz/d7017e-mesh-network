@@ -1,6 +1,8 @@
 package com.epiroc.wifiaware.Screens
 
+import WifiAwareService
 import android.Manifest
+import android.content.Intent
 import android.net.wifi.aware.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.epiroc.wifiaware.Screen
 import com.epiroc.wifiaware.ViewModels.HomeScreenViewModel
@@ -32,6 +36,7 @@ var wifiAwareManager: WifiAwareManager? = null
 lateinit var navController: NavHostController
 @Composable
 fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel){
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -40,15 +45,9 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel)
     ) {
         Button(
             onClick = {
-
-
-
                 if (viewModel.checkWifiAwareAvailability()) {
-                    viewModel.currentPubString.value = "Publish Using Wifi Aware started...:" + viewModel.currentPubSession.toString()
-                    viewModel.publishUsingWifiAware()
-
-                    viewModel.currentSubString.value = "Subscribe to Wifi Aware Sessions started...:" + viewModel.currentSubSession.toString()
-                    viewModel.subscribeToWifiAwareSessions()
+                    val intent = Intent(context, WifiAwareService::class.java)
+                    ContextCompat.startForegroundService(context, intent)
 
                 } else {
                     viewModel.hasWifiAwareText.value = "Wifi Aware is not available."
@@ -56,7 +55,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeScreenViewModel)
             },
             modifier = Modifier.padding(8.dp)
         ) {
-            Text("Publish and Subscribe Using Wifi Aware")
+            Text("Servie: Publish and Subscribe Using Wifi Aware")
         }
 /*
         Button(
