@@ -23,9 +23,9 @@ func TestInnitStateHandler(t *testing.T) {
 func TestGetReading(t *testing.T) {
 
 	mockReading := &pb.Reading{
-		TagId:    "MOCKTAG",
-		DeviceId: "321",
-		Rssi:     69,
+		TagId: "MOCKTAG",
+		RpId:  "321",
+		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
@@ -41,36 +41,36 @@ func TestGetReading(t *testing.T) {
 func TestMultipleGetReading(t *testing.T) {
 
 	mockReading := &pb.Reading{
-		TagId:    "MOCKTAG",
-		DeviceId: "321",
-		Rssi:     69,
+		TagId: "MOCKTAG",
+		RpId:  "321",
+		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
 	}
 
 	mockReading2 := &pb.Reading{
-		TagId:    "MOCKTAG2",
-		DeviceId: "3212",
-		Rssi:     13,
+		TagId: "MOCKTAG2",
+		RpId:  "3212",
+		Rssi:  13,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
 	}
 
 	mockReading3 := &pb.Reading{
-		TagId:    "MOCKTAG3",
-		DeviceId: "3213",
-		Rssi:     10,
+		TagId: "MOCKTAG3",
+		RpId:  "3213",
+		Rssi:  10,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
 	}
 
 	mockReading4 := &pb.Reading{
-		TagId:    "MOCKTAG4",
-		DeviceId: "3214",
-		Rssi:     10,
+		TagId: "MOCKTAG4",
+		RpId:  "3214",
+		Rssi:  10,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
@@ -90,9 +90,9 @@ func TestMultipleGetReading(t *testing.T) {
 
 func TestGetState(t *testing.T) {
 	mockReading := &pb.Reading{
-		TagId:    "MOCKTAG",
-		DeviceId: "321",
-		Rssi:     69,
+		TagId: "MOCKTAG",
+		RpId:  "321",
+		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
@@ -113,36 +113,36 @@ func TestGetState(t *testing.T) {
 func TestMultipleGetState(t *testing.T) {
 
 	mockReading := &pb.Reading{
-		TagId:    "MOCKTAG",
-		DeviceId: "321",
-		Rssi:     69,
+		TagId: "MOCKTAG",
+		RpId:  "321",
+		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
 	}
 
 	mockReading2 := &pb.Reading{
-		TagId:    "MOCKTAG2",
-		DeviceId: "3212",
-		Rssi:     13,
+		TagId: "MOCKTAG2",
+		RpId:  "3212",
+		Rssi:  13,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
 	}
 
 	mockReading3 := &pb.Reading{
-		TagId:    "MOCKTAG3",
-		DeviceId: "3213",
-		Rssi:     10,
+		TagId: "MOCKTAG3",
+		RpId:  "3213",
+		Rssi:  10,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
 	}
 
 	mockReading4 := &pb.Reading{
-		TagId:    "MOCKTAG4",
-		DeviceId: "3214",
-		Rssi:     10,
+		TagId: "MOCKTAG4",
+		RpId:  "3214",
+		Rssi:  10,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 		},
@@ -191,9 +191,9 @@ func generateMockReading(count int) []*pb.Reading {
 	var readings []*pb.Reading
 	for i := 1; i <= count; i++ {
 		mockReading := &pb.Reading{
-			TagId:    "MOCKTAG" + strconv.Itoa(i),
-			DeviceId: "00" + strconv.Itoa(i),
-			Rssi:     10,
+			TagId: "MOCKTAG" + strconv.Itoa(i),
+			RpId:  "00" + strconv.Itoa(i),
+			Rssi:  10,
 			Ts: &timestamp.Timestamp{
 				Seconds: timestamppb.Now().Seconds,
 			},

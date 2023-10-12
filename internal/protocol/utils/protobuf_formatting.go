@@ -23,7 +23,7 @@ func FormatReading(reading *pb.Reading) string {
 	var builder strings.Builder
 	builder.WriteString("Reading:\n")
 	builder.WriteString(fmt.Sprintf("  TagID: %s\n", reading.TagId))
-	builder.WriteString(fmt.Sprintf("  DeviceID: %s\n", reading.DeviceId))
+	builder.WriteString(fmt.Sprintf("  ReferencePointID: %s\n", reading.RpId))
 	builder.WriteString(fmt.Sprintf("  RSSI: %d\n", reading.Rssi))
 	builder.WriteString(fmt.Sprintf("  Timestamp: %v", reading.Ts))
 	return builder.String()

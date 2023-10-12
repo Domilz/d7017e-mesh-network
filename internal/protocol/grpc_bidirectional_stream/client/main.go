@@ -66,9 +66,9 @@ func connectToServer() (*grpc.ClientConn, error) {
 func prepareRequest() *pb.State {
 	// Mocked `Reading`
 	reading := &pb.Reading{
-		TagId:    "20",
-		DeviceId: "21",
-		Rssi:     69,
+		TagId: "20",
+		RpId:  "21",
+		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 			Nanos:   timestamppb.Now().Nanos,
@@ -82,6 +82,7 @@ func prepareRequest() *pb.State {
 			reading,
 		},
 	}
+
 	return request
 }
 
