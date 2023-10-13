@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- If your app targets Android 13 (API level 33)
          or higher, you must declare the NEARBY_WIFI_DEVICES permission. -->
     <!-- <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" -->
@@ -40,7 +41,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="WifiAwareService" />
+        <service android:name=".Services.WifiAwareService" />
     </application>
 
 </manifest>
