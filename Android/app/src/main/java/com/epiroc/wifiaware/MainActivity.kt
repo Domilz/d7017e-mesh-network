@@ -4,12 +4,16 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.app.ActivityCompat
 import com.epiroc.wifiaware.Screens.ServiceAwareContent
+import com.epiroc.wifiaware.Screens.permissionsToRequest
 import com.epiroc.wifiaware.Services.WifiAwareService
+import android.Manifest
 
 
 class MainActivity : ComponentActivity() {
@@ -28,6 +32,22 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.NEARBY_WIFI_DEVICES
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                permissionsToRequest,
+                123
+            )
+        }
+
         super.onCreate(savedInstanceState)
 
         // Here we bind to WifiAwareService

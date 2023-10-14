@@ -70,7 +70,7 @@ class WifiAwareService : Service() {
         createNotificationChannel()
     }
 
-    private lateinit var viewModel: HomeScreenViewModel
+    //private lateinit var viewModel: HomeScreenViewModel
 
     private fun createNotificationChannel() {
 
@@ -512,7 +512,6 @@ class WifiAwareService : Service() {
                 // Handle identity change if needed.
             }
         }
-
         wifiAwareManager?.let {
             if (ActivityCompat.checkSelfPermission(
                     this,
@@ -522,19 +521,12 @@ class WifiAwareService : Service() {
                     Manifest.permission.NEARBY_WIFI_DEVICES
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                ActivityCompat.requestPermissions(
-                    this as ComponentActivity, // Cast to ComponentActivity if needed
-                    permissionsToRequest,
-                    123 // Use a unique request code, e.g., 123
-                )
-
-                return "Requesting permissions..."
+                return "Permissions not granted."
             } else {
                 it.attach(attachCallback, identityChangedListener, Handler(Looper.getMainLooper()))
                 return "Wifi Aware session attached."
             }
         } ?: run {
-            // Handle the case where wifiAwareManager is null.
             return "Wifi Aware manager is null."
         }
     }

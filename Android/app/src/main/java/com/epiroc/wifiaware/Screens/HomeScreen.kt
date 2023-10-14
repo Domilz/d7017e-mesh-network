@@ -18,19 +18,10 @@ import androidx.navigation.NavHostController
 import com.epiroc.wifiaware.Services.WifiAwareService
 import com.epiroc.wifiaware.ViewModels.HomeScreenViewModel
 
-var wifiAwareSession: WifiAwareSession? = null
 val permissionsToRequest = arrayOf(
     Manifest.permission.ACCESS_FINE_LOCATION,
     Manifest.permission.NEARBY_WIFI_DEVICES
 )
-
-
-private var currentSession: SubscribeDiscoverySession? = null
-private val connectedDevices = mutableListOf<PeerHandle>()
-var wifiAwareManager: WifiAwareManager? = null
-lateinit var navController: NavHostController
-
-
 val LocalWifiAwareService = compositionLocalOf<WifiAwareService?> { null }
 
 @Composable
