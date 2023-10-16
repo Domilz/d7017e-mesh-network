@@ -29,143 +29,146 @@
 17    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 17-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:11:5-73
 17-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:11:22-71
-18
-19    <permission
-19-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:22:5-24:47
-20        android:name="com.epiroc.ble.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-20-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:23:9-81
-21        android:protectionLevel="signature" />
-21-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:24:9-44
-22
-23    <uses-permission android:name="com.epiroc.ble.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-23-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:26:5-97
-23-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:26:22-94
-24
-25    <application
-25-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:13:5-35:19
-26        android:name="com.epiroc.ble.MainApplication"
-26-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:14:9-40
-27        android:allowBackup="true"
-27-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:15:9-35
-28        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-28-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:28:18-86
-29        android:dataExtractionRules="@xml/data_extraction_rules"
-29-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:16:9-65
-30        android:debuggable="true"
-31        android:extractNativeLibs="false"
-32        android:fullBackupContent="@xml/backup_rules"
-32-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:17:9-54
-33        android:icon="@mipmap/ic_launcher"
-33-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:18:9-43
-34        android:label="@string/app_name"
-34-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:19:9-41
-35        android:roundIcon="@mipmap/ic_launcher_round"
-35-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:20:9-54
-36        android:supportsRtl="true"
-36-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:21:9-35
-37        android:testOnly="true"
-38        android:theme="@style/Theme.TransportBLE" >
-38-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:22:9-50
-39        <activity
-39-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:24:9-34:20
-40            android:name="com.epiroc.ble.MainActivity"
-40-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:25:13-41
-41            android:exported="true"
-41-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:26:13-36
-42            android:label="@string/app_name"
-42-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:27:13-45
-43            android:theme="@style/Theme.TransportBLE" >
-43-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:28:13-54
-44            <intent-filter>
-44-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:29:13-33:29
-45                <action android:name="android.intent.action.MAIN" />
-45-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:30:17-69
-45-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:30:25-66
-46
-47                <category android:name="android.intent.category.LAUNCHER" />
-47-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:32:17-77
-47-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:32:27-74
-48            </intent-filter>
-49        </activity>
-50        <activity
-50-->[androidx.compose.ui:ui-tooling-android:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/901dfa6d3ccd57b5678b2c382383157d/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
-51            android:name="androidx.compose.ui.tooling.PreviewActivity"
-51-->[androidx.compose.ui:ui-tooling-android:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/901dfa6d3ccd57b5678b2c382383157d/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
-52            android:exported="true" />
-52-->[androidx.compose.ui:ui-tooling-android:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/901dfa6d3ccd57b5678b2c382383157d/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
-53
-54        <provider
-54-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:24:9-32:20
-55            android:name="androidx.startup.InitializationProvider"
-55-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:25:13-67
-56            android:authorities="com.epiroc.ble.androidx-startup"
-56-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:26:13-68
-57            android:exported="false" >
-57-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:27:13-37
-58            <meta-data
-58-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:29:13-31:52
-59                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-59-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:30:17-75
-60                android:value="androidx.startup" />
-60-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:31:17-49
-61            <meta-data
-61-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/de277e90e8441ec91b13e84d0b1e02bd/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
-62                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-62-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/de277e90e8441ec91b13e84d0b1e02bd/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
-63                android:value="androidx.startup" />
-63-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/de277e90e8441ec91b13e84d0b1e02bd/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
-64            <meta-data
-64-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
-65                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-65-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
-66                android:value="androidx.startup" />
-66-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
-67        </provider>
-68
-69        <activity
-69-->[androidx.compose.ui:ui-test-manifest:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/a82f70ee9d2aa342839254ce0b6587c8/transformed/ui-test-manifest-1.5.1/AndroidManifest.xml:23:9-25:39
-70            android:name="androidx.activity.ComponentActivity"
-70-->[androidx.compose.ui:ui-test-manifest:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/a82f70ee9d2aa342839254ce0b6587c8/transformed/ui-test-manifest-1.5.1/AndroidManifest.xml:24:13-63
-71            android:exported="true" />
-71-->[androidx.compose.ui:ui-test-manifest:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/a82f70ee9d2aa342839254ce0b6587c8/transformed/ui-test-manifest-1.5.1/AndroidManifest.xml:25:13-36
-72
-73        <receiver
-73-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
-74            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-74-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
-75            android:directBootAware="false"
-75-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
-76            android:enabled="true"
-76-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
-77            android:exported="true"
-77-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
-78            android:permission="android.permission.DUMP" >
-78-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
-79            <intent-filter>
-79-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
-80                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-80-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
-80-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
-81            </intent-filter>
-82            <intent-filter>
-82-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
-83                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-83-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
-83-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
-84            </intent-filter>
-85            <intent-filter>
-85-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
-86                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-86-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
-86-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
-87            </intent-filter>
-88            <intent-filter>
-88-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
-89                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-89-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
-89-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
-90            </intent-filter>
-91        </receiver>
-92    </application>
-93
-94</manifest>
+18    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+18-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:6:5-78
+18-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:6:22-75
+19
+20    <permission
+20-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:22:5-24:47
+21        android:name="com.epiroc.ble.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+21-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:23:9-81
+22        android:protectionLevel="signature" />
+22-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:24:9-44
+23
+24    <uses-permission android:name="com.epiroc.ble.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+24-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:26:5-97
+24-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:26:22-94
+25
+26    <application
+26-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:14:5-36:19
+27        android:name="com.epiroc.ble.MainApplication"
+27-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:15:9-40
+28        android:allowBackup="true"
+28-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:16:9-35
+29        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+29-->[androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:28:18-86
+30        android:dataExtractionRules="@xml/data_extraction_rules"
+30-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:17:9-65
+31        android:debuggable="true"
+32        android:extractNativeLibs="false"
+33        android:fullBackupContent="@xml/backup_rules"
+33-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:18:9-54
+34        android:icon="@mipmap/ic_launcher"
+34-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:19:9-43
+35        android:label="@string/app_name"
+35-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:20:9-41
+36        android:roundIcon="@mipmap/ic_launcher_round"
+36-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:21:9-54
+37        android:supportsRtl="true"
+37-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:22:9-35
+38        android:testOnly="true"
+39        android:theme="@style/Theme.TransportBLE" >
+39-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:23:9-50
+40        <activity
+40-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:25:9-35:20
+41            android:name="com.epiroc.ble.MainActivity"
+41-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:26:13-41
+42            android:exported="true"
+42-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:27:13-36
+43            android:label="@string/app_name"
+43-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:28:13-45
+44            android:theme="@style/Theme.TransportBLE" >
+44-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:29:13-54
+45            <intent-filter>
+45-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:30:13-34:29
+46                <action android:name="android.intent.action.MAIN" />
+46-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:31:17-69
+46-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:31:25-66
+47
+48                <category android:name="android.intent.category.LAUNCHER" />
+48-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:33:17-77
+48-->/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:33:27-74
+49            </intent-filter>
+50        </activity>
+51        <activity
+51-->[androidx.compose.ui:ui-tooling-android:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/901dfa6d3ccd57b5678b2c382383157d/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+52            android:name="androidx.compose.ui.tooling.PreviewActivity"
+52-->[androidx.compose.ui:ui-tooling-android:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/901dfa6d3ccd57b5678b2c382383157d/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+53            android:exported="true" />
+53-->[androidx.compose.ui:ui-tooling-android:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/901dfa6d3ccd57b5678b2c382383157d/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+54
+55        <provider
+55-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:24:9-32:20
+56            android:name="androidx.startup.InitializationProvider"
+56-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:25:13-67
+57            android:authorities="com.epiroc.ble.androidx-startup"
+57-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:26:13-68
+58            android:exported="false" >
+58-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:27:13-37
+59            <meta-data
+59-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:29:13-31:52
+60                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+60-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:30:17-75
+61                android:value="androidx.startup" />
+61-->[androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:31:17-49
+62            <meta-data
+62-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/de277e90e8441ec91b13e84d0b1e02bd/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
+63                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+63-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/de277e90e8441ec91b13e84d0b1e02bd/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
+64                android:value="androidx.startup" />
+64-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/de277e90e8441ec91b13e84d0b1e02bd/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
+65            <meta-data
+65-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+66                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+66-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+67                android:value="androidx.startup" />
+67-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+68        </provider>
+69
+70        <activity
+70-->[androidx.compose.ui:ui-test-manifest:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/a82f70ee9d2aa342839254ce0b6587c8/transformed/ui-test-manifest-1.5.1/AndroidManifest.xml:23:9-25:39
+71            android:name="androidx.activity.ComponentActivity"
+71-->[androidx.compose.ui:ui-test-manifest:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/a82f70ee9d2aa342839254ce0b6587c8/transformed/ui-test-manifest-1.5.1/AndroidManifest.xml:24:13-63
+72            android:exported="true" />
+72-->[androidx.compose.ui:ui-test-manifest:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/a82f70ee9d2aa342839254ce0b6587c8/transformed/ui-test-manifest-1.5.1/AndroidManifest.xml:25:13-36
+73
+74        <receiver
+74-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+75            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+75-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+76            android:directBootAware="false"
+76-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+77            android:enabled="true"
+77-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+78            android:exported="true"
+78-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+79            android:permission="android.permission.DUMP" >
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+80            <intent-filter>
+80-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+81                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+81-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+81-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+82            </intent-filter>
+83            <intent-filter>
+83-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+84                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+84-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+84-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+85            </intent-filter>
+86            <intent-filter>
+86-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+87                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+87-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+87-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+88            </intent-filter>
+89            <intent-filter>
+89-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+90                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+90-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+90-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/49dd796fd4d8cbab6d268911339531ca/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+91            </intent-filter>
+92        </receiver>
+93    </application>
+94
+95</manifest>

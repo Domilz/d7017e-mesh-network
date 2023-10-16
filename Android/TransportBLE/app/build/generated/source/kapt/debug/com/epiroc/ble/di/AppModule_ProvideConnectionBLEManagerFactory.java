@@ -3,7 +3,7 @@ package com.epiroc.ble.di;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import com.epiroc.ble.data.ble.ConnectionBLEManager;
+import com.epiroc.ble.data.ble.CentralBLEManager;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
@@ -18,7 +18,7 @@ import javax.inject.Provider;
     "unchecked",
     "rawtypes"
 })
-public final class AppModule_ProvideConnectionBLEManagerFactory implements Factory<ConnectionBLEManager> {
+public final class AppModule_ProvideConnectionBLEManagerFactory implements Factory<CentralBLEManager> {
   private final Provider<Context> contextProvider;
 
   private final Provider<BluetoothAdapter> bluetoothAdapterProvider;
@@ -30,7 +30,7 @@ public final class AppModule_ProvideConnectionBLEManagerFactory implements Facto
   }
 
   @Override
-  public ConnectionBLEManager get() {
+  public CentralBLEManager get() {
     return provideConnectionBLEManager(contextProvider.get(), bluetoothAdapterProvider.get());
   }
 
@@ -39,7 +39,7 @@ public final class AppModule_ProvideConnectionBLEManagerFactory implements Facto
     return new AppModule_ProvideConnectionBLEManagerFactory(contextProvider, bluetoothAdapterProvider);
   }
 
-  public static ConnectionBLEManager provideConnectionBLEManager(Context context,
+  public static CentralBLEManager provideConnectionBLEManager(Context context,
       BluetoothAdapter bluetoothAdapter) {
     return Preconditions.checkNotNullFromProvides(AppModule.INSTANCE.provideConnectionBLEManager(context, bluetoothAdapter));
   }

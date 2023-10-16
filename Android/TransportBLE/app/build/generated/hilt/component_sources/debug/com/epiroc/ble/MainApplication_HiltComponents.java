@@ -1,8 +1,7 @@
 package com.epiroc.ble;
 
 import com.epiroc.ble.di.AppModule;
-import com.epiroc.ble.screens.BleListViewModel_HiltModules;
-import com.epiroc.ble.screens.PeripheralViewModel_HiltModules;
+import com.epiroc.ble.screens.BleReadingsViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -144,11 +143,10 @@ public final class MainApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
-          BleListViewModel_HiltModules.KeyModule.class,
+          BleReadingsViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           ActivityCBuilderModule.class,
-          ViewModelCBuilderModule.class,
-          PeripheralViewModel_HiltModules.KeyModule.class
+          ViewModelCBuilderModule.class
       }
   )
   @ActivityRetainedScoped
@@ -184,9 +182,8 @@ public final class MainApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
-          BleListViewModel_HiltModules.BindsModule.class,
-          HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
-          PeripheralViewModel_HiltModules.BindsModule.class
+          BleReadingsViewModel_HiltModules.BindsModule.class,
+          HiltWrapper_HiltViewModelFactory_ViewModelModule.class
       }
   )
   @ViewModelScoped

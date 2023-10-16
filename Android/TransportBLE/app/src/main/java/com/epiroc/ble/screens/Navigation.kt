@@ -16,18 +16,14 @@ fun Navigation(
             HomeScreen(navController = navController)
         }
 
-        composable(Screen.BleListScreen.route){
-            BleListScreen(onBluetoothStateChanged)
+        composable(Screen.BleReadingsScreen.route){
+            BleReadingsScreen(onBluetoothStateChanged)
         }
 
-        composable(Screen.PeripheralScreen.route) {
-            PeripheralScreen(onBluetoothStateChanged)
-        }
     }
 }
 
 sealed class Screen(val route:String) {
-    object HomeScreen:Screen("home_screen")
-    object BleListScreen:Screen("ble_list_screen")
-    object PeripheralScreen:Screen("peripheral_screen")
+    object HomeScreen : Screen("home_screen")
+    object BleReadingsScreen : Screen("ble_readings_screen")
 }

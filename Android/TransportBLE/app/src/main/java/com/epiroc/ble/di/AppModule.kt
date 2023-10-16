@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeAdvertiser
 import android.content.Context
-import com.epiroc.ble.data.ble.ConnectionBLEManager
+import com.epiroc.ble.data.ble.CentralBLEManager
 import com.epiroc.ble.data.ble.PeripheralBLEManager
 import dagger.Module
 import dagger.Provides
@@ -17,8 +17,13 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
     @Provides
+    fun provideBluetoothManager(@ApplicationContext context: Context) : BluetoothManager {
+        return context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    }
+
+    @Provides
     @Singleton
-    fun provideBluetoothAdapter(@ApplicationContext context: Context):BluetoothAdapter{
+    fun provideBluetoothAdapter(@ApplicationContext context: Context) : BluetoothAdapter {
         val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         return manager.adapter
     }
@@ -28,16 +33,16 @@ object AppModule {
     fun provideConnectionBLEManager(
         @ApplicationContext context: Context,
         bluetoothAdapter: BluetoothAdapter
-    ): ConnectionBLEManager {
-        return ConnectionBLEManager(bluetoothAdapter,context)
+    ): CentralBLEManager {
+        return CentralBLEManager(bluetoothAdapter, context)
     }
 
     @Provides
     @Singleton
     fun providePeripheralBLEManager(
         @ApplicationContext context: Context,
-        bluetoothAdapter: BluetoothAdapter
+        bluetoothManager: BluetoothManager
     ) : PeripheralBLEManager {
-        return PeripheralBLEManager(bluetoothAdapter, context)
+        return PeripheralBLEManager(bluetoothManager, context)
     }
 }

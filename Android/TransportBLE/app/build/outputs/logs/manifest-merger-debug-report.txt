@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:2:1-37:12
-INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:2:1-37:12
-INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:2:1-37:12
-INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:2:1-37:12
+ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:2:1-38:12
+INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:2:1-38:12
+INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:2:1-38:12
+INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:2:1-38:12
 MERGED from [com.google.accompanist:accompanist-permissions:0.29.1-alpha] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/4a216c303e6f5194d5b903a581fa13e6/transformed/accompanist-permissions-0.29.1-alpha/AndroidManifest.xml:17:1-26:12
 MERGED from [androidx.compose.material3:material3:1.0.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/e0efe263ef5bc15de2c048f1592d5d89/transformed/material3-1.0.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.hilt:hilt-navigation-compose:1.0.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/a716d8021d67f3b064a4caf4bd829082/transformed/hilt-navigation-compose-1.0.0/AndroidManifest.xml:17:1-24:12
@@ -104,8 +104,8 @@ ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/
 	android:name
 		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:11:22-71
 application
-ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:13:5-35:19
-INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:13:5-35:19
+ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:14:5-36:19
+INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:14:5-36:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/901dfa6d3ccd57b5678b2c382383157d/transformed/ui-tooling-release/AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.5.1] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/901dfa6d3ccd57b5678b2c382383157d/transformed/ui-tooling-release/AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.emoji2:emoji2:1.4.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/b16be9192aaf808745bc7ecf9d14cfd2/transformed/emoji2-1.4.0/AndroidManifest.xml:23:5-33:19
@@ -127,45 +127,45 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /home/daniel/Dev/D7017E/d70
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.10.0] /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/gradle/caches/transforms-3/ae948c72a8d23b09bfdc465b6eebf139/transformed/core-1.10.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:21:9-35
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:22:9-35
 	android:label
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:19:9-41
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:20:9-41
 	android:fullBackupContent
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:17:9-54
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:18:9-54
 	android:roundIcon
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:20:9-54
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:21:9-54
 	tools:targetApi
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:23:9-29
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:24:9-29
 	android:icon
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:18:9-43
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:19:9-43
 	android:allowBackup
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:15:9-35
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:16:9-35
 	android:theme
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:22:9-50
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:23:9-50
 	android:dataExtractionRules
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:16:9-65
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:17:9-65
 	android:name
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:14:9-40
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:15:9-40
 activity#com.epiroc.ble.MainActivity
-ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:24:9-34:20
+ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:25:9-35:20
 	android:label
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:27:13-45
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:28:13-45
 	android:exported
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:26:13-36
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:27:13-36
 	android:theme
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:28:13-54
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:29:13-54
 	android:name
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:25:13-41
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:26:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:29:13-33:29
+ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:30:13-34:29
 action#android.intent.action.MAIN
-ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:30:17-69
+ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:31:17-69
 	android:name
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:30:25-66
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:31:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:32:17-77
+ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:33:17-77
 	android:name
-		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:32:27-74
+		ADDED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml:33:27-74
 uses-sdk
 INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/src/main/AndroidManifest.xml

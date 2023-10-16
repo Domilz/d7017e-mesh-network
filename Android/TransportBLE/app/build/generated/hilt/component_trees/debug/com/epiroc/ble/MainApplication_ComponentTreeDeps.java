@@ -20,10 +20,8 @@ import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_compo
 import hilt_aggregated_deps._com_epiroc_ble_MainActivity_GeneratedInjector;
 import hilt_aggregated_deps._com_epiroc_ble_MainApplication_GeneratedInjector;
 import hilt_aggregated_deps._com_epiroc_ble_di_AppModule;
-import hilt_aggregated_deps._com_epiroc_ble_screens_BleListViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._com_epiroc_ble_screens_BleListViewModel_HiltModules_KeyModule;
-import hilt_aggregated_deps._com_epiroc_ble_screens_PeripheralViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._com_epiroc_ble_screens_PeripheralViewModel_HiltModules_KeyModule;
+import hilt_aggregated_deps._com_epiroc_ble_screens_BleReadingsViewModel_HiltModules_BindsModule;
+import hilt_aggregated_deps._com_epiroc_ble_screens_BleReadingsViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._dagger_hilt_android_flags_FragmentGetContextFix_FragmentGetContextFixEntryPoint;
 import hilt_aggregated_deps._dagger_hilt_android_flags_HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule;
 import hilt_aggregated_deps._dagger_hilt_android_internal_lifecycle_DefaultViewModelFactories_ActivityEntryPoint;
@@ -66,10 +64,8 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
         _com_epiroc_ble_MainActivity_GeneratedInjector.class,
         _com_epiroc_ble_MainApplication_GeneratedInjector.class,
         _com_epiroc_ble_di_AppModule.class,
-        _com_epiroc_ble_screens_BleListViewModel_HiltModules_BindsModule.class,
-        _com_epiroc_ble_screens_BleListViewModel_HiltModules_KeyModule.class,
-        _com_epiroc_ble_screens_PeripheralViewModel_HiltModules_BindsModule.class,
-        _com_epiroc_ble_screens_PeripheralViewModel_HiltModules_KeyModule.class,
+        _com_epiroc_ble_screens_BleReadingsViewModel_HiltModules_BindsModule.class,
+        _com_epiroc_ble_screens_BleReadingsViewModel_HiltModules_KeyModule.class,
         _dagger_hilt_android_flags_FragmentGetContextFix_FragmentGetContextFixEntryPoint.class,
         _dagger_hilt_android_flags_HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
         _dagger_hilt_android_internal_lifecycle_DefaultViewModelFactories_ActivityEntryPoint.class,
