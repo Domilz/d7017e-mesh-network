@@ -36,26 +36,34 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	request := prepareRequest()
+	request := prepareRequest("1", "10")
+	request2 := prepareRequest("1", "10")
+
 	propogationStream, err := openBidirectionalStream(ctx, propogationClient)
 	if err != nil {
 		log.Fatalf("error opening stream: %v", err)
 	}
+
 	sendRequestToStream(propogationStream, request)
+	sendRequestToStream(propogationStream, request2)
 
 	// Receive and process the server response
-	response, err := receiveAndProcessResponse(propogationStream)
+	go receiveAndProcessResponse(propogationStream)
+	// response, err := receiveAndProcessResponse(propogationStream)
 	if err != nil {
 		log.Fatalf("error receiving stream: %v", err)
 	}
 
 	log.Println("Fetching state stream from server...")
-	utils.PrintFormattedState(response)
+	// utils.PrintFormattedState(response)
 
 	// Close the stream
 	if err := closeStream(propogationStream); err != nil {
 		log.Println(err)
 	}
+
+	select {}
+
 }
 
 func connectToServer() (*grpc.ClientConn, error) {
@@ -63,11 +71,11 @@ func connectToServer() (*grpc.ClientConn, error) {
 	return conn, err
 }
 
-func prepareRequest() *pb.State {
+func prepareRequest(stateID string, readingID string) *pb.State {
 	// Mocked `Reading`
 	reading := &pb.Reading{
-		TagId: "20",
-		RpId:  "21",
+		TagId: readingID,
+		RpId:  "RpId not set ",
 		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
@@ -77,13 +85,17 @@ func prepareRequest() *pb.State {
 
 	// Mocked `State`
 	request := &pb.State{
-		TagId: "20",
+		TagId: stateID,
 		Readings: []*pb.Reading{
 			reading,
 		},
 	}
 
-	return request
+	// Get the state
+	state := utils.StateHandler{}
+	state.InitStateHandler(stateID)
+	state.InsertMultipleReadings(request)
+	return state.GetState()
 }
 
 func openBidirectionalStream(ctx context.Context, client pb.StatePropogationClient) (pb.StatePropogation_PropogationClient, error) {
@@ -103,7 +115,11 @@ func receiveAndProcessResponse(stream pb.StatePropogation_PropogationClient) (*p
 	if err == io.EOF {
 		return nil, err
 	} else if err == nil {
-		return response, nil
+		if response != nil {
+			utils.PrintFormattedState(response)
+
+		}
+		// return response, nil
 
 	}
 	return nil, err

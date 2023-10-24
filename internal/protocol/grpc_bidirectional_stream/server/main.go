@@ -9,14 +9,13 @@ import (
 
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 	"github.com/Domilz/d7017e-mesh-network/internal/protocol/utils"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
-	serverAddress = flag.String("serverAddress", "localhost:50051", "the address to the server for client connection")
+	serverAddress = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
 	port          = flag.Int("port", 50051, "The server port")
+	stateHandler  utils.StateHandler
 )
 
 type server struct {
@@ -64,37 +63,16 @@ func processClientRequest(srv pb.StatePropogation_PropogationServer) error {
 
 func handleClientRequest(request *pb.State, srv pb.StatePropogation_PropogationServer) error {
 	// Print the `State` and `Reading` from the client
-	utils.PrintFormattedState(request)
-
-	// Mocked `Reading`
-	reading := &pb.Reading{
-		TagId: "10",
-		RpId:  "11",
-		Rssi:  20,
-		Ts: &timestamp.Timestamp{
-			Seconds: timestamppb.Now().Seconds,
-			Nanos:   timestamppb.Now().Nanos,
-		},
-	}
-
-	// Mocked `State`
-	resp := &pb.State{
-		TagId: "10",
-		Readings: []*pb.Reading{
-			reading,
-		},
-	}
-
-	// Send the `State` and `Reading` to the client
-	if err := srv.Send(resp); err != nil {
-		log.Printf("send error %v", err)
-		return err
-	}
+	fmt.Println("ACK")
+	stateHandler.InsertMultipleReadings(request)
+	state := stateHandler.GetState()
+	utils.PrintFormattedState(state)
 
 	return nil
 }
 
 func main() {
+	stateHandler.InitStateHandler("MOCKED STATE")
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
