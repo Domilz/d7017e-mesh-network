@@ -27,15 +27,19 @@ val LocalWifiAwareService = compositionLocalOf<WifiAwareService?> { null }
 @Composable
 fun ServiceAwareContent(service: WifiAwareService) {
     CompositionLocalProvider(LocalWifiAwareService provides service) {
-        HomeScreen()
+        val context = LocalContext.current
+        val service = LocalWifiAwareService.current
+        val intent = Intent(context, WifiAwareService::class.java)
+        ContextCompat.startForegroundService(context, intent)
+        if (service != null) {
+            HomeScreen(service)
+        }
     }
 }
 @Composable
-fun HomeScreen() {
-    val context = LocalContext.current
-    val service = LocalWifiAwareService.current
-    val intent = Intent(context, WifiAwareService::class.java)
-    ContextCompat.startForegroundService(context, intent)
+fun HomeScreen(service:WifiAwareService) {
+    //var test = false
+
 
     Column(
         modifier = Modifier

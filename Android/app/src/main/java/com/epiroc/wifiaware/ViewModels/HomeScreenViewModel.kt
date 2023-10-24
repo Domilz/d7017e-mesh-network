@@ -70,6 +70,8 @@ class HomeScreenViewModel(
     var connectivityManager: ConnectivityManager? = null
     var currentNetworkCapabilities: NetworkCapabilities? = null
 
+    var port = 1337
+
     fun checkWifiAwareAvailability(): Boolean {
         Log.d("1Wifi","checkWifiAwareAvailability" + packageManager.hasSystemFeature(PackageManager.FEATURE_WIFI_AWARE))
 
@@ -162,7 +164,7 @@ class HomeScreenViewModel(
                             val peerIpv6 = peerAwareInfo.peerIpv6Addr
                             val peerPort = peerAwareInfo.port
 
-                            val socket = network.getSocketFactory().createSocket(peerIpv6, 1337)
+                            val socket = network.getSocketFactory().createSocket(peerIpv6, peerPort)
                             try {
                                 // Get the output stream from the socket
                                 val outputStream = socket.getOutputStream()
@@ -261,12 +263,12 @@ class HomeScreenViewModel(
 
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                         val ss = ServerSocket(0)
-                        val port = ss.localPort
+                        //var port = ss.localPort
 
 
                         val networkSpecifier = WifiAwareNetworkSpecifier.Builder(currentPubSession!!, peerHandle)
                             .setPskPassphrase("somePassword")
-                            .setPort(1337)
+                            .setPort(port)
                             .build()
                         val myNetworkRequest = NetworkRequest.Builder()
                             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
@@ -277,7 +279,7 @@ class HomeScreenViewModel(
                                 try {
 
                                     // Create a ServerSocket and bind it to a specific port
-                                    val serverSocket = ServerSocket(1337)
+                                    val serverSocket = ServerSocket(port)
                                     val clientSocket = serverSocket.accept()
 
                                     // Create a BufferedReader to read data from the client
@@ -303,7 +305,7 @@ class HomeScreenViewModel(
                                     // Accept incoming connections from clients
 
 
-
+                                    port += 1
 
 
                                     // Close the reader and client socket when done

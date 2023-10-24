@@ -14,6 +14,7 @@ import com.epiroc.wifiaware.Screens.ServiceAwareContent
 import com.epiroc.wifiaware.Screens.permissionsToRequest
 import com.epiroc.wifiaware.Services.WifiAwareService
 import android.Manifest
+import android.util.Log
 
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        Log.d("1Wifi","Service created in main")
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -57,6 +58,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        Log.d("1Wifi","Service destroyed in main")
         super.onDestroy()
         unbindService(connection)  // It's crucial to unbind the service when you're done using it.
     }
