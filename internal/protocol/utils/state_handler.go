@@ -14,7 +14,7 @@ type StateHandler struct {
 	mutex       sync.RWMutex
 }
 
-func (stateHandler *StateHandler) initStateHandler(id string) {
+func (stateHandler *StateHandler) InitStateHandler(id string) {
 	stateHandler.lock()
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
@@ -29,14 +29,14 @@ func (stateHandler *StateHandler) unLock() {
 	stateHandler.mutex.Unlock()
 }
 
-func (stateHandler *StateHandler) getReading(id string) *pb.Reading {
+func (stateHandler *StateHandler) GetReading(id string) *pb.Reading {
 	stateHandler.lock()
 	r := stateHandler.readingsMap[id]
 	stateHandler.unLock()
 	return r
 }
 
-func (stateHandler *StateHandler) getState() *pb.State {
+func (stateHandler *StateHandler) GetState() *pb.State {
 
 	stateHandler.lock()
 	s := pb.State{TagId: stateHandler.TagId}
@@ -48,7 +48,7 @@ func (stateHandler *StateHandler) getState() *pb.State {
 }
 
 func (stateHandler *StateHandler) getStateSorted() *pb.State {
-	state := stateHandler.getState()
+	state := stateHandler.GetState()
 	sort.SliceStable(state.Readings, func(i, j int) bool {
 		return state.Readings[i].TagId < state.Readings[j].TagId
 	})
@@ -59,7 +59,7 @@ func (stateHandler *StateHandler) getStateSorted() *pb.State {
 func (stateHandler *StateHandler) getStatesReadingLimit(limit int) []*pb.State {
 
 	states := []*pb.State{}
-	stateWhole := stateHandler.getStateSorted() //Not sure how to implement a test for getStatesReadingLimit if this is not sorted (using the getState function)
+	stateWhole := stateHandler.getStateSorted() //Not sure how to implement a test for GetStatesReadingLimit if this is not sorted (using the GetState function)
 	stateChunk := &pb.State{TagId: stateWhole.TagId, Readings: []*pb.Reading{}}
 	i := 0
 	for _, reading := range stateWhole.Readings {

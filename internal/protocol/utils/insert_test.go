@@ -31,7 +31,7 @@ func TestInsertSingleReading(t *testing.T) {
 	}
 
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 	sh.InsertSingleReading(mockReading)
 	sh.InsertSingleReading(mockReading2)
 
@@ -39,7 +39,7 @@ func TestInsertSingleReading(t *testing.T) {
 		TagId:    "666",
 		Readings: []*pb.Reading{mockReading, mockReading2},
 	}
-	actualState := sh.getState()
+	actualState := sh.GetState()
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
 		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
 	})
@@ -71,10 +71,10 @@ func TestLessTimeDontInsertSingleReading(t *testing.T) {
 	}
 
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 	sh.InsertSingleReading(mockReading)
 	sh.InsertSingleReading(mockReading2)
-	reading := sh.getReading(mockReading.TagId)
+	reading := sh.GetReading(mockReading.TagId)
 
 	assert.Equal(t, time, reading.Ts.Seconds)
 
@@ -104,11 +104,11 @@ func TestMoreTimeInsertSingleReading(t *testing.T) {
 	}
 
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 
 	sh.InsertSingleReading(mockReading)
 	sh.InsertSingleReading(mockReading2)
-	reading := sh.getReading(mockReading.TagId)
+	reading := sh.GetReading(mockReading.TagId)
 	assert.Equal(t, time2, reading.Ts.Seconds)
 
 }
@@ -162,14 +162,14 @@ func TestInsertMultipleReading(t *testing.T) {
 	}
 
 	sh := StateHandler{}
-	sh.initStateHandler("669")
+	sh.InitStateHandler("669")
 	sh.InsertMultipleReadings(mockState)
 	sh.InsertMultipleReadings(mockState2)
 	expectedMockState := &pb.State{
 		TagId:    "669",
 		Readings: []*pb.Reading{mockReading, mockReading2, mockReading3, mockReading4},
 	}
-	actualState := sh.getState()
+	actualState := sh.GetState()
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
 		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
 	})

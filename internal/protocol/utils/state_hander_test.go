@@ -14,7 +14,7 @@ import (
 
 func TestInnitStateHandler(t *testing.T) {
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 
 	shMock := StateHandler{"666", make(map[string]*pb.Reading), sync.RWMutex{}}
 	assert.Equal(t, sh, shMock)
@@ -31,10 +31,10 @@ func TestGetReading(t *testing.T) {
 		},
 	}
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 	sh.InsertSingleReading(mockReading)
 
-	assert.Equal(t, sh.getReading(mockReading.TagId), mockReading)
+	assert.Equal(t, sh.GetReading(mockReading.TagId), mockReading)
 
 }
 
@@ -77,15 +77,15 @@ func TestMultipleGetReading(t *testing.T) {
 	}
 
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 	sh.InsertSingleReading(mockReading)
 	sh.InsertSingleReading(mockReading2)
 	sh.InsertSingleReading(mockReading3)
 	sh.InsertSingleReading(mockReading4)
-	assert.Equal(t, sh.getReading(mockReading.TagId), mockReading)
-	assert.Equal(t, sh.getReading(mockReading2.TagId), mockReading2)
-	assert.Equal(t, sh.getReading(mockReading3.TagId), mockReading3)
-	assert.Equal(t, sh.getReading(mockReading4.TagId), mockReading4)
+	assert.Equal(t, sh.GetReading(mockReading.TagId), mockReading)
+	assert.Equal(t, sh.GetReading(mockReading2.TagId), mockReading2)
+	assert.Equal(t, sh.GetReading(mockReading3.TagId), mockReading3)
+	assert.Equal(t, sh.GetReading(mockReading4.TagId), mockReading4)
 }
 
 func TestGetState(t *testing.T) {
@@ -104,9 +104,9 @@ func TestGetState(t *testing.T) {
 	}
 
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 	sh.InsertSingleReading(mockReading)
-	assert.Equal(t, sh.getState(), mockState)
+	assert.Equal(t, sh.GetState(), mockState)
 
 }
 
@@ -154,12 +154,12 @@ func TestMultipleGetState(t *testing.T) {
 	}
 
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 	sh.InsertSingleReading(mockReading)
 	sh.InsertSingleReading(mockReading2)
 	sh.InsertSingleReading(mockReading3)
 	sh.InsertSingleReading(mockReading4)
-	actualState := sh.getState()
+	actualState := sh.GetState()
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
 		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
 	})
@@ -177,7 +177,7 @@ func TestGetStatesReadingLimit(t *testing.T) {
 	}
 
 	sh := StateHandler{}
-	sh.initStateHandler("666")
+	sh.InitStateHandler("666")
 	sh.InsertMultipleReadings(&pb.State{TagId: "666", Readings: mockReadings})
 	actualStates := sh.getStatesReadingLimit(4)
 	assert.Equal(t, mockStates[0], actualStates[0])
