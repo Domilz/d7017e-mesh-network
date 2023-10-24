@@ -65,7 +65,16 @@ func handleClientRequest(request *pb.State, srv pb.StatePropogation_PropogationS
 	// Print the `State` and `Reading` from the client
 	fmt.Println("ACK")
 	stateHandler.InsertMultipleReadings(request)
-	state := stateHandler.GetState()
+	serializedState, err := stateHandler.GetState()
+	if err != nil {
+		return err
+	}
+
+	state, err := utils.DeserializeState(serializedState)
+	if err != nil {
+		return err
+	}
+
 	utils.PrintFormattedState(state)
 
 	return nil

@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
+	"google.golang.org/protobuf/proto"
 )
 
 type StateHandler struct {
@@ -36,30 +37,48 @@ func (stateHandler *StateHandler) GetReading(id string) *pb.Reading {
 	return r
 }
 
-func (stateHandler *StateHandler) GetState() *pb.State {
+func (stateHandler *StateHandler) GetState() ([]byte, error) {
 
 	stateHandler.lock()
 	s := pb.State{TagId: stateHandler.TagId}
 	for _, reading := range stateHandler.readingsMap {
 		s.Readings = append(s.Readings, reading)
 	}
+
+	serializedState, err := SerializeState(&s)
+	if err != nil {
+		return nil, err
+	}
+
 	stateHandler.unLock()
-	return &s
+	return serializedState, nil
 }
 
-func (stateHandler *StateHandler) getStateSorted() *pb.State {
-	state := stateHandler.GetState()
+func (stateHandler *StateHandler) getStateSorted() (*pb.State, error) {
+	serializedState, err := stateHandler.GetState()
+	if err != nil {
+		return nil, err
+	}
+
+	state, err := DeserializeState(serializedState)
+	if err != nil {
+		return nil, err
+	}
+
 	sort.SliceStable(state.Readings, func(i, j int) bool {
 		return state.Readings[i].TagId < state.Readings[j].TagId
 	})
-	return state
+	return state, nil
 
 }
 
-func (stateHandler *StateHandler) getStatesReadingLimit(limit int) []*pb.State {
+func (stateHandler *StateHandler) getStatesReadingLimit(limit int) ([]*pb.State, error) {
 
 	states := []*pb.State{}
-	stateWhole := stateHandler.getStateSorted() //Not sure how to implement a test for GetStatesReadingLimit if this is not sorted (using the GetState function)
+	stateWhole, err := stateHandler.getStateSorted() //Not sure how to implement a test for GetStatesReadingLimit if this is not sorted (using the GetState function)
+	if err != nil {
+		return nil, err
+	}
 	stateChunk := &pb.State{TagId: stateWhole.TagId, Readings: []*pb.Reading{}}
 	i := 0
 	for _, reading := range stateWhole.Readings {
@@ -76,6 +95,25 @@ func (stateHandler *StateHandler) getStatesReadingLimit(limit int) []*pb.State {
 	if len(stateChunk.Readings) != 0 {
 		states = append(states, stateChunk)
 	}
-	return states
+	return states, nil
 
+}
+
+func SerializeState(state *pb.State) ([]byte, error) {
+	marshaledState, err := proto.Marshal(state)
+	if err == nil {
+		return marshaledState, nil
+	}
+
+	return nil, err
+}
+
+func DeserializeState(stateArray []byte) (*pb.State, error) {
+	stateMessage := &pb.State{}
+	err := proto.Unmarshal(stateArray, stateMessage)
+	if err == nil {
+		return stateMessage, nil
+	}
+
+	return nil, err
 }
