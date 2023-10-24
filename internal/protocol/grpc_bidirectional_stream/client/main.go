@@ -36,8 +36,15 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	request := prepareRequest("1", "10")
-	request2 := prepareRequest("1", "10")
+	request, err := prepareRequest("1", "10")
+	if err != nil {
+		log.Fatalf("error with prepared request: %v", err)
+	}
+
+	request2, err := prepareRequest("1", "10")
+	if err != nil {
+		log.Fatalf("error with prepared request: %v", err)
+	}
 
 	propogationStream, err := openBidirectionalStream(ctx, propogationClient)
 	if err != nil {
@@ -71,7 +78,7 @@ func connectToServer() (*grpc.ClientConn, error) {
 	return conn, err
 }
 
-func prepareRequest(stateID string, readingID string) *pb.State {
+func prepareRequest(stateID string, readingID string) ([]byte, error) {
 	// Mocked `Reading`
 	reading := &pb.Reading{
 		TagId: readingID,
@@ -95,7 +102,11 @@ func prepareRequest(stateID string, readingID string) *pb.State {
 	state := utils.StateHandler{}
 	state.InitStateHandler(stateID)
 	state.InsertMultipleReadings(request)
-	return state.GetState()
+	serializedState, err := state.GetState()
+	if err != nil {
+		return nil, err
+	}
+	return serializedState, nil
 }
 
 func openBidirectionalStream(ctx context.Context, client pb.StatePropogationClient) (pb.StatePropogation_PropogationClient, error) {
@@ -103,8 +114,13 @@ func openBidirectionalStream(ctx context.Context, client pb.StatePropogationClie
 	return propogationStream, err
 }
 
-func sendRequestToStream(stream pb.StatePropogation_PropogationClient, request *pb.State) {
-	err := stream.Send(request)
+func sendRequestToStream(stream pb.StatePropogation_PropogationClient, request []byte) {
+	deserializedRequest, err := utils.DeserializeState(request)
+	if err != nil {
+		log.Fatalf("error when sending request: %v", err)
+	}
+
+	err = stream.Send(deserializedRequest)
 	if err != nil {
 		log.Fatalf("error when sending request: %v", err)
 	}
@@ -119,7 +135,6 @@ func receiveAndProcessResponse(stream pb.StatePropogation_PropogationClient) (*p
 			utils.PrintFormattedState(response)
 
 		}
-		// return response, nil
 
 	}
 	return nil, err

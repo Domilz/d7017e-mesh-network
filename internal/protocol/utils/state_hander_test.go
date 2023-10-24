@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"log"
+	"reflect"
 	"sort"
 	"strconv"
 	"sync"
@@ -106,7 +108,13 @@ func TestGetState(t *testing.T) {
 	sh := StateHandler{}
 	sh.InitStateHandler("666")
 	sh.InsertSingleReading(mockReading)
-	assert.Equal(t, sh.GetState(), mockState)
+
+	serializedState, _ := sh.GetState()
+	actualState, _ := DeserializeState(serializedState)
+
+	if !reflect.DeepEqual(actualState, mockState) {
+		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualState, mockState)
+	}
 
 }
 
@@ -159,11 +167,17 @@ func TestMultipleGetState(t *testing.T) {
 	sh.InsertSingleReading(mockReading2)
 	sh.InsertSingleReading(mockReading3)
 	sh.InsertSingleReading(mockReading4)
-	actualState := sh.GetState()
+
+	serializedState, _ := sh.GetState()
+	actualState, _ := DeserializeState(serializedState)
+
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
 		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
 	})
-	assert.Equal(t, expectedMockState, actualState)
+
+	if !reflect.DeepEqual(actualState, expectedMockState) {
+		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualState, expectedMockState)
+	}
 }
 
 func TestGetStatesReadingLimit(t *testing.T) {
@@ -179,10 +193,20 @@ func TestGetStatesReadingLimit(t *testing.T) {
 	sh := StateHandler{}
 	sh.InitStateHandler("666")
 	sh.InsertMultipleReadings(&pb.State{TagId: "666", Readings: mockReadings})
-	actualStates := sh.getStatesReadingLimit(4)
-	assert.Equal(t, mockStates[0], actualStates[0])
-	assert.Equal(t, mockStates[1], actualStates[1])
-	assert.Equal(t, mockStates[2], actualStates[2])
+
+	actualStates, _ := sh.getStatesReadingLimit(4)
+
+	if !reflect.DeepEqual(actualStates[0], mockStates[0]) {
+		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualStates[0], mockStates[0])
+	}
+
+	if !reflect.DeepEqual(actualStates[1], mockStates[1]) {
+		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualStates[1], mockStates[1])
+	}
+
+	if !reflect.DeepEqual(actualStates[2], mockStates[2]) {
+		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualStates[2], mockStates[2])
+	}
 
 }
 

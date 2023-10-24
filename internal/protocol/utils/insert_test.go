@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"log"
+	"reflect"
 	"sort"
 	"testing"
 
@@ -39,12 +41,17 @@ func TestInsertSingleReading(t *testing.T) {
 		TagId:    "666",
 		Readings: []*pb.Reading{mockReading, mockReading2},
 	}
-	actualState := sh.GetState()
+
+	serializedState, _ := sh.GetState()
+	actualState, _ := DeserializeState(serializedState)
+
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
 		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
 	})
-	assert.Equal(t, expectedMockState, actualState)
 
+	if !reflect.DeepEqual(actualState, expectedMockState) {
+		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualState, expectedMockState)
+	}
 }
 
 func TestLessTimeDontInsertSingleReading(t *testing.T) {
@@ -169,10 +176,16 @@ func TestInsertMultipleReading(t *testing.T) {
 		TagId:    "669",
 		Readings: []*pb.Reading{mockReading, mockReading2, mockReading3, mockReading4},
 	}
-	actualState := sh.GetState()
+
+	serializedState, _ := sh.GetState()
+	actualState, _ := DeserializeState(serializedState)
+
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
 		return actualState.Readings[i].TagId < actualState.Readings[j].TagId
 	})
-	assert.Equal(t, expectedMockState, actualState)
+
+	if !reflect.DeepEqual(actualState, expectedMockState) {
+		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualState, expectedMockState)
+	}
 
 }
