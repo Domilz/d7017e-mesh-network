@@ -38,6 +38,7 @@ class CentralBLEManager @Inject constructor(
     val SERVICE_UUID = "0000181a-0000-1000-8000-00805f9b34fb"
     val CHARACTERISTIC_UUID = "dc78e1f1-45d7-4b14-b66d-71d6e3b6aaf5"
 
+
     private val bleScanner by lazy {
         bluetoothAdapter.bluetoothLeScanner
     }
@@ -62,13 +63,8 @@ class CentralBLEManager @Inject constructor(
             if (device != null) {
                 Log.d("RESULT_SCAN", "Result is: ${result}")
 
-                //var connResult = ConnectionResult("Tag ID: ${result.device}", connectionState = ConnectionState.Connected)
-                //coroutineScope.launch {
-                //    data.emit(Resource.Success(data = connResult))
-
                 coroutineScope.launch {
                     data.emit(Resource.Loading(message = "Connecting to device..."))
-                    //data.emit(Resource.Loading(message = result.toString()))
 
                 }
                 if (isScanning) {
@@ -142,56 +138,7 @@ class CentralBLEManager @Inject constructor(
             coroutineScope.launch {
                 data.emit(Resource.Loading(message = "MTU changed.."))
             }
-
             enableNotification(characteristic)
-            gatt.readCharacteristic(characteristic)
-         }
-
-        override fun onCharacteristicRead(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic,
-            value: ByteArray,
-            status: Int
-        ) {
-            with(characteristic) {
-                when (uuid) {
-                    UUID.fromString(CHARACTERISTIC_UUID) -> {
-                        val charData = String(value, Charset.defaultCharset())
-                        val result = ConnectionResult(charData, CentralState.Connected)
-
-                        coroutineScope.launch{
-                            data.emit(
-                                Resource.Success(data = result)
-                            )
-                        }
-                    }
-
-                    else -> Unit
-                }
-            }
-        }
-
-        @Deprecated("Deprecated in Java")
-        override fun onCharacteristicRead(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic,
-            status: Int
-        ) {
-            with(characteristic) {
-                when (uuid) {
-                    UUID.fromString(CHARACTERISTIC_UUID) -> {
-                        val charData = String(value, Charset.defaultCharset())
-                        val result = ConnectionResult(charData, CentralState.Connected)
-
-                        coroutineScope.launch{
-                            data.emit(
-                                Resource.Success(data = result)
-                            )
-                        }
-                    }
-                    else -> Unit
-                }
-            }
         }
 
         override fun onCharacteristicChanged(
@@ -199,6 +146,7 @@ class CentralBLEManager @Inject constructor(
             characteristic: BluetoothGattCharacteristic,
             value: ByteArray
         ) {
+            Log.d("Central", "onCharacteristicChanged")
             with(characteristic) {
                 when (uuid) {
                     UUID.fromString(CHARACTERISTIC_UUID) -> {
@@ -215,6 +163,7 @@ class CentralBLEManager @Inject constructor(
                     else -> Unit
                 }
             }
+            gatt.readCharacteristic(characteristic)
         }
 
         @Deprecated("Deprecated in Java")
@@ -222,6 +171,7 @@ class CentralBLEManager @Inject constructor(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
         ) {
+            Log.d("Central", "onCharacteristicChanged")
             with(characteristic) {
                 when (uuid) {
                     UUID.fromString(CHARACTERISTIC_UUID) -> {
@@ -239,7 +189,9 @@ class CentralBLEManager @Inject constructor(
                     else -> Unit
                 }
             }
+            gatt.readCharacteristic(characteristic)
         }
+
     }
 
     private fun enableNotification(characteristic: BluetoothGattCharacteristic) {
@@ -250,19 +202,16 @@ class CentralBLEManager @Inject constructor(
             else -> return
         }
 
-        characteristic.getDescriptor(cccdUuid)?.let { cccdDescriptor ->
-            if(gatt?.setCharacteristicNotification(characteristic, true) == false){
-                Log.d("BLEReceiveManager","set characteristics notification failed")
-                return
-            }
-            writeDescription(cccdDescriptor, payload)
-        }
+        val cccDescriptor = characteristic.getDescriptor(cccdUuid)
+        gatt?.setCharacteristicNotification(characteristic, true)
+        writeDescription(cccDescriptor, payload)
+
     }
 
     private fun writeDescription(descriptor: BluetoothGattDescriptor, payload: ByteArray){
         gatt?.let { gatt ->
             if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
-                descriptor.value = payload
+                descriptor.setValue(payload)
                 gatt.writeDescriptor(descriptor)
             } else {
                 gatt.writeDescriptor(descriptor, payload)
@@ -291,11 +240,13 @@ class CentralBLEManager @Inject constructor(
     }
 
     override fun disconnect() {
+        Log.d("Central", "Disconnected connection")
         gatt?.disconnect()
     }
 
 
     override fun closeConnection() {
+        Log.d("Central", "Closed connection")
         bleScanner.stopScan(scanCallback)
         gatt?.close()
     }
