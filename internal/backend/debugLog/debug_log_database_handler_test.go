@@ -1,4 +1,4 @@
-package debugglog
+package debuglog
 
 import (
 	"testing"
@@ -6,13 +6,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSaveAndGetDebuggLog(t *testing.T) {
+func TestSaveAndGetDebugLog(t *testing.T) {
 
-	dbLDB := InitDebuggLogDatabase("database/DebuggLogDatabase.db")
+	dbLDB := InitDebugLogDatabase("database/DebugLogDatabase.db")
 
 	byteArray := []byte{97, 98, 99, 100, 101, 102}
 	dbLDB.Save(byteArray)
-	_, data := dbLDB.GetDebuggLog()
+	_, data := dbLDB.GetDebugLog()
 	assert.Equal(t, byteArray, data[len(data)-1])
 
 }

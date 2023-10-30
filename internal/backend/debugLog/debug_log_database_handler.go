@@ -1,4 +1,4 @@
-package debugglog
+package debuglog
 
 import (
 	"database/sql"
@@ -8,13 +8,13 @@ import (
 	_ "github.com/mattn/go-sqlite3" // Import SQLite methods.
 )
 
-type DebuggLogDatabaseHandler struct {
+type DebugLogDatabaseHandler struct {
 	database *sql.DB
 }
 
-func InitDebuggLogDatabase(path string) *DebuggLogDatabaseHandler {
+func InitDebugLogDatabase(path string) *DebugLogDatabaseHandler {
 	//database/data/DB.db
-	debuggLogDatabaseHandler := &DebuggLogDatabaseHandler{}
+	debugLogDatabaseHandler := &DebugLogDatabaseHandler{}
 	db, err := sql.Open("sqlite3", "file:"+path+"?cache=shared&_journal=WAL&_foreign_keys=on")
 	if err != nil {
 		panic(err.Error())
@@ -27,31 +27,31 @@ func InitDebuggLogDatabase(path string) *DebuggLogDatabaseHandler {
 		panic(err.Error())
 
 	} else {
-		debuggLogDatabaseHandler.database = db
-		return debuggLogDatabaseHandler
+		debugLogDatabaseHandler.database = db
+		return debugLogDatabaseHandler
 	}
 
 }
 
-func (debuggLogDatabaseHandler *DebuggLogDatabaseHandler) Save(data []byte) {
+func (debugLogDatabaseHandler *DebugLogDatabaseHandler) Save(data []byte) {
 	currentTime := time.Now().Format("2006-01-02T15:04:05.000Z")
-	stmt, err := debuggLogDatabaseHandler.database.Prepare("INSERT INTO DebuggLog (date, data) VALUES (?,?)")
+	stmt, err := debugLogDatabaseHandler.database.Prepare("INSERT INTO DebugLog (date, data) VALUES (?,?)")
 	_, err = stmt.Exec(currentTime, data)
 	defer stmt.Close()
 	if err != nil {
 		println(err.Error())
-		panic("Encounterd an error, debuggLog failed to save")
+		panic("Encounterd an error, debugLog failed to save")
 	}
 }
 
-func (debuggLogDatabaseHandler *DebuggLogDatabaseHandler) GetDebuggLog() ([]string, [][]byte) {
+func (debugLogDatabaseHandler *DebugLogDatabaseHandler) GetDebugLog() ([]string, [][]byte) {
 
 	var dates []string
 	var dataList [][]byte
 
 	var rows *sql.Rows
 	//var err error
-	rows, _ = debuggLogDatabaseHandler.database.Query("SELECT * FROM DebuggLog")
+	rows, _ = debugLogDatabaseHandler.database.Query("SELECT * FROM DebugLog")
 	defer rows.Close()
 
 	for rows.Next() {
@@ -60,7 +60,7 @@ func (debuggLogDatabaseHandler *DebuggLogDatabaseHandler) GetDebuggLog() ([]stri
 		err := rows.Scan(&address, &data)
 		if err != nil {
 			println(err.Error())
-			panic("Encounterd an error while quering the database table DebuggLog")
+			panic("Encounterd an error while quering the database table DebugLog")
 		} else {
 
 			dates = append(dates, address)

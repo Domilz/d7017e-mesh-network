@@ -1,12 +1,12 @@
 package main
 
 import (
-	debuggLog "github.com/Domilz/d7017e-mesh-network/internal/backend/debuggLog"
+	debugLog "github.com/Domilz/d7017e-mesh-network/internal/backend/debugLog"
 )
 
 func main() {
 
-	debuggLog.StartDebuggLogServer("debuggLog/database/DebuggLogDatabase.db", "./debuggLog/debuggLogFormat.html")
+	debugLog.StartDebugLogServer("debugLog/database/DebugLogDatabase.db", "./debugLog/debugLogFormat.html")
 
 	select {}
 }
