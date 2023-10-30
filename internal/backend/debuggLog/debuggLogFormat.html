@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Data</th>
+
+        </tr>
+        {{ range .Items}}
+        <tr>
+            <td>{{ .Date }}</td>
+            <td>{{ .Data }}</td>
+        </tr>
+        {{ end}}
+    </table>
+</body>
+
+</html>

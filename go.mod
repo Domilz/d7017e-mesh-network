@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/grpc v1.58.2
 	google.golang.org/protobuf v1.31.0
