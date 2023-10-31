@@ -2,6 +2,7 @@ package com.epiroc.wifiaware.Services
 
 
 import android.Manifest
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -34,32 +35,26 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.integerArrayResource
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.edit
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
-import com.epiroc.wifiaware.ViewModels.HomeScreenViewModel
-import com.epiroc.wifiaware.ViewModels.HomeScreenViewModelFactory
-import java.io.BufferedReader
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable.isActive
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.IOException
-import java.io.InputStreamReader
-import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.lang.Exception
-import java.net.BindException
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
@@ -68,9 +63,13 @@ import java.util.TimerTask
 import java.util.UUID
 
 class WifiAwareService : Service() {
+    private var Done: Boolean = false
+
+
     private lateinit var serviceUUID: String
     data class DeviceConnection(val deviceIdentifier: String, val timestamp: Long)
 
+    private val serviceScope = CoroutineScope(Dispatchers.Main)
 
     val hasWifiAwareText: MutableState<String> = mutableStateOf("")
     val publishMessageLiveData: MutableState<String> = mutableStateOf("")
@@ -103,6 +102,7 @@ class WifiAwareService : Service() {
         uuidMessageLiveData.value = serviceUUID
         super.onCreate()
         createNotificationChannel()
+
     }
 
     private fun createNotificationChannel() {
@@ -148,9 +148,6 @@ class WifiAwareService : Service() {
 
         startForeground(1, notification)
 
-
-        // Initialize the ViewModel
-        //viewModel = HomeScreenViewModel(this, packageManager)
         availability()
 
         val cleanUpHandler = Handler(Looper.getMainLooper())
@@ -166,6 +163,33 @@ class WifiAwareService : Service() {
         // To start cleanup process
         cleanUpHandler.post(cleanUpRunnable)
 
+      /*  val monitorHandler = Handler(Looper.getMainLooper())
+        val monitorRunnable = object : Runnable {
+            override fun run() {
+                if (publisherDone && subscriberDone) {
+                    // Restart the service or any other action you want to take
+                    subscriberDone = false
+                    publisherDone = false
+                    wifiAwareSession = null
+                    wifiAwareManager = null
+                    connectivityManager = null
+                    currentNetworkCapabilities = null
+                    serverSocket = null
+                    cs = null
+                    currentSubSession?.close()
+                    currentPubSession?.close()
+
+                    availability()
+
+                    return // exit the runnable since our conditions are met
+                }
+                // If conditions aren't met, schedule the next check
+                monitorHandler.postDelayed(this, 1000) // check every 1 second, adjust as needed
+            }
+        }
+        monitorHandler.post(monitorRunnable)*/
+
+
         //Thread.sleep(10000)
         // Start publish and subscribe tasks
 
@@ -177,6 +201,7 @@ class WifiAwareService : Service() {
         Log.d("1Wifi","Service destroyed")
         super.onDestroy()
         closeServerSocket()
+        serviceScope.cancel()
     }
 
 
@@ -251,6 +276,7 @@ class WifiAwareService : Service() {
                 Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
                 establishConnection(peerHandle)
 
+
             }
         }
 
@@ -319,6 +345,7 @@ class WifiAwareService : Service() {
                             socket.connect(InetSocketAddress(peerIpv6, peerPort), 5000)
                         } catch (e: Exception) {
                             Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
+                            return
                         }
                         if (socket != null) {
                             handleDataExchange(peerHandle, socket)
@@ -328,6 +355,7 @@ class WifiAwareService : Service() {
                         currentNetworkCapabilities = null
                     }
                 }
+
 
                 override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
                     //Thread.sleep(100)
@@ -343,14 +371,14 @@ class WifiAwareService : Service() {
                     Log.d("1Wifi", "SUBSCRIBE: SUBSCRIBE CONNECTION LOST")
 
                     // Close the SubscribeDiscoverySession
-                    currentSubSession?.let {
-                        it.close()
-                        currentSubSession = null // Set it to null after closing
-                    }
+                    currentSubSession?.close()
+                    currentSubSession = null
+                    wifiAwareSession?.close()
 
                     // Close any open ClientSocket
                     try {
                         cs?.close()
+                        cs = null
                     } catch (e: IOException) {
                         Log.d("1Wifi", "SUBSCRIBE: Error while closing the client socket", e)
                     }
@@ -359,11 +387,19 @@ class WifiAwareService : Service() {
                             // connectivityManager?.unregisterNetworkCallback(callbackSub)
 
                     // Re-initialize the subscribe logic after a delay
+
                     Timer().schedule(object : TimerTask() {
                         override fun run() {
-                            subscribeToWifiAwareSessions()
+                            //publishUsingWifiAware()
+                            //subscribeToWifiAwareSessions()
+                            if(!Done) {
+                                Done = true
+                                Log.e("1Wifi", "SUBSCRIBE: now calling availability()")
+                                availability()
+                            }
+
                         }
-                    }, 180000) // Delay in milliseconds
+                    }, 10000) // Delay in milliseconds
                 }
             }
 
@@ -392,6 +428,8 @@ class WifiAwareService : Service() {
                 Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
             }
         }
+        Log.d("DONEEE", "subscriberDone = true")
+        //subscriberDone = true
     }
 
 
@@ -472,12 +510,27 @@ class WifiAwareService : Service() {
                             override fun onLost(network: Network) {
                                 networkMessageLiveData.value = "NETWORK: Connection lost: $network"
                                 Log.d("1Wifi", "PUBLISH: Connection lost: $network")
+                                currentPubSession?.close()
+                                currentPubSession = null
+                                wifiAwareSession?.close()
                                 try {
                                     serverSocket?.close()
                                     serverSocket = null
                                 } catch (e: IOException) {
                                     Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
                                 }
+                                Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED")
+                                Timer().schedule(object : TimerTask() {
+                                    override fun run() {
+
+                                        if(!Done) {
+                                            Done = true
+                                            Log.e("1Wifi", "PUBLISH: now calling availability()")
+                                            availability()
+                                        }
+                                    }
+                                }, 10000) // Delay in milliseconds
+
                             }
                         }
                         //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -533,12 +586,8 @@ class WifiAwareService : Service() {
         }
         Log.d("1Wifi", "PUBLISH: All information received we are done")
         publishMessageLiveData.value = "PUBLISH: Messages received count: ${messagesReceived.count()}"
-    }
-
-
-    private fun handleNetworkLost() {
-        Log.d("1Wifi", "Network lost. Handle it now.")
-        closeServerSocket()
+        Log.d("DONEEE", "publisherDone = true")
+        //publisherDone = true
     }
 
     private fun wifiAwareState(): String {
@@ -604,16 +653,12 @@ class WifiAwareService : Service() {
         }
     }
 
-    fun availability(): String {
-        val hasSystemFeature = packageManager.hasSystemFeature(PackageManager.FEATURE_WIFI_AWARE)
-        val acquisitionMessage: String
-        acquisitionMessage = if (hasSystemFeature) {
-            wifiAwareState()
-            acquireWifiAwareSession()
-        } else {
-            "Wifi Aware is not supported on this device."
-        }
-        return acquisitionMessage
+    fun availability() {
+        wifiAwareState()
+        Log.d("1Wifi","wifiAwareState Done")
+        acquireWifiAwareSession()
+        Log.d("1Wifi","acquireWifiAwareSession Done")
+        Done = false
     }
 
 

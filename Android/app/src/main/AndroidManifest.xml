@@ -41,7 +41,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".Services.WifiAwareService" />
+        <service
+            android:name=".Services.WifiAwareService"
+            android:foregroundServiceType="location"
+            android:enabled="true"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>
