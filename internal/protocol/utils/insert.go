@@ -13,9 +13,9 @@ func (stateHandler *StateHandler) InsertMultipleReadings(state *pb.State) {
 
 func (stateHandler *StateHandler) InsertSingleReading(reading *pb.Reading) {
 	stateHandler.lock()
-	_, key := stateHandler.readingsMap[reading.TagId]
+	value, keyExist := stateHandler.readingsMap[reading.TagId]
 
-	if !key || findLatestTimestamp(stateHandler.readingsMap[reading.TagId], reading) {
+	if !keyExist || findLatestTimestamp(value, reading) {
 
 		stateHandler.readingsMap[reading.TagId] = reading
 

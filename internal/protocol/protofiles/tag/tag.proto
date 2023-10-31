@@ -21,4 +21,5 @@ message Reading {
     string rp_id             = 2; // ID of the reported device
     int32 rssi                     = 3; // Received signal strength indicator
     google.protobuf.Timestamp ts = 4; // Time reading was received
+    int32 isDirect = 5; //Is 0 if indirect and 1 if direct
 }
