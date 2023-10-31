@@ -9,11 +9,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0205958b-2b50-4ff4-bcb7-473a28743cf7" name="Changes" comment="WifiAware now kinda works in the background. Some bugs left to iron out!">
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/MainActivity.kt" afterDir="false" />
+    <list default="true" id="0205958b-2b50-4ff4-bcb7-473a28743cf7" name="Changes" comment="Previous connections are now saved using uuid and checked before connecting. Still bugs with reconnecting.">
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/ViewModels/HomeScreenViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/ViewModels/HomeScreenViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -227,7 +225,13 @@
       <option name="presentableId" value="LOCAL−00005" />
       <updated>1697270838860</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL−00006" summary="Previous connections are now saved using uuid and checked before connecting. Still bugs with reconnecting.">
+      <created>1698170098485</created>
+      <option name="number" value="LOCAL−00006" />
+      <option name="presentableId" value="LOCAL−00006" />
+      <updated>1698170098485</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -248,7 +252,8 @@
     <MESSAGE value="Test" />
     <MESSAGE value="unclear what works atm" />
     <MESSAGE value="WifiAware now kinda works in the background. Some bugs left to iron out!" />
-    <option name="LAST_COMMIT_MESSAGE" value="WifiAware now kinda works in the background. Some bugs left to iron out!" />
+    <MESSAGE value="Previous connections are now saved using uuid and checked before connecting. Still bugs with reconnecting." />
+    <option name="LAST_COMMIT_MESSAGE" value="Previous connections are now saved using uuid and checked before connecting. Still bugs with reconnecting." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -300,11 +305,6 @@
         </line-breakpoint>
         <line-breakpoint type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt</url>
-          <line>41</line>
-          <option name="timeStamp" value="227" />
-        </line-breakpoint>
-        <line-breakpoint type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt</url>
           <line>33</line>
           <option name="timeStamp" value="232" />
         </line-breakpoint>
@@ -315,32 +315,32 @@
         </line-breakpoint>
         <line-breakpoint type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
-          <line>587</line>
+          <line>593</line>
           <option name="timeStamp" value="247" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
-          <line>530</line>
+          <line>536</line>
           <option name="timeStamp" value="328" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
-          <line>535</line>
+          <line>541</line>
           <option name="timeStamp" value="329" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
-          <line>368</line>
+          <line>371</line>
           <option name="timeStamp" value="330" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
-          <line>358</line>
+          <line>361</line>
           <option name="timeStamp" value="331" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
-          <line>523</line>
+          <line>529</line>
           <option name="timeStamp" value="332" />
         </line-breakpoint>
       </breakpoints>

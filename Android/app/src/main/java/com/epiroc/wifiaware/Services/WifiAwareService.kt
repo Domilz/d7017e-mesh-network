@@ -74,6 +74,8 @@ class WifiAwareService : Service() {
 
     val hasWifiAwareText: MutableState<String> = mutableStateOf("")
     val publishMessageLiveData: MutableState<String> = mutableStateOf("")
+    val networkMessageLiveData: MutableState<String> = mutableStateOf("")
+    val uuidMessageLiveData: MutableState<String> = mutableStateOf("")
     val subscribeMessageLiveData: MutableState<String> = mutableStateOf("")
 
 
@@ -98,11 +100,10 @@ class WifiAwareService : Service() {
     override fun onCreate() {
         Log.d("1Wifi","Service created")
         serviceUUID = UUID.randomUUID().toString()
+        uuidMessageLiveData.value = serviceUUID
         super.onCreate()
         createNotificationChannel()
     }
-
-    //private lateinit var viewModel: HomeScreenViewModel
 
     private fun createNotificationChannel() {
 
@@ -247,13 +248,13 @@ class WifiAwareService : Service() {
                     Log.d("1Wifi", "SUBSCRIBE: We Connected to $serviceUUID In the sub")
                     Thread.sleep(100)
                     recentlyConnectedDevices.add(DeviceConnection(peerHandle.toString(),System.currentTimeMillis()))
-                    subscribeMessageLiveData.value = "SUBSCRIBE: Connected to  $peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()}"
+                    subscribeMessageLiveData.value = "SUBSCRIBE: Connected to  $serviceUUID                                                      THESE ARE THE DETAILS:($peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()})"
                     val byteArrayToSend = "tag_id:\"SUBSCRIBE\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
                     Log.d("1Wifi", "SUBSCRIBE: we are sending a message now")
                     currentSubSession?.sendMessage(
                         peerHandle,
                         0, // Message type (0 for unsolicited)
-                        byteArrayToSend.toByteArray(Charsets.UTF_8)
+                        serviceUUID.toByteArray(Charsets.UTF_8)
                     )
 
                 }else{
@@ -266,6 +267,8 @@ class WifiAwareService : Service() {
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 // Handle incoming data here.
+                subscribeMessageLiveData.value = "SUBSCRIBE: GOT A MESSAGE FROM THE FOLLOWING UUID " + String(message, Charsets.UTF_8)
+
                 Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
                 establishConnection(peerHandle)
 
@@ -461,9 +464,10 @@ class WifiAwareService : Service() {
                         val callback = object : ConnectivityManager.NetworkCallback() {
                             override fun onAvailable(network: Network) {
                                 try {
+                                    networkMessageLiveData.value = "NETWORK: we are ???${network}"
                                     val clientSocket = ss.accept()
                                     handleClient(clientSocket)
-                                    Log.d("1Wifi", "PUBLISH: Accepting client ${network.toString()}")
+                                    Log.d("1Wifi", "PUBLISH: Accepting client ${network}")
                                 } catch (e: Exception) {
                                     Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
                                 }
@@ -472,10 +476,12 @@ class WifiAwareService : Service() {
 
 
                             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                                networkMessageLiveData.value = "NETWORK: we are ???${network}"
                                 Log.d("1Wifi", "PUBLISH: onCapabilitiesChanged incoming: $networkCapabilities")
                             }
 
                             override fun onLost(network: Network) {
+                                networkMessageLiveData.value = "NETWORK: we are ???${network}"
                                 Log.d("1Wifi", "PUBLISH: Connection lost: $network")
                                 handleNetworkLost()
                             }
@@ -496,7 +502,7 @@ class WifiAwareService : Service() {
                                 currentPubSession?.sendMessage(
                                     peerHandle,
                                     0, // Message type (0 for unsolicited)
-                                    byteArrayToSend.toByteArray(Charsets.UTF_8)
+                                    serviceUUID.toByteArray(Charsets.UTF_8)
                                 )
                             }
                         }, 1000) // Delay in milliseconds

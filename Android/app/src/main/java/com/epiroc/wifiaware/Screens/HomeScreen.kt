@@ -38,9 +38,6 @@ fun ServiceAwareContent(service: WifiAwareService) {
 }
 @Composable
 fun HomeScreen(service:WifiAwareService) {
-    //var test = false
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,9 +45,11 @@ fun HomeScreen(service:WifiAwareService) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (service != null) {
+            Text(text = service.uuidMessageLiveData.value)
             Text(text = service.hasWifiAwareText.value)
             Text(text = service.publishMessageLiveData.value)
             Text(text = service.subscribeMessageLiveData.value)
+            Text(text = service.networkMessageLiveData.value)
         }
     }
 }
