@@ -5,8 +5,26 @@ import (
 )
 
 func (stateHandler *StateHandler) InsertMultipleReadings(state *pb.State) {
+	selfReading, _ := stateHandler.readingsMap[stateHandler.TagId]
 	for _, reading := range state.Readings {
-		stateHandler.InsertSingleReading(reading)
+		if reading.TagId == state.TagId {
+			if findLatestTimestamp(reading, selfReading) {
+				selfReading.IsDirect = 0
+				selfReading.RpId = reading.RpId
+				selfReading.Rssi = reading.Rssi
+				selfReading.Ts = reading.Ts
+				stateHandler.InsertSingleReading(reading)
+			} else {
+				reading.IsDirect = 0
+				reading.RpId = selfReading.RpId
+				reading.Rssi = selfReading.Rssi
+				reading.Ts = selfReading.Ts
+				stateHandler.InsertSingleReading(reading)
+			}
+		} else {
+			stateHandler.InsertSingleReading(reading)
+		}
+
 	}
 
 }
