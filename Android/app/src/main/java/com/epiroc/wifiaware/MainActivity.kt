@@ -1,5 +1,6 @@
 package com.epiroc.wifiaware
 
+import com.epiroc.wifiaware.services.WifiAwareService
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -10,11 +11,12 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.app.ActivityCompat
-import com.epiroc.wifiaware.Screens.ServiceAwareContent
-import com.epiroc.wifiaware.Screens.permissionsToRequest
-import com.epiroc.wifiaware.Services.WifiAwareService
+import com.epiroc.wifiaware.screens.ServiceAwareContent
+import com.epiroc.wifiaware.screens.permissionsToRequest
 import android.Manifest
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 
 
 class MainActivity : ComponentActivity() {
@@ -32,6 +34,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("1Wifi","Service created in main")
         if (ActivityCompat.checkSelfPermission(

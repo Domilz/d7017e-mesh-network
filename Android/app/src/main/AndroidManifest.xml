@@ -42,7 +42,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".Services.WifiAwareService"
+            android:name=".services.WifiAwareService"
             android:foregroundServiceType="location"
             android:enabled="true"
             android:exported="false">
