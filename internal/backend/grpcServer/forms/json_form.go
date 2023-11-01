@@ -9,7 +9,7 @@ type ReferencePointForm struct {
 }
 
 type RssiForm struct {
-	Readings ReadingStruct `json:"readings"`
+	Readings []ReadingStruct `json:"readings"`
 }
 
 type XYZForm struct {
