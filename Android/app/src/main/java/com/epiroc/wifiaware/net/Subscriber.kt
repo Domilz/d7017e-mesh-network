@@ -11,6 +11,8 @@ import android.net.wifi.aware.*
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import com.epiroc.wifiaware.net.common.BaseManager
@@ -24,13 +26,16 @@ import java.util.TimerTask
 
 class Subscriber(
     ctx: Context,
-    private var nanSession: WifiAwareSession,
-    private var cManager: ConnectivityManager
+    nanSession: WifiAwareSession,
+    cManager: ConnectivityManager,
+    srvcName: String
 ) {
 
     data class DeviceConnection(val deviceIdentifier: String, val timestamp: Long)
 
+    private val serviceName = srvcName
     private val context = ctx
+    private val subscribeMessageLiveData: MutableState<String> = mutableStateOf("")
     private var connectivityManager = cManager
     private var discoverySession: SubscribeDiscoverySession? = null
     private var wifiAwareSession = nanSession
@@ -51,8 +56,6 @@ class Subscriber(
             Log.d("1Wifi","SUBSCRIBE: Wifi Aware session is not available")
             return
         }
-
-        val serviceName = "epiroc_mesh" // Match the service name used for publishing.
 
         val subscribeConfig = SubscribeConfig.Builder()
             .setServiceName(serviceName)
@@ -78,7 +81,7 @@ class Subscriber(
                     //Log.d("1Wifi", "SUBSCRIBE: We Connected to $serviceUUID In the sub")
                     Thread.sleep(100)
                     recentlyConnectedDevices.add(DeviceConnection(peerHandle.toString(),System.currentTimeMillis()))
-                    //subscribeMessageLiveData.value = "SUBSCRIBE: Connected to  $serviceUUID                                                      THESE ARE THE DETAILS:($peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()})"
+                    subscribeMessageLiveData.value = "SUBSCRIBE: Connected to another phone we dont have UUID implemented...                                                    THESE ARE THE DETAILS:($peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()})"
                     Log.d("1Wifi", "SUBSCRIBE: we are sending a message now")
                     Timer().schedule(object : TimerTask() {
                         override fun run() {
@@ -102,7 +105,7 @@ class Subscriber(
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 // Handle incoming data here.
-                //subscribeMessageLiveData.value = "SUBSCRIBE: GOT A MESSAGE FROM THE FOLLOWING UUID " + String(message, Charsets.UTF_8)
+                subscribeMessageLiveData.value = "SUBSCRIBE: GOT A MESSAGE FROM THE FOLLOWING UUID " + String(message, Charsets.UTF_8)
 
                 Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
                 establishConnection(peerHandle)
@@ -214,7 +217,7 @@ class Subscriber(
             }
 
             override fun onLost(network: Network) {
-                //subscribeMessageLiveData.value = "SUBSCRIBE: Network lost for peer: $peerHandle It will now start a new sub session in 3 min"
+                subscribeMessageLiveData.value = "SUBSCRIBE: Network lost for peer: $peerHandle It will now start a new sub session in 3 min"
                 Log.d("1Wifi", "SUBSCRIBE: Network lost for peer: $peerHandle")
                 Log.d("1Wifi", "SUBSCRIBE: SUBSCRIBE CONNECTION LOST")
 
@@ -248,5 +251,9 @@ class Subscriber(
 
         // Request the network and handle connection in the callback as shown above.
         connectivityManager?.requestNetwork(myNetworkRequest, callback)
+    }
+
+    fun getSubscribeMessageLiveData(): MutableState<String> {
+        return if (::subscribeMessageLiveData != null) subscribeMessageLiveData else mutableStateOf("")
     }
 }

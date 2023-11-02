@@ -1,6 +1,6 @@
 package com.epiroc.wifiaware.Screens
 
-import com.epiroc.wifiaware.services.WifiAwareService
+import com.epiroc.wifiaware.Services.WifiAwareService
 import android.Manifest
 import android.content.Intent
 import android.os.Build
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,11 +44,10 @@ fun HomeScreen(service:WifiAwareService) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (service != null) {
-            // TODO: Implement
             //Text(text = service.uuidMessageLiveData.value)
-            //Text(text = service.hasWifiAwareText.value)
-            //Text(text = service.publishMessageLiveData.value)
-            //Text(text = service.subscribeMessageLiveData.value)
+            Text(text = service.hasWifiAwareText.value)
+            service.getPublisher()?.publishMessageLiveData?.let {Text(text = it.value) }
+            //service.getSubscriber()?.getSubscribeMessageLiveData()?.let {Text(text = it.value) }
             //Text(text = service.networkMessageLiveData.value)
         }
     }

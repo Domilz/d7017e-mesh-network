@@ -1,4 +1,4 @@
-package com.epiroc.wifiaware.services
+package com.epiroc.wifiaware.Services
 
 import android.Manifest
 import android.app.Notification
@@ -38,8 +38,8 @@ class WifiAwareService : Service() {
 
     private lateinit var publisher: Publisher
     private lateinit var subscriber: Subscriber
-    private val messagesReceived = mutableListOf<String>()
-    var connectivityManager: ConnectivityManager? = null
+    //private val messagesReceived = mutableListOf<String>()
+    private var connectivityManager: ConnectivityManager? = null
     var wifiAwareSession: WifiAwareSession? = null
     var wifiAwareManager: WifiAwareManager? = null
     val hasWifiAwareText: MutableState<String> = mutableStateOf("")
@@ -56,25 +56,26 @@ class WifiAwareService : Service() {
                 super.onAttached(session)
                 val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+                val serviceName = "epiroc_mesh"
+
                 // Initialize the publisher and subscriber
                 publisher = Publisher(
                     ctx = applicationContext,
                     nanSession = wifiAwareSession!!,
-                    cManager = connectivityManager!!
+                    cManager = connectivityManager!!,
+                    srvcName = serviceName
                 )
 
                 subscriber = Subscriber(
                     ctx = applicationContext,
                     session,
-                    connectivityManager
+                    connectivityManager,
+                    srvcName = serviceName
                 )
             }
-
-            override fun onAttachFailed() {
-                super.onAttachFailed()
-                // Handle attach failed event
-            }
         }, null)
+
+        wifiAwareState()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -114,27 +115,23 @@ class WifiAwareService : Service() {
     private fun createNotification(): Notification {
         // Create an intent that will open your app when the notification is clicked
         val intent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         // Create the notification
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Wifi Aware Service")
             .setContentText("Running...")
             .setSmallIcon(R.drawable.ic_launcher_foreground)  // use your app's icon
             .setContentIntent(pendingIntent)
             .build()
-
-        return notification
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        // Stop the publisher and subscriber
-        //publisher.stop()
-        //subscriber.stop()
-    }
-
+    // UI function for if WifiAware is available or not.
     private fun wifiAwareState(): String {
         Log.d("1Wifi", "Checking Wifi Aware state.")
         var wifiAwareAvailable = ""
@@ -200,6 +197,14 @@ class WifiAwareService : Service() {
 
     inner class LocalBinder : Binder() {
         fun getService(): WifiAwareService = this@WifiAwareService
+    }
+
+    fun getPublisher(): Publisher? {
+        return if (::publisher.isInitialized) publisher else null
+    }
+
+    fun getSubscriber(): Subscriber? {
+        return if (::subscriber.isInitialized) subscriber else null
     }
 
     private val binder = LocalBinder()

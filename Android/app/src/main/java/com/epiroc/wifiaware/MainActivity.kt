@@ -1,6 +1,6 @@
 package com.epiroc.wifiaware
 
-import com.epiroc.wifiaware.services.WifiAwareService
+import com.epiroc.wifiaware.Services.WifiAwareService
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent

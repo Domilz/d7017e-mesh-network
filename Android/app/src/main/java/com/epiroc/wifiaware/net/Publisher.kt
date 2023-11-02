@@ -13,6 +13,8 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ComponentActivity
 import com.epiroc.wifiaware.Screens.permissionsToRequest
@@ -26,20 +28,23 @@ class Publisher(
     ctx: Context,
     nanSession: WifiAwareSession,
     cManager: ConnectivityManager,
+    srvcName: String
 ) {
     private var context = ctx
     private var connectivityManager = cManager
     private var serverSocket: ServerSocket? = null
     private var currentPubSession: DiscoverySession? = null
 
+    private val serviceName = srvcName
     private val messagesReceived: MutableList<String> = mutableListOf<String>()
     private val wifiAwareSession = nanSession
+    val publishMessageLiveData: MutableState<String> = mutableStateOf("")
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun publishUsingWifiAware() {
         Log.d("1Wifi", "PUBLISH: Attempting to start publishUsingWifiAware.")
         if (wifiAwareSession != null) {
-            val serviceName = "epiroc_mesh"
+
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
 
             val config = PublishConfig.Builder()
@@ -67,7 +72,7 @@ class Publisher(
                 wifiAwareSession!!.publish(config, object : DiscoverySessionCallback() {
                     override fun onPublishStarted(session: PublishDiscoverySession) {
                         Log.d("1Wifi", "PUBLISH: Publish started")
-                        var currentPubSession = session
+                        currentPubSession = session
                     }
 
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
@@ -92,8 +97,10 @@ class Publisher(
                             override fun onAvailable(network: Network) {
                                 try {
                                     //networkMessageLiveData.value = "NETWORK: we are ??? $network"
-                                    val clientSocket = serverSocket!!.accept()
-                                    handleClient(clientSocket)
+                                    val clientSocket = serverSocket?.accept()
+                                    if (clientSocket != null) {
+                                        handleClient(clientSocket)
+                                    }
                                     Log.d("1Wifi", "PUBLISH: Accepting client $network")
                                 } catch (e: Exception) {
                                     Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
@@ -128,7 +135,7 @@ class Publisher(
                         //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                         connectivityManager?.requestNetwork(myNetworkRequest, callback);
 
-                        //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
+                        publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
                         // Respond to the sender (Device A) if needed.
                         //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
                         Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
@@ -159,6 +166,10 @@ class Publisher(
         }
     }
 
+    fun getPublisherMessageLiveData(): MutableState<String> {
+        return if (::publishMessageLiveData != null) publishMessageLiveData else mutableStateOf("")
+    }
+
     private fun handleClient(clientSocket: Socket) {
         Log.d("1Wifi", "PUBLISH: handleClient started.")
         clientSocket.getInputStream().bufferedReader().use { reader ->
@@ -169,7 +180,7 @@ class Publisher(
         }
 
         Log.d("1Wifi", "PUBLISH: All information received we are done")
-        //publishMessageLiveData.value = "PUBLISH: Messages received count: ${messagesReceived.count()}"
+        publishMessageLiveData.value = "PUBLISH: Messages received count: ${messagesReceived.count()}"
         Log.d("DONEEE", "publisherDone = true")
         //publisherDone = true
     }
