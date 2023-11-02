@@ -30,7 +30,7 @@ func main() {
 	defer conn.Close()
 
 	// Create a gRPC client
-	propogationClient := pb.NewStatePropogationClient(conn)
+	propagationClient := pb.NewStatePropagationClient(conn)
 
 	// Prepare and send the client request
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -46,26 +46,24 @@ func main() {
 		log.Fatalf("error with prepared request: %v", err)
 	}
 
-	propogationStream, err := openBidirectionalStream(ctx, propogationClient)
+	propagationStream, err := openBidirectionalStream(ctx, propagationClient)
 	if err != nil {
 		log.Fatalf("error opening stream: %v", err)
 	}
 
-	sendRequestToStream(propogationStream, request)
-	sendRequestToStream(propogationStream, request2)
+	sendRequestToStream(propagationStream, request)
+	sendRequestToStream(propagationStream, request2)
 
 	// Receive and process the server response
-	go receiveAndProcessResponse(propogationStream)
-	// response, err := receiveAndProcessResponse(propogationStream)
+	go receiveAndProcessResponse(propagationStream)
 	if err != nil {
 		log.Fatalf("error receiving stream: %v", err)
 	}
 
 	log.Println("Fetching state stream from server...")
-	// utils.PrintFormattedState(response)
 
 	// Close the stream
-	if err := closeStream(propogationStream); err != nil {
+	if err := closeStream(propagationStream); err != nil {
 		log.Println(err)
 	}
 
@@ -109,12 +107,12 @@ func prepareRequest(stateID string, readingID string) ([]byte, error) {
 	return serializedState, nil
 }
 
-func openBidirectionalStream(ctx context.Context, client pb.StatePropogationClient) (pb.StatePropogation_PropogationClient, error) {
-	propogationStream, err := client.Propogation(ctx)
-	return propogationStream, err
+func openBidirectionalStream(ctx context.Context, client pb.StatePropagationClient) (pb.StatePropagation_PropagationClient, error) {
+	propagationStream, err := client.Propagation(ctx)
+	return propagationStream, err
 }
 
-func sendRequestToStream(stream pb.StatePropogation_PropogationClient, request []byte) {
+func sendRequestToStream(stream pb.StatePropagation_PropagationClient, request []byte) {
 	deserializedRequest, err := utils.DeserializeState(request)
 	if err != nil {
 		log.Fatalf("error when sending request: %v", err)
@@ -126,7 +124,7 @@ func sendRequestToStream(stream pb.StatePropogation_PropogationClient, request [
 	}
 }
 
-func receiveAndProcessResponse(stream pb.StatePropogation_PropogationClient) (*pb.State, error) {
+func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*pb.State, error) {
 	response, err := stream.Recv()
 	if err == io.EOF {
 		return nil, err
@@ -140,7 +138,7 @@ func receiveAndProcessResponse(stream pb.StatePropogation_PropogationClient) (*p
 	return nil, err
 }
 
-func closeStream(stream pb.StatePropogation_PropogationClient) error {
+func closeStream(stream pb.StatePropagation_PropagationClient) error {
 	err := stream.CloseSend()
 	return err
 }
