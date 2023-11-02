@@ -1,4 +1,4 @@
-package grpcserver
+package main
 
 import (
 	"flag"
@@ -19,10 +19,10 @@ var (
 )
 
 type server struct {
-	pb.UnimplementedStatePropogationServer
+	pb.UnimplementedStatePropagationServer
 }
 
-func (s *server) Propogation(srv pb.StatePropogation_PropogationServer) error {
+func (s *server) Propagation(srv pb.StatePropagation_PropagationServer) error {
 	log.Println("Fetching state stream from client...")
 
 	ctx := srv.Context()
@@ -43,9 +43,8 @@ func (s *server) Propogation(srv pb.StatePropogation_PropogationServer) error {
 	}
 }
 
-func processClientRequest(srv pb.StatePropogation_PropogationServer) error {
+func processClientRequest(srv pb.StatePropagation_PropagationServer) error {
 	request, err := srv.Recv()
-	fmt.Println(request)
 	if err == io.EOF {
 		return err
 	}
@@ -62,27 +61,30 @@ func processClientRequest(srv pb.StatePropogation_PropogationServer) error {
 	return nil
 }
 
-func handleClientRequest(request *pb.State, srv pb.StatePropogation_PropogationServer) error {
+func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationServer) error {
 	// Print the `State` and `Reading` from the client
 	fmt.Println("ACK")
+	fmt.Println("Recived state from client")
+	utils.PrintFormattedState(request)
 	stateHandler.InsertMultipleReadings(request)
-	serializedState, err := stateHandler.GetState()
-	if err != nil {
-		return err
-	}
+	/*
+		serializedState, err := stateHandler.GetState()
+		if err != nil {
+			return err
+		}
 
-	state, err := utils.DeserializeState(serializedState)
-	if err != nil {
-		return err
-	}
-
-	utils.PrintFormattedState(state)
+		state, err := utils.DeserializeState(serializedState)
+		if err != nil {
+			return err
+		}
+	*/
+	utils.PrintFormattedState(request)
 
 	return nil
 }
 
-func StartGRPCServer() {
-	stateHandler.InitStateHandler("MOCKED STATE")
+func StartGrpcServer(tagId string) {
+	stateHandler.InitStateHandler(tagId)
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
@@ -91,7 +93,7 @@ func StartGRPCServer() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterStatePropogationServer(s, &server{})
+	pb.RegisterStatePropagationServer(s, &server{})
 
 	log.Printf("server listening at: %s", *serverAddress)
 
