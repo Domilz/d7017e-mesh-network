@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"time"
@@ -41,7 +42,7 @@ func main() {
 		log.Fatalf("error with prepared request: %v", err)
 	}
 
-	request2, err := prepareRequest("1", "10")
+	//request2, err := prepareRequest("1", "10")
 	if err != nil {
 		log.Fatalf("error with prepared request: %v", err)
 	}
@@ -52,7 +53,7 @@ func main() {
 	}
 
 	sendRequestToStream(propagationStream, request)
-	sendRequestToStream(propagationStream, request2)
+	//sendRequestToStream(propagationStream, request2)
 
 	// Receive and process the server response
 	go receiveAndProcessResponse(propagationStream)
@@ -130,7 +131,8 @@ func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*p
 		return nil, err
 	} else if err == nil {
 		if response != nil {
-			utils.PrintFormattedState(response)
+			//utils.PrintFormattedState(response)
+			fmt.Println("server response: ", response.TagId)
 
 		}
 

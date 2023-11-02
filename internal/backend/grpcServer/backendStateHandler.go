@@ -134,10 +134,11 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 
 		stateHandler.readingsMap[reading.TagId] = reading
 		if reading.IsDirect == 0 {
-			println("Recieved indirect")
+			println("Recieved indirect reading for tag: ", reading.TagId)
 			//Send to indirectHandler in go routine
 		} else if reading.IsDirect == 1 {
-			println("Recieved direct")
+			println("Recieved direct reading for tag: ", reading.TagId)
+
 			//Send to directHandler in go routine
 		}
 

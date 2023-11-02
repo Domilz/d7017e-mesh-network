@@ -1,4 +1,4 @@
-package main
+package grpcserver
 
 import (
 	"flag"
@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	serverAddress = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
-	port          = flag.Int("port", 50051, "The server port")
-	stateHandler  utils.StateHandler
+	serverAddress       = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
+	port                = flag.Int("port", 50051, "The server port")
+	backendStateHandler BackendStateHandler
 )
 
 type server struct {
@@ -66,25 +66,20 @@ func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationS
 	fmt.Println("ACK")
 	fmt.Println("Recived state from client")
 	utils.PrintFormattedState(request)
-	stateHandler.InsertMultipleReadings(request)
-	/*
-		serializedState, err := stateHandler.GetState()
-		if err != nil {
-			return err
-		}
+	backendStateHandler.InsertMultipleReadings(request)
+	respState := &pb.State{TagId: "Received state"}
+	if err := srv.Send(respState); err != nil {
+		log.Printf("send error %v", err)
+		return err
+	}
 
-		state, err := utils.DeserializeState(serializedState)
-		if err != nil {
-			return err
-		}
-	*/
 	utils.PrintFormattedState(request)
 
 	return nil
 }
 
 func StartGrpcServer(tagId string) {
-	stateHandler.InitStateHandler(tagId)
+	backendStateHandler.InitStateHandler(tagId)
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
