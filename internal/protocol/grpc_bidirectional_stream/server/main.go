@@ -19,10 +19,10 @@ var (
 )
 
 type server struct {
-	pb.UnimplementedStatePropogationServer
+	pb.UnimplementedStatePropagationServer
 }
 
-func (s *server) Propogation(srv pb.StatePropogation_PropogationServer) error {
+func (s *server) Propagation(srv pb.StatePropagation_PropagationServer) error {
 	log.Println("Fetching state stream from client...")
 
 	ctx := srv.Context()
@@ -43,7 +43,7 @@ func (s *server) Propogation(srv pb.StatePropogation_PropogationServer) error {
 	}
 }
 
-func processClientRequest(srv pb.StatePropogation_PropogationServer) error {
+func processClientRequest(srv pb.StatePropagation_PropagationServer) error {
 	request, err := srv.Recv()
 	if err == io.EOF {
 		return err
@@ -61,7 +61,7 @@ func processClientRequest(srv pb.StatePropogation_PropogationServer) error {
 	return nil
 }
 
-func handleClientRequest(request *pb.State, srv pb.StatePropogation_PropogationServer) error {
+func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationServer) error {
 	// Print the `State` and `Reading` from the client
 	fmt.Println("ACK")
 	stateHandler.InsertMultipleReadings(request)
@@ -90,7 +90,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterStatePropogationServer(s, &server{})
+	pb.RegisterStatePropagationServer(s, &server{})
 
 	log.Printf("server listening at: %s", *serverAddress)
 
