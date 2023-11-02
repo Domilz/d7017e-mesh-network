@@ -6,8 +6,8 @@ option go_package = "/";
 
 import "google/protobuf/timestamp.proto";
 
-service StatePropogation {
-    rpc Propogation(stream State) returns (stream State) {}
+service StatePropagation {
+    rpc Propagation(stream State) returns (stream State) {}
 }
 
 
