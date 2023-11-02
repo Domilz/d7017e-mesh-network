@@ -36,9 +36,11 @@ class Publisher(
     private var currentPubSession: DiscoverySession? = null
 
     private val serviceName = srvcName
-    private val messagesReceived: MutableList<String> = mutableListOf<String>()
     private val wifiAwareSession = nanSession
-    val publishMessageLiveData: MutableState<String> = mutableStateOf("")
+
+    private val messagesReceived: MutableList<String> = mutableListOf<String>()
+    private val publishMessageLiveData: MutableState<String> = mutableStateOf("")
+    private val networkMessageLiveData: MutableState<String> = mutableStateOf("")
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun publishUsingWifiAware() {
@@ -96,7 +98,7 @@ class Publisher(
                         val callback = object : ConnectivityManager.NetworkCallback() {
                             override fun onAvailable(network: Network) {
                                 try {
-                                    //networkMessageLiveData.value = "NETWORK: we are ??? $network"
+                                    networkMessageLiveData.value = "NETWORK: we are ??? $network"
                                     val clientSocket = serverSocket?.accept()
                                     if (clientSocket != null) {
                                         handleClient(clientSocket)
@@ -108,12 +110,12 @@ class Publisher(
                             }
 
                             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-                                //networkMessageLiveData.value = "NETWORK: we are ???${network}"
+                                networkMessageLiveData.value = "NETWORK: we are ???${network}"
                                 Log.d("1Wifi", "PUBLISH: onCapabilitiesChanged incoming: $networkCapabilities")
                             }
 
                             override fun onLost(network: Network) {
-                                //networkMessageLiveData.value = "NETWORK: Connection lost: $network"
+                                networkMessageLiveData.value = "NETWORK: Connection lost: $network"
                                 Log.d("1Wifi", "PUBLISH: Connection lost: $network")
                                 currentPubSession?.close()
                                 currentPubSession = null
@@ -168,6 +170,10 @@ class Publisher(
 
     fun getPublisherMessageLiveData(): MutableState<String> {
         return if (::publishMessageLiveData != null) publishMessageLiveData else mutableStateOf("")
+    }
+
+    fun getNetworkMessageLiveData(): MutableState<String> {
+        return if (::networkMessageLiveData != null) networkMessageLiveData else mutableStateOf("")
     }
 
     private fun handleClient(clientSocket: Socket) {

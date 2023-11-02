@@ -15,7 +15,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
-import com.epiroc.wifiaware.net.common.BaseManager
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
@@ -23,6 +22,7 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.Timer
 import java.util.TimerTask
+import java.util.UUID
 
 class Subscriber(
     ctx: Context,
@@ -42,6 +42,8 @@ class Subscriber(
     private var publisherHandle: PeerHandle? = null
     private var currentSubSession: DiscoverySession? = null
     private var currentNetworkCapabilities: NetworkCapabilities? = null
+
+    private var serviceUUID = UUID.randomUUID().toString()
 
     val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
 
@@ -78,18 +80,19 @@ class Subscriber(
                 Log.d("1Wifi", "SUBSCRIBE: Service discovered from peer: $peerHandle")
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
                 if (peerHandle != null && shouldConnectToDevice(peerHandle.toString()))   {
-                    //Log.d("1Wifi", "SUBSCRIBE: We Connected to $serviceUUID In the sub")
+                    Log.d("1Wifi", "SUBSCRIBE: We Connected to $serviceUUID In the sub")
                     Thread.sleep(100)
                     recentlyConnectedDevices.add(DeviceConnection(peerHandle.toString(),System.currentTimeMillis()))
-                    subscribeMessageLiveData.value = "SUBSCRIBE: Connected to another phone we dont have UUID implemented...                                                    THESE ARE THE DETAILS:($peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()})"
+                    subscribeMessageLiveData.value =
+                        "SUBSCRIBE: Connected to $serviceUUID                                                   " +
+                        "THESE ARE THE DETAILS:($peerHandle: ${serviceSpecificInfo.toString()} ${matchFilter.toString()})"
                     Log.d("1Wifi", "SUBSCRIBE: we are sending a message now")
                     Timer().schedule(object : TimerTask() {
                         override fun run() {
                             currentSubSession?.sendMessage(
                                 peerHandle,
                                 0, // Message type (0 for unsolicited)
-                                //serviceUUID.toByteArray(Charsets.UTF_8)
-                                "hej".toByteArray()
+                                serviceUUID.toByteArray(Charsets.UTF_8)
                             )
                         }
                     }, 1000) // Delay in milliseconds*/

@@ -46,9 +46,9 @@ fun HomeScreen(service:WifiAwareService) {
         if (service != null) {
             //Text(text = service.uuidMessageLiveData.value)
             Text(text = service.hasWifiAwareText.value)
-            service.getPublisher()?.publishMessageLiveData?.let {Text(text = it.value) }
-            //service.getSubscriber()?.getSubscribeMessageLiveData()?.let {Text(text = it.value) }
-            //Text(text = service.networkMessageLiveData.value)
+            service.getPublisher()?.getPublisherMessageLiveData()?.let {Text(text = it.value) }
+            service.getSubscriber()?.getSubscribeMessageLiveData()?.let {Text(text = it.value) }
+            service.getPublisher()?.getNetworkMessageLiveData()?.let {Text(text = it.value) }
         }
     }
 }
