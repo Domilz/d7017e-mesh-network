@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ComponentActivity
 import com.epiroc.wifiaware.Screens.permissionsToRequest
+import com.epiroc.wifiaware.utility.WifiAwareUtility
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
@@ -28,25 +29,31 @@ class Publisher(
     ctx: Context,
     nanSession: WifiAwareSession,
     cManager: ConnectivityManager,
-    srvcName: String
+    srvcName: String,
+    uuid: String
 ) {
+
+    private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
+    private var serviceUUID = uuid
     private var context = ctx
     private var connectivityManager = cManager
-    private var serverSocket: ServerSocket? = null
     private var currentPubSession: DiscoverySession? = null
+
+    private var clientSocket: Socket? = null
+    private var serverSocket: ServerSocket? = null
 
     private val serviceName = srvcName
     private val wifiAwareSession = nanSession
 
+    val utility: WifiAwareUtility = WifiAwareUtility
     private val messagesReceived: MutableList<String> = mutableListOf<String>()
     private val publishMessageLiveData: MutableState<String> = mutableStateOf("")
     private val networkMessageLiveData: MutableState<String> = mutableStateOf("")
-
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun publishUsingWifiAware() {
         Log.d("1Wifi", "PUBLISH: Attempting to start publishUsingWifiAware.")
         if (wifiAwareSession != null) {
-
+            val serviceName = "epiroc_mesh"
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
 
             val config = PublishConfig.Builder()
@@ -95,14 +102,21 @@ class Publisher(
                             .setNetworkSpecifier(networkSpecifier)
                             .build()
 
-                        val callback = object : ConnectivityManager.NetworkCallback() {
+                        networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
                             override fun onAvailable(network: Network) {
                                 try {
-                                    networkMessageLiveData.value = "NETWORK: we are ??? $network"
-                                    val clientSocket = serverSocket?.accept()
-                                    if (clientSocket != null) {
-                                        handleClient(clientSocket)
+                                    networkMessageLiveData.value = "NETWORK: we are connected to this network $network"
+                                    serverSocket?.soTimeout = 5000
+
+                                    try {
+                                        clientSocket = serverSocket?.accept()
+                                    } catch (e: Exception) {
+                                        networkMessageLiveData.value = "NETWORK: Connection timed out after 5000 milliseconds"
+                                        serverSocket?.close()
+                                        return
                                     }
+
+                                    handleClient(clientSocket)
                                     Log.d("1Wifi", "PUBLISH: Accepting client $network")
                                 } catch (e: Exception) {
                                     Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
@@ -119,7 +133,7 @@ class Publisher(
                                 Log.d("1Wifi", "PUBLISH: Connection lost: $network")
                                 currentPubSession?.close()
                                 currentPubSession = null
-                                wifiAwareSession?.close()
+
                                 try {
                                     serverSocket?.close()
                                     serverSocket = null
@@ -127,17 +141,18 @@ class Publisher(
                                     Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
                                 }
                                 Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED")
-                                Timer().schedule(object : TimerTask() {
-                                    override fun run() {
-                                        //TO-DO: Implement
-                                    }
-                                }, 10000) // Delay in milliseconds
+                                wifiAwareSession?.close()
+
                             }
                         }
                         //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                        connectivityManager?.requestNetwork(myNetworkRequest, callback);
+                        connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackPub);
 
-                        publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
+
+
+
+
+                        //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
                         // Respond to the sender (Device A) if needed.
                         //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
                         Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
@@ -148,18 +163,24 @@ class Publisher(
                                 currentPubSession?.sendMessage(
                                     peerHandle,
                                     0, // Message type (0 for unsolicited)
-                                    "hej".toByteArray()
+                                    serviceUUID.toByteArray(Charsets.UTF_8)
                                 )
                             }
                         }, 1000) // Delay in milliseconds*/
+
+                        //Thread.sleep(50)
+
+
                     }
                 }, handler)
             }
         } else {
             Log.d("1Wifi", "PUBLISH: Wifi Aware session is not available.")
+            publishMessageLiveData.value = ("PUBLISH: Wifi Aware session is not available")
         }
     }
-    private fun closeServerSocket() {
+
+    fun closeServerSocket() {
         try {
             serverSocket?.close()
             serverSocket = null
@@ -176,16 +197,17 @@ class Publisher(
         return if (::networkMessageLiveData != null) networkMessageLiveData else mutableStateOf("")
     }
 
-    private fun handleClient(clientSocket: Socket) {
+    private fun handleClient(clientSocket: Socket?) {
         Log.d("1Wifi", "PUBLISH: handleClient started.")
-        clientSocket.getInputStream().bufferedReader().use { reader ->
+        clientSocket!!.getInputStream().bufferedReader().use { reader ->
             reader.lineSequence().forEach { line ->
                 messagesReceived.add(line)
                 Log.d("INFOFROMCLIENT", "Received from client: $line")
             }
         }
-
-        Log.d("1Wifi", "PUBLISH: All information received we are done")
+        Log.d("1Wifi", "PUBLISH: All information received we are done $messagesReceived")
+        Log.d("1Wifi", "PUBLISH: All information received we are done ${messagesReceived.toString()}")
+        utility.sendPostRequest(messagesReceived.toString())
         publishMessageLiveData.value = "PUBLISH: Messages received count: ${messagesReceived.count()}"
         Log.d("DONEEE", "publisherDone = true")
         //publisherDone = true

@@ -1,4 +1,4 @@
-package com.epiroc.wifiaware.Screens
+package com.epiroc.wifiaware.Screens //cant fix warning, refactoring name doesnt work..
 
 import com.epiroc.wifiaware.Services.WifiAwareService
 import android.Manifest
@@ -43,13 +43,11 @@ fun HomeScreen(service:WifiAwareService) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (service != null) {
-            service.getHasWifiAwareText()?.let {Text(text = it.value) }
-            service.getSubscriber()?.getUUIDMessageLiveData()?.let {Text(text = it.value) }
-            service.getPublisher()?.getPublisherMessageLiveData()?.let {Text(text = it.value) }
-            service.getSubscriber()?.getSubscribeMessageLiveData()?.let {Text(text = it.value) }
-            service.getPublisher()?.getNetworkMessageLiveData()?.let {Text(text = it.value) }
-        }
+        service.getHasWifiAwareText().let {Text(text = it.value) }
+        service.getSubscriber()?.getUUIDMessageLiveData()?.let {Text(text = it.value) }
+        service.getPublisher()?.getPublisherMessageLiveData()?.let {Text(text = it.value) }
+        service.getSubscriber()?.getSubscribeMessageLiveData()?.let {Text(text = it.value) }
+        service.getPublisher()?.getNetworkMessageLiveData()?.let {Text(text = it.value) }
     }
 }
 
