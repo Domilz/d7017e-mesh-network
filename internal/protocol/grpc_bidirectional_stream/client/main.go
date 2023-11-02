@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"time"
@@ -41,7 +42,7 @@ func main() {
 		log.Fatalf("error with prepared request: %v", err)
 	}
 
-	request2, err := prepareRequest("1", "10")
+	//request2, err := prepareRequest("1", "10")
 	if err != nil {
 		log.Fatalf("error with prepared request: %v", err)
 	}
@@ -52,7 +53,7 @@ func main() {
 	}
 
 	sendRequestToStream(propagationStream, request)
-	sendRequestToStream(propagationStream, request2)
+	//sendRequestToStream(propagationStream, request2)
 
 	// Receive and process the server response
 	go receiveAndProcessResponse(propagationStream)
@@ -86,6 +87,39 @@ func prepareRequest(stateID string, readingID string) ([]byte, error) {
 			Seconds: timestamppb.Now().Seconds,
 			Nanos:   timestamppb.Now().Nanos,
 		},
+		IsDirect: 1,
+	}
+
+	// Mocked `State`
+	request := &pb.State{
+		TagId: stateID,
+		Readings: []*pb.Reading{
+			reading,
+		},
+	}
+
+	// Get the state
+	state := utils.StateHandler{}
+	state.InitStateHandler(stateID)
+	state.InsertMultipleReadings(request)
+	serializedState, err := state.GetState()
+	if err != nil {
+		return nil, err
+	}
+	return serializedState, nil
+}
+func prepareOldRequest(stateID string, readingID string) ([]byte, error) {
+	// Mocked `Reading`
+
+	reading := &pb.Reading{
+		TagId: readingID,
+		RpId:  "RpId not set ",
+		Rssi:  69,
+		Ts: &timestamp.Timestamp{
+			Seconds: timestamppb.Now().Seconds - 10000,
+			Nanos:   timestamppb.Now().Nanos - 10000,
+		},
+		IsDirect: 1,
 	}
 
 	// Mocked `State`
@@ -130,7 +164,8 @@ func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*p
 		return nil, err
 	} else if err == nil {
 		if response != nil {
-			utils.PrintFormattedState(response)
+			//utils.PrintFormattedState(response)
+			fmt.Println("server response: ", response.TagId)
 
 		}
 
