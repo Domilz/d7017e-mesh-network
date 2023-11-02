@@ -40,9 +40,9 @@ class WifiAwareService : Service() {
     private lateinit var subscriber: Subscriber
     //private val messagesReceived = mutableListOf<String>()
     private var connectivityManager: ConnectivityManager? = null
-    var wifiAwareSession: WifiAwareSession? = null
-    var wifiAwareManager: WifiAwareManager? = null
-    val hasWifiAwareText: MutableState<String> = mutableStateOf("")
+    private var wifiAwareSession: WifiAwareSession? = null
+    private var wifiAwareManager: WifiAwareManager? = null
+    private val hasWifiAwareText: MutableState<String> = mutableStateOf("")
 
     override fun onCreate() {
         super.onCreate()
@@ -205,6 +205,10 @@ class WifiAwareService : Service() {
 
     fun getSubscriber(): Subscriber? {
         return if (::subscriber.isInitialized) subscriber else null
+    }
+
+    fun getHasWifiAwareText(): MutableState<String> {
+        return hasWifiAwareText
     }
 
     private val binder = LocalBinder()

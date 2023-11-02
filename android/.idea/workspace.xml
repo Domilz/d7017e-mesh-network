@@ -11,11 +11,8 @@
   <component name="ChangeListManager">
     <list default="true" id="0205958b-2b50-4ff4-bcb7-473a28743cf7" name="Changes" comment="idk more changes but no work">
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/Publisher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/Publisher.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/Subscriber.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/Subscriber.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/WifiAwareStateMonitor.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/common/BaseManager.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/common/NANUtils.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -270,7 +267,14 @@
       <option name="project" value="LOCAL" />
       <updated>1698922829792</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="idk more changes but no work">
+      <created>1698923563189</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1698923563189</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

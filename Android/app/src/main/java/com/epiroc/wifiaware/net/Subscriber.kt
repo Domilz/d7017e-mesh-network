@@ -44,10 +44,15 @@ class Subscriber(
     private var currentNetworkCapabilities: NetworkCapabilities? = null
 
     private var serviceUUID = UUID.randomUUID().toString()
+    val uuidMessageLiveData: MutableState<String> = mutableStateOf("")
 
     val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
 
     fun subscribeToWifiAwareSessions() {
+        if(uuidMessageLiveData.value != serviceUUID){
+            uuidMessageLiveData.value = serviceUUID
+        }
+
         Log.d("1Wifi","SUBSCRIBE: subscribeToWifiAwareSessions called")
 
         if (wifiAwareSession == null) {
@@ -257,6 +262,10 @@ class Subscriber(
     }
 
     fun getSubscribeMessageLiveData(): MutableState<String> {
+        return if (::subscribeMessageLiveData != null) subscribeMessageLiveData else mutableStateOf("")
+    }
+
+    fun getUUIDMessageLiveData(): MutableState<String>{
         return if (::subscribeMessageLiveData != null) subscribeMessageLiveData else mutableStateOf("")
     }
 }
