@@ -58,50 +58,18 @@ class WifiAwareService : Service() {
 
                 // Initialize the publisher and subscriber
                 publisher = Publisher(
-                    context = applicationContext,
+                    ctx = applicationContext,
                     serviceName = "NANService",
-                    callback = object : Publisher.Callback {
-                        override fun onServicePublished() {
-                            Log.d("1Wifi", "Service published")
-                        }
-
-                        override fun onMessageSendResult(id: Int, success: Boolean) {
-                            Log.d("1Wifi", "Message send result: $success")
-                        }
-
-                        override fun onMessageReceived(message: ByteArray) {
-                            Log.d("1Wifi", "Message received: ${String(message)}")
-                        }
-                    },
                     nanSession = wifiAwareSession!!,
                     cManager = connectivityManager!!
                 )
 
                 subscriber = Subscriber(
-                    context = applicationContext,
+                    ctx = applicationContext,
                     serviceName = "NANService",
-                    object : Subscriber.Callback {
-                        override fun onServiceSubscribed() {
-                            // Handle service subscribed event
-                        }
-
-                        override fun onServiceFound(serviceInfo: ByteArray, matchFilter: List<ByteArray>) {
-                            // Handle service found event
-                        }
-
-                        override fun onMessageSendResult(id: Int, success: Boolean) {
-                            // Handle message send result event
-                        }
-
-                        override fun onMessageReceived(message: ByteArray) {
-                            // Handle message received event
-                        }
-                    },
                     session,
                     connectivityManager
                 )
-
-                subscriber.subscribeToWifiAwareSessions()
             }
 
             override fun onAttachFailed() {
@@ -109,7 +77,6 @@ class WifiAwareService : Service() {
                 // Handle attach failed event
             }
         }, null)
-
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -166,8 +133,8 @@ class WifiAwareService : Service() {
         super.onDestroy()
 
         // Stop the publisher and subscriber
-        publisher.stop()
-        subscriber.stop()
+        //publisher.stop()
+        //subscriber.stop()
     }
 
     private fun wifiAwareState(): String {
@@ -202,7 +169,6 @@ class WifiAwareService : Service() {
                         subscriber.subscribeToWifiAwareSessions()
                     }
                 }, 1000) // Delay in milliseconds
-
             }
 
             override fun onAttachFailed() {

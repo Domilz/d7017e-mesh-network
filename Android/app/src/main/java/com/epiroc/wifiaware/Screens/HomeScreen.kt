@@ -1,4 +1,4 @@
-package com.epiroc.wifiaware.screens
+package com.epiroc.wifiaware.Screens
 
 import com.epiroc.wifiaware.services.WifiAwareService
 import android.Manifest

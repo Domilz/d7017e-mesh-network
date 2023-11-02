@@ -23,21 +23,14 @@ import java.util.Timer
 import java.util.TimerTask
 
 class Subscriber(
-    context: Context, serviceName: String,
-    private val callback: Callback,
+    ctx: Context,
     private var nanSession: WifiAwareSession,
     private var cManager: ConnectivityManager
-): BaseManager(context) {
-
-    interface Callback {
-        fun onServiceSubscribed()
-        fun onServiceFound(serviceInfo: ByteArray, matchFilter: List<ByteArray>)
-        fun onMessageSendResult(id: Int, success: Boolean)
-        fun onMessageReceived(message: ByteArray)
-    }
+) {
 
     data class DeviceConnection(val deviceIdentifier: String, val timestamp: Long)
 
+    private val context = ctx
     private var connectivityManager = cManager
     private var discoverySession: SubscribeDiscoverySession? = null
     private var wifiAwareSession = nanSession
@@ -46,66 +39,6 @@ class Subscriber(
     private var currentNetworkCapabilities: NetworkCapabilities? = null
 
     val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
-
-    private val config: SubscribeConfig = SubscribeConfig.Builder()
-        .setServiceName(serviceName)
-        .build()
-
-    private val discoverySessionCallback = object : DiscoverySessionCallback() {
-
-        override fun onSubscribeStarted(session: SubscribeDiscoverySession) {
-            super.onSubscribeStarted(session)
-            discoverySession = session
-            callback.onServiceSubscribed()
-        }
-
-        override fun onServiceDiscovered(
-            peerHandle: PeerHandle?,
-            serviceSpecificInfo: ByteArray?,
-            matchFilter: MutableList<ByteArray>?
-        ) {
-            super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
-            publisherHandle = peerHandle
-            callback.onServiceFound(
-                serviceSpecificInfo ?: ByteArray(0),
-                matchFilter ?: emptyList()
-            )
-        }
-
-        override fun onMessageSendSucceeded(messageId: Int) {
-            super.onMessageSendSucceeded(messageId)
-            callback.onMessageSendResult(messageId, true)
-        }
-
-        override fun onMessageSendFailed(messageId: Int) {
-            super.onMessageSendFailed(messageId)
-            callback.onMessageSendResult(messageId, false)
-        }
-
-        override fun onMessageReceived(peerHandle: PeerHandle?, message: ByteArray?) {
-            super.onMessageReceived(peerHandle, message)
-            callback.onMessageReceived(message ?: ByteArray(0))
-        }
-    }
-
-    override fun onSessionAttached() {
-        super.onSessionAttached()
-        subscribe()
-    }
-
-    private fun subscribe() {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.NEARBY_WIFI_DEVICES
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-        activeSession?.subscribe(config, discoverySessionCallback,null)
-    }
 
     fun subscribeToWifiAwareSessions() {
         Log.d("1Wifi","SUBSCRIBE: subscribeToWifiAwareSessions called")
@@ -315,21 +248,5 @@ class Subscriber(
 
         // Request the network and handle connection in the callback as shown above.
         connectivityManager?.requestNetwork(myNetworkRequest, callback)
-    }
-
-
-    fun refreshSession() {
-        discoverySession?.updateSubscribe(config)
-    }
-
-    fun sendMessage(id: Int, data: ByteArray) {
-        publisherHandle?.let {
-            discoverySession?.sendMessage(it, id, data)
-        }
-    }
-
-    override fun stop() {
-        discoverySession?.close()
-        super.stop()
     }
 }

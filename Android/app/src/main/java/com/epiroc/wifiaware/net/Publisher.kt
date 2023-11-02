@@ -15,8 +15,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ComponentActivity
-import com.epiroc.wifiaware.net.common.BaseManager
-import com.epiroc.wifiaware.screens.permissionsToRequest
+import com.epiroc.wifiaware.Screens.permissionsToRequest
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
@@ -24,88 +23,17 @@ import java.util.Timer
 import java.util.TimerTask
 
 class Publisher(
-    context: Context, serviceName: String,
-    private val callback: Callback,
+    ctx: Context,
     nanSession: WifiAwareSession,
     cManager: ConnectivityManager,
-
-
-): BaseManager(context) {
-
-    interface Callback {
-        fun onServicePublished()
-        fun onMessageSendResult(id: Int, success: Boolean)
-        fun onMessageReceived(message: ByteArray)
-    }
-
+) {
+    private var context = ctx
     private var connectivityManager = cManager
-    private var discoverySession: DiscoverySession? = null
-    private var subscriberHandle: PeerHandle? = null
     private var serverSocket: ServerSocket? = null
     private var currentPubSession: DiscoverySession? = null
 
     private val messagesReceived: MutableList<String> = mutableListOf<String>()
-
     private val wifiAwareSession = nanSession
-
-    private val config: PublishConfig = PublishConfig.Builder()
-        .setServiceName(serviceName)
-        .build()
-
-    private val discoverySessionCallback = object : DiscoverySessionCallback() {
-
-        override fun onPublishStarted(session: PublishDiscoverySession) {
-            super.onPublishStarted(session)
-            discoverySession = session
-            callback.onServicePublished()
-        }
-
-        override fun onMessageSendSucceeded(messageId: Int) {
-            super.onMessageSendSucceeded(messageId)
-            callback.onMessageSendResult(messageId, true)
-        }
-
-        override fun onMessageSendFailed(messageId: Int) {
-            super.onMessageSendFailed(messageId)
-            callback.onMessageSendResult(messageId, false)
-        }
-
-        override fun onMessageReceived(peerHandle: PeerHandle?, message: ByteArray?) {
-            super.onMessageReceived(peerHandle, message)
-            subscriberHandle = peerHandle
-            callback.onMessageReceived(message ?: ByteArray(0))
-        }
-    }
-
-    override fun onSessionAttached() {
-        super.onSessionAttached()
-        publish()
-    }
-
-    private fun publish() {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.NEARBY_WIFI_DEVICES
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-        activeSession?.publish(config, discoverySessionCallback, null)
-    }
-
-    fun sendMessage(id: Int, data: ByteArray) {
-        subscriberHandle?.let {
-            discoverySession?.sendMessage(it, id, data)
-        }
-    }
-
-    override fun stop() {
-        discoverySession?.close()
-        super.stop()
-    }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun publishUsingWifiAware() {
@@ -215,16 +143,11 @@ class Publisher(
                                 )
                             }
                         }, 1000) // Delay in milliseconds*/
-
-                        //Thread.sleep(50)
-
-
                     }
                 }, handler)
             }
         } else {
             Log.d("1Wifi", "PUBLISH: Wifi Aware session is not available.")
-            //publishMessageLiveData.value = ("PUBLISH: Wifi Aware session is not available")
         }
     }
     private fun closeServerSocket() {
@@ -244,6 +167,7 @@ class Publisher(
                 Log.d("INFOFROMCLIENT", "Received from client: $line")
             }
         }
+
         Log.d("1Wifi", "PUBLISH: All information received we are done")
         //publishMessageLiveData.value = "PUBLISH: Messages received count: ${messagesReceived.count()}"
         Log.d("DONEEE", "publisherDone = true")

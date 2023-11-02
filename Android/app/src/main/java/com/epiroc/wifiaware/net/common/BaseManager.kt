@@ -11,7 +11,6 @@ import kotlin.properties.Delegates
 abstract class BaseManager(protected val context: Context) {
 
     private val stateMonitor = WifiAwareStateMonitor.get(context)
-
     protected var manager: WifiAwareManager by Delegates.notNull()
     protected var activeSession: WifiAwareSession? = null
 

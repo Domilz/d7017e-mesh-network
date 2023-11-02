@@ -11,8 +11,8 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.app.ActivityCompat
-import com.epiroc.wifiaware.screens.ServiceAwareContent
-import com.epiroc.wifiaware.screens.permissionsToRequest
+import com.epiroc.wifiaware.Screens.ServiceAwareContent
+import com.epiroc.wifiaware.Screens.permissionsToRequest
 import android.Manifest
 import android.os.Build
 import android.util.Log
