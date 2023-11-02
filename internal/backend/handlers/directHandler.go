@@ -12,7 +12,7 @@ type DirectHandler struct {
 	//Object for log
 }
 
-func (directHandler *DirectHandler) FillOutForm(reading *pb.Reading) {
+func (directHandler *DirectHandler) FillOutAndSendForm(reading *pb.Reading) {
 	timeForSentRecived := &structs.Time{
 		Seconds: int(timestamppb.Now().Seconds),
 		Nanos:   int(timestamppb.Now().Nanos),
@@ -36,11 +36,11 @@ func (directHandler *DirectHandler) FillOutForm(reading *pb.Reading) {
 		Readings: []structs.Reading{*newReadingStruct},
 	}
 
-	directHandler.SendFormToCentral(newRssiForm)
+	directHandler.sendFormToCentral(newRssiForm)
 }
 
 // Should send to api but don't have access so sending to log instead when
 // it is created. Using print so the system does not complain.
-func (directHandler *DirectHandler) SendFormToCentral(rssiForm *structs.RssiForm) {
+func (directHandler *DirectHandler) sendFormToCentral(rssiForm *structs.RssiForm) {
 	fmt.Println(rssiForm)
 }
