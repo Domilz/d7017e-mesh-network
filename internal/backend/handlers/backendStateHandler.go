@@ -1,4 +1,4 @@
-package grpcserver
+package handlers
 
 import (
 	"fmt"
@@ -10,9 +10,11 @@ import (
 )
 
 type BackendStateHandler struct {
-	TagId       string
-	readingsMap map[string]*pb.Reading
-	mutex       sync.RWMutex
+	TagId         string
+	readingsMap   map[string]*pb.Reading
+	mutex         sync.RWMutex
+	directHandler *DirectHandler
+	//indirectHandler *IndirectHandler
 }
 
 func (stateHandler *BackendStateHandler) InitStateHandler(id string) {
@@ -136,12 +138,15 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 		if reading.IsDirect == 0 {
 			println("Recieved indirect reading for tag: ", reading.TagId)
 			//Send to indirectHandler in go routine
+			//go stateHandler.indirectHandler.FillOutAndSendForm()
 		} else if reading.IsDirect == 1 {
-			println("Recieved direct reading for tag: ", reading.TagId)
 
-			//Send to directHandler in go routine
+			go stateHandler.directHandler.FillOutAndSendForm(reading)
+
 		}
 
+	} else {
+		fmt.Println("Old reading recived for tag: ", reading.TagId, " exist: ", keyExist)
 	}
 	stateHandler.unLock()
 }

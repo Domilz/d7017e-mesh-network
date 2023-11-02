@@ -87,6 +87,39 @@ func prepareRequest(stateID string, readingID string) ([]byte, error) {
 			Seconds: timestamppb.Now().Seconds,
 			Nanos:   timestamppb.Now().Nanos,
 		},
+		IsDirect: 1,
+	}
+
+	// Mocked `State`
+	request := &pb.State{
+		TagId: stateID,
+		Readings: []*pb.Reading{
+			reading,
+		},
+	}
+
+	// Get the state
+	state := utils.StateHandler{}
+	state.InitStateHandler(stateID)
+	state.InsertMultipleReadings(request)
+	serializedState, err := state.GetState()
+	if err != nil {
+		return nil, err
+	}
+	return serializedState, nil
+}
+func prepareOldRequest(stateID string, readingID string) ([]byte, error) {
+	// Mocked `Reading`
+
+	reading := &pb.Reading{
+		TagId: readingID,
+		RpId:  "RpId not set ",
+		Rssi:  69,
+		Ts: &timestamp.Timestamp{
+			Seconds: timestamppb.Now().Seconds - 10000,
+			Nanos:   timestamppb.Now().Nanos - 10000,
+		},
+		IsDirect: 1,
 	}
 
 	// Mocked `State`

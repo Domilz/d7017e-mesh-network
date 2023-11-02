@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 
+	handler "github.com/Domilz/d7017e-mesh-network/internal/backend/handlers"
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 	"github.com/Domilz/d7017e-mesh-network/internal/protocol/utils"
 	"google.golang.org/grpc"
@@ -15,7 +16,7 @@ import (
 var (
 	serverAddress       = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
 	port                = flag.Int("port", 50051, "The server port")
-	backendStateHandler BackendStateHandler
+	backendStateHandler handler.BackendStateHandler
 )
 
 type server struct {
@@ -62,8 +63,7 @@ func processClientRequest(srv pb.StatePropagation_PropagationServer) error {
 }
 
 func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationServer) error {
-	// Print the `State` and `Reading` from the client
-	fmt.Println("ACK")
+
 	fmt.Println("Recived state from client")
 	utils.PrintFormattedState(request)
 	backendStateHandler.InsertMultipleReadings(request)
@@ -73,13 +73,11 @@ func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationS
 		return err
 	}
 
-	utils.PrintFormattedState(request)
-
 	return nil
 }
 
-func StartGrpcServer(tagId string) {
-	backendStateHandler.InitStateHandler(tagId)
+func StartGrpcServer() {
+	backendStateHandler.InitStateHandler("SERVER-TAG")
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
