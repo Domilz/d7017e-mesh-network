@@ -59,14 +59,12 @@ class WifiAwareService : Service() {
                 // Initialize the publisher and subscriber
                 publisher = Publisher(
                     ctx = applicationContext,
-                    serviceName = "NANService",
                     nanSession = wifiAwareSession!!,
                     cManager = connectivityManager!!
                 )
 
                 subscriber = Subscriber(
                     ctx = applicationContext,
-                    serviceName = "NANService",
                     session,
                     connectivityManager
                 )
