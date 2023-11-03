@@ -63,7 +63,7 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 		req.Body.Close()
 		str := string(body[:])
 		b := stringTOByteArr(str)
-		fmt.Println(b)
+		//fmt.Println(b)
 
 		debugLogServer.debugLogDatabaseHandler.Save(b)
 		server.SideStepGRPCServer(b)
@@ -104,6 +104,6 @@ func stringTOByteArr(input string) []byte {
 	}
 
 	// Print the resulting byte array
-	fmt.Println(byteArray)
+	//fmt.Println(byteArray)
 	return byteArray
 }
