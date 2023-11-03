@@ -40,12 +40,12 @@ class Publisher(
 
     private val serviceName = srvcName
     private val wifiAwareSession = nanSession
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun publishUsingWifiAware() {
         Log.d("1Wifi", "PUBLISH: Attempting to start publishUsingWifiAware.")
         if (wifiAwareSession != null) {
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
-
             val config = PublishConfig.Builder()
                 .setServiceName(serviceName)
                 .build()
@@ -73,14 +73,10 @@ class Publisher(
                         Log.d("1Wifi", "PUBLISH: Publish started")
                         currentPubSession = session
                     }
-
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                         Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
-
-
                         //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                         network.createNetwork(currentPubSession,peerHandle,wifiAwareSession,context)
-
                         //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
                         // Respond to the sender (Device A) if needed.
                         //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
@@ -106,7 +102,4 @@ class Publisher(
     fun closeServerSocket() {
        network.closeServerSocket()
     }
-
-
-
 }

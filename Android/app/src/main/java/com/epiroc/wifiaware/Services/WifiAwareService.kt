@@ -42,16 +42,18 @@ import java.util.TimerTask
 import java.util.UUID
 
 class WifiAwareService : Service() {
-
-    private lateinit var publisher: Publisher
-    private lateinit var subscriber: Subscriber
-    private var connectivityManager: ConnectivityManager? = null
-    private var wifiAwareSession: WifiAwareSession? = null
-    private var wifiAwareManager: WifiAwareManager? = null
     private val hasWifiAwareText: MutableState<String> = mutableStateOf("")
     private val utility: WifiAwareUtility = WifiAwareUtility
     private val serviceScope = CoroutineScope(Dispatchers.Main)
+    private val binder = LocalBinder()
+
+    private var connectivityManager: ConnectivityManager? = null
+    private var wifiAwareSession: WifiAwareSession? = null
+    private var wifiAwareManager: WifiAwareManager? = null
+
     private lateinit var serviceUUID: String
+    private lateinit var publisher: Publisher
+    private lateinit var subscriber: Subscriber
 
     override fun onCreate() {
         super.onCreate()
@@ -62,7 +64,7 @@ class WifiAwareService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("1Wifi","STARTED")
+        Log.d("1Wifi","WifiAwareService STARTED")
 
         // Show notification for the foreground service
         val intent = Intent(this, MainActivity::class.java).apply {
@@ -81,6 +83,7 @@ class WifiAwareService : Service() {
             .build()
 
         createNotificationChannel()
+        createNotification()
         startForeground(1, notification)
 
         wifiAwareState()
@@ -109,7 +112,11 @@ class WifiAwareService : Service() {
                 } else {
                     Log.e("1Wifi", "subscriber: not init")
                 }
-                cleanUpHandler.postDelayed(this, 1000)
+                utility.incrementTryCount()
+                if(utility.getTryCount() <= 10)
+                    cleanUpHandler.postDelayed(this, 1000)
+                else
+                    cleanUpHandler.postDelayed(this, 10000)
             }
         }
         cleanUpHandler.post(cleanUpRunnable)
@@ -122,7 +129,6 @@ class WifiAwareService : Service() {
         publisher.closeServerSocket()
         serviceScope.cancel()
     }
-
 
     companion object {
         const val CHANNEL_ID = "wifiAwareServiceChannel"
@@ -190,6 +196,7 @@ class WifiAwareService : Service() {
                 wifiAwareSession = session
                 Timer().schedule(object : TimerTask() {
                     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
                     override fun run() {
                         val serviceName = "epiroc_mesh"
                         // Initialize the publisher and subscriber
@@ -200,7 +207,6 @@ class WifiAwareService : Service() {
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )
-
                         subscriber = Subscriber(
                             ctx = applicationContext,
                             nanSession = session,
@@ -208,12 +214,10 @@ class WifiAwareService : Service() {
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )
-
                         publisher.publishUsingWifiAware()
                         subscriber.subscribeToWifiAwareSessions()
                     }
                 }, 1000) // Delay in milliseconds
-
             }
 
             override fun onAttachFailed() {
@@ -225,8 +229,8 @@ class WifiAwareService : Service() {
                         acquireWifiAwareSession()
                     }
                 }, 1000) // Delay in milliseconds
-
             }
+
             override fun onAwareSessionTerminated() {
                 super.onAwareSessionTerminated()
                 wifiAwareSession = null
@@ -263,23 +267,9 @@ class WifiAwareService : Service() {
         }
     }
 
-    fun getPublisher(): Publisher? {
-        return if (::publisher.isInitialized) publisher else null
-    }
-
-    fun getSubscriber(): Subscriber? {
-        return if (::subscriber.isInitialized) subscriber else null
-    }
-
-    fun getHasWifiAwareText(): MutableState<String> {
-        return hasWifiAwareText
-    }
-
     inner class LocalBinder : Binder() {
         fun getService(): WifiAwareService = this@WifiAwareService
     }
-
-    private val binder = LocalBinder()
 
     override fun onBind(intent: Intent?): IBinder? {
         return binder

@@ -86,7 +86,6 @@ class Subscriber(
             }
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-
                 Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
                 if(shouldConnectToDevice(String(message, Charsets.UTF_8))){
                     utility.add(utility.createDeviceConnection(String(message, Charsets.UTF_8),System.currentTimeMillis()))

@@ -6,8 +6,11 @@ import java.net.URL
 
 object WifiAwareUtility {
     private val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
+    private var tryCount = 0
 
     fun add(deviceIdentifier: DeviceConnection) {
+        if (!recentlyConnectedDevices.contains(deviceIdentifier))
+            tryCount = 0
         recentlyConnectedDevices.add(deviceIdentifier)
     }
 
@@ -56,6 +59,14 @@ object WifiAwareUtility {
             val response = it.readText()
             println("Response: $response")
         }
+    }
+
+    fun incrementTryCount(){
+        tryCount++
+    }
+
+    fun getTryCount(): Int {
+        return tryCount
     }
 }
 
