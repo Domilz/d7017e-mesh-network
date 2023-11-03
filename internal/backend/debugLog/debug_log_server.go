@@ -2,6 +2,7 @@ package debuglog
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -28,6 +29,7 @@ func StartDebugLogServer(dbPath string, htmlFormatPath string) {
 	dbuggLogServer := &DebugLogServer{InitDebugLogDatabase(dbPath), htmlFormatPath}
 
 	debugLogServer = dbuggLogServer
+	fmt.Println("Started debuggLogServer")
 	http.HandleFunc("/debuglog", PostLog)
 	http.ListenAndServe(":4242", nil)
 
