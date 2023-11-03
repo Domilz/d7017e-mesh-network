@@ -21,6 +21,11 @@ var (
 )
 
 func main() {
+	xx := []byte{10, 3, 49, 49, 49, 18, 35, 10, 3, 49, 49, 49, 18, 10, 83, 111, 109, 101, 95, 82, 80, 95, 73, 68, 24, 69, 34, 12, 8, 228, 226, 146, 170, 6, 16, 176, 156, 205, 200, 1, 40, 1}
+	PrintDeserializedState(xx)
+	//printSerializedState()
+}
+func main2() {
 	flag.Parse()
 
 	// Establish a connection to the gRPC server
@@ -81,7 +86,7 @@ func prepareRequest(stateID string, readingID string) ([]byte, error) {
 	// Mocked `Reading`
 	reading := &pb.Reading{
 		TagId: readingID,
-		RpId:  "RpId not set ",
+		RpId:  "Some_RP_ID",
 		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
@@ -176,4 +181,21 @@ func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*p
 func closeStream(stream pb.StatePropagation_PropagationClient) error {
 	err := stream.CloseSend()
 	return err
+}
+
+func printSerializedState() {
+	request, err := prepareRequest("111", "111")
+	if err != nil {
+		log.Fatalf("error with prepared request: %v", err)
+	}
+	fmt.Println(request)
+}
+func PrintDeserializedState(serializedState []byte) {
+	deserializedState, err := utils.DeserializeState(serializedState)
+	if err != nil {
+		fmt.Println("Error deserializeing data")
+	} else {
+		utils.PrintFormattedState(deserializedState)
+	}
+
 }

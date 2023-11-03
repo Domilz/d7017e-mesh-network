@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+
+	server "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer"
 )
 
 var debugLogServer *DebugLogServer
@@ -56,7 +58,7 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 		}
 		req.Body.Close()
 		debugLogServer.debugLogDatabaseHandler.Save(body)
-
+		server.SideStepGRPCServer(body)
 		w.Header().Set("Content-Type", "application/json")
 		jsonResp, err := json.Marshal("Added")
 

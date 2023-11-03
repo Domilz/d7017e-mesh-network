@@ -6,7 +6,8 @@ import (
 )
 
 func main() {
-	StartGrpcServer()
+	go StartGrpcServer()
+	StartDebugLog()
 	select {}
 }
 func StartGrpcServer() {
