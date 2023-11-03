@@ -27,11 +27,11 @@ val LocalWifiAwareService = compositionLocalOf<WifiAwareService?> { null }
 fun ServiceAwareContent(service: WifiAwareService) {
     CompositionLocalProvider(LocalWifiAwareService provides service) {
         val context = LocalContext.current
-        val nanservice = LocalWifiAwareService.current
+        val nanService = LocalWifiAwareService.current
         val intent = Intent(context, WifiAwareService::class.java)
         ContextCompat.startForegroundService(context, intent)
-        if (nanservice != null) {
-            HomeScreen(nanservice)
+        if (nanService != null) {
+            HomeScreen(nanService)
         }
     }
 }
@@ -43,7 +43,7 @@ fun HomeScreen(service:WifiAwareService) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        service.getHasWifiAwareText().let {Text(text = it.value) }
+        Text(text = service.getHasWifiAwareText().value)
         service.getSubscriber()?.getUUIDMessageLiveData()?.let {Text(text = it.value) }
         service.getPublisher()?.getPublisherMessageLiveData()?.let {Text(text = it.value) }
         service.getSubscriber()?.getSubscribeMessageLiveData()?.let {Text(text = it.value) }

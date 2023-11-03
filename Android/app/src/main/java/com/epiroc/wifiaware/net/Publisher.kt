@@ -18,7 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ComponentActivity
 import com.epiroc.wifiaware.Screens.permissionsToRequest
-import com.epiroc.wifiaware.utility.WifiAwareUtility
+import com.epiroc.wifiaware.net.utility.WifiAwareUtility
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
@@ -45,7 +45,7 @@ class Publisher(
     private val serviceName = srvcName
     private val wifiAwareSession = nanSession
 
-    val utility: WifiAwareUtility = WifiAwareUtility
+    private val utility: WifiAwareUtility = WifiAwareUtility
     private val messagesReceived: MutableList<String> = mutableListOf<String>()
     private val publishMessageLiveData: MutableState<String> = mutableStateOf("")
     private val networkMessageLiveData: MutableState<String> = mutableStateOf("")
@@ -53,7 +53,6 @@ class Publisher(
     fun publishUsingWifiAware() {
         Log.d("1Wifi", "PUBLISH: Attempting to start publishUsingWifiAware.")
         if (wifiAwareSession != null) {
-            val serviceName = "epiroc_mesh"
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
 
             val config = PublishConfig.Builder()
@@ -115,7 +114,6 @@ class Publisher(
                                         serverSocket?.close()
                                         return
                                     }
-
                                     handleClient(clientSocket)
                                     Log.d("1Wifi", "PUBLISH: Accepting client $network")
                                 } catch (e: Exception) {
@@ -148,15 +146,10 @@ class Publisher(
                         //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                         connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackPub);
 
-
-
-
-
                         //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
                         // Respond to the sender (Device A) if needed.
                         //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
                         Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
-
 
                         Timer().schedule(object : TimerTask() {
                             override fun run() {
@@ -167,10 +160,6 @@ class Publisher(
                                 )
                             }
                         }, 1000) // Delay in milliseconds*/
-
-                        //Thread.sleep(50)
-
-
                     }
                 }, handler)
             }

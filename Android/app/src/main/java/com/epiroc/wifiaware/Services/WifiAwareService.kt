@@ -31,7 +31,7 @@ import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.net.Publisher
 import com.epiroc.wifiaware.net.Subscriber
-import com.epiroc.wifiaware.utility.WifiAwareUtility
+import com.epiroc.wifiaware.net.utility.WifiAwareUtility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -89,7 +89,7 @@ class WifiAwareService : Service() {
             override fun run() {
                 if (::subscriber.isInitialized) {
                     if(utility.isNotEmpty()) {
-                        var didremove = utility.removeif()
+                        var didremove = utility.removeIf()
                         Log.e(
                             "1Wifi",
                             "It removed? : $didremove"
@@ -100,19 +100,15 @@ class WifiAwareService : Service() {
                                 "It removed? : $didremove YES AND IT CLOSES THE SESSION!"
                             )
                             wifiAwareSession?.close()
-
                         }
-                    }
-
-                    else{
+                    } else {
                         Log.e("1Wifi", "recentlyConnectedDevices: ${utility.count()}")
                     }
-
-                }else
+                } else {
                     Log.e("1Wifi", "subscriber: not init")
+                }
                 cleanUpHandler.postDelayed(this, 1000)
             }
-
         }
         cleanUpHandler.post(cleanUpRunnable)
         return START_STICKY

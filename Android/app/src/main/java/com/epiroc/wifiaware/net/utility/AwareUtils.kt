@@ -1,4 +1,4 @@
-package com.epiroc.wifiaware.utility
+package com.epiroc.wifiaware.net.utility
 
 import java.io.DataOutputStream
 import java.net.HttpURLConnection
@@ -7,25 +7,21 @@ import java.net.URL
 object WifiAwareUtility {
     private val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
 
-    fun add(deviceIdentifier:DeviceConnection) {
+    fun add(deviceIdentifier: DeviceConnection) {
         recentlyConnectedDevices.add(deviceIdentifier)
     }
 
-    fun remove(deviceIdentifier:DeviceConnection)  {
+    fun remove(deviceIdentifier: DeviceConnection)  {
         recentlyConnectedDevices.remove(deviceIdentifier)
     }
 
-    fun removeif() : Boolean{
+    fun removeIf() : Boolean{
         val currentTime = System.currentTimeMillis()
         val oneMinuteInMillis: Long = 1 * 60 * 1000
         return recentlyConnectedDevices.removeIf { currentTime - it.timestamp > oneMinuteInMillis }
     }
 
-    fun isExpired(deviceIdentifier:DeviceConnection) : Boolean {
-
-        return false
-    }
-    fun createDeviceConnection(deviceIdentifier: String,timestamp: Long) : DeviceConnection{
+    fun createDeviceConnection(deviceIdentifier: String,timestamp: Long) : DeviceConnection {
         return DeviceConnection(deviceIdentifier,timestamp)
     }
 
@@ -40,6 +36,7 @@ object WifiAwareUtility {
     fun count(): Int {
         return recentlyConnectedDevices.count()
     }
+
     fun sendPostRequest(data : String) {
         val url = URL("http://83.233.46.128:4242/debuglog")
         val connection = url.openConnection() as HttpURLConnection
