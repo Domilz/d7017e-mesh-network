@@ -1,4 +1,4 @@
-package debuglog
+package sentlog
 
 import (
 	"database/sql"
@@ -8,13 +8,13 @@ import (
 	_ "github.com/mattn/go-sqlite3" // Import SQLite methods.
 )
 
-type DebugLogDatabaseHandler struct {
+type SentLogDatabaseHandler struct {
 	database *sql.DB
 }
 
-func InitDebugLogDatabase(path string) *DebugLogDatabaseHandler {
+func InitDebugLogDatabase(path string) *SentLogDatabaseHandler {
 	//database/data/DB.db
-	debugLogDatabaseHandler := &DebugLogDatabaseHandler{}
+	debugLogDatabaseHandler := &SentLogDatabaseHandler{}
 	db, err := sql.Open("sqlite3", "file:"+path+"?cache=shared&_journal=WAL&_foreign_keys=on")
 	if err != nil {
 		panic(err.Error())
@@ -22,7 +22,7 @@ func InitDebugLogDatabase(path string) *DebugLogDatabaseHandler {
 	}
 
 	if err := db.Ping(); err != nil {
-		fmt.Println("Failed to ping DebugLog database")
+		fmt.Println("Failed to ping sentLog database")
 		fmt.Println(err)
 		panic(err.Error())
 
@@ -33,9 +33,9 @@ func InitDebugLogDatabase(path string) *DebugLogDatabaseHandler {
 
 }
 
-func (debugLogDatabaseHandler *DebugLogDatabaseHandler) Save(data []byte) {
+func (sentLogDatabaseHandler *SentLogDatabaseHandler) Save(data []byte) {
 	currentTime := time.Now().Format("2006-01-02T15:04:05.000Z")
-	stmt, err := debugLogDatabaseHandler.database.Prepare("INSERT INTO DebugLog (date, data) VALUES (?,?)")
+	stmt, err := sentLogDatabaseHandler.database.Prepare("INSERT INTO DebugLog (date, data) VALUES (?,?)")
 	_, err = stmt.Exec(currentTime, data)
 	defer stmt.Close()
 	if err != nil {
@@ -44,7 +44,7 @@ func (debugLogDatabaseHandler *DebugLogDatabaseHandler) Save(data []byte) {
 	}
 }
 
-func (debugLogDatabaseHandler *DebugLogDatabaseHandler) GetDebugLog() ([]string, [][]byte) {
+func (debugLogDatabaseHandler *SentLogDatabaseHandler) GetDebugLog() ([]string, [][]byte) {
 
 	var dates []string
 	var dataList [][]byte
