@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 
 	server "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer"
 )
@@ -59,10 +61,12 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 
 		}
 		req.Body.Close()
-		str1 := string(body[:])
-		fmt.Println("Recived string: ", str1)
-		debugLogServer.debugLogDatabaseHandler.Save(body)
-		server.SideStepGRPCServer(body)
+		str := string(body[:])
+		b := stringTOByteArr(str)
+		fmt.Println(b)
+
+		debugLogServer.debugLogDatabaseHandler.Save(b)
+		server.SideStepGRPCServer(b)
 		w.Header().Set("Content-Type", "application/json")
 		jsonResp, err := json.Marshal("Added")
 
@@ -78,4 +82,28 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 		println("Method not supported: ", req.Method)
 
 	}
+}
+
+func stringTOByteArr(input string) []byte {
+	// Remove "[" and "]" from the input string
+	input = strings.TrimPrefix(input, "[")
+	input = strings.TrimSuffix(input, "]")
+
+	// Split the string by commas
+	parts := strings.Split(input, ", ")
+
+	// Create a byte array and parse each part into an integer
+	byteArray := make([]byte, len(parts))
+	for i, part := range parts {
+		num, err := strconv.Atoi(part)
+		if err != nil {
+			fmt.Printf("Error parsing part at index %d: %v\n", i, err)
+			return nil
+		}
+		byteArray[i] = byte(num)
+	}
+
+	// Print the resulting byte array
+	fmt.Println(byteArray)
+	return byteArray
 }
