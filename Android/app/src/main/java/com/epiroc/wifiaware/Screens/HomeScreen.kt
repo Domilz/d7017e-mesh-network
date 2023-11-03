@@ -43,11 +43,7 @@ fun HomeScreen(service:WifiAwareService) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(text = service.getHasWifiAwareText().value)
-        service.getSubscriber()?.getUUIDMessageLiveData()?.let {Text(text = it.value) }
-        service.getPublisher()?.getPublisherMessageLiveData()?.let {Text(text = it.value) }
-        service.getSubscriber()?.getSubscribeMessageLiveData()?.let {Text(text = it.value) }
-        service.getPublisher()?.getNetworkMessageLiveData()?.let {Text(text = it.value) }
+        Text(text = "Its running! $service")
     }
 }
 

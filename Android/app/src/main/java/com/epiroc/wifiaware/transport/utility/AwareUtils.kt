@@ -1,4 +1,4 @@
-package com.epiroc.wifiaware.net.utility
+package com.epiroc.wifiaware.transport.utility
 
 import java.io.DataOutputStream
 import java.net.HttpURLConnection

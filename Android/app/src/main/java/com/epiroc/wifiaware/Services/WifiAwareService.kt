@@ -29,9 +29,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
-import com.epiroc.wifiaware.net.Publisher
-import com.epiroc.wifiaware.net.Subscriber
-import com.epiroc.wifiaware.net.utility.WifiAwareUtility
+import com.epiroc.wifiaware.transport.Publisher
+import com.epiroc.wifiaware.transport.Subscriber
+import com.epiroc.wifiaware.transport.network.PublisherNetwork
+import com.epiroc.wifiaware.transport.network.SubscriberNetwork
+import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -189,22 +191,20 @@ class WifiAwareService : Service() {
                 Timer().schedule(object : TimerTask() {
                     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                     override fun run() {
-                        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                         val serviceName = "epiroc_mesh"
-
                         // Initialize the publisher and subscriber
                         publisher = Publisher(
                             ctx = applicationContext,
                             nanSession = wifiAwareSession!!,
-                            cManager = connectivityManager!!,
+                            network = PublisherNetwork(),
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )
 
                         subscriber = Subscriber(
                             ctx = applicationContext,
-                            session,
-                            connectivityManager,
+                            nanSession = session,
+                            network = SubscriberNetwork(),
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )
