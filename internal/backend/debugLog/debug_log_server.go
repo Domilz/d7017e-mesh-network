@@ -59,6 +59,8 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 
 		}
 		req.Body.Close()
+		str1 := string(body[:])
+		fmt.Println("Recived string: ", str1)
 		debugLogServer.debugLogDatabaseHandler.Save(body)
 		server.SideStepGRPCServer(body)
 		w.Header().Set("Content-Type", "application/json")
