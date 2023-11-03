@@ -127,7 +127,6 @@ class WifiAwareService : Service() {
 
 
     companion object {
-        const val NOTIFICATION_ID = 1
         const val CHANNEL_ID = "wifiAwareServiceChannel"
     }
 

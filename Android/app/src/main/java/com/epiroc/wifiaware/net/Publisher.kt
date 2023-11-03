@@ -206,7 +206,6 @@ class Publisher(
             }
         }
         Log.d("1Wifi", "PUBLISH: All information received we are done $messagesReceived")
-        Log.d("1Wifi", "PUBLISH: All information received we are done ${messagesReceived.toString()}")
         utility.sendPostRequest(messagesReceived.toString())
         publishMessageLiveData.value = "PUBLISH: Messages received count: ${messagesReceived.count()}"
         Log.d("DONEEE", "publisherDone = true")

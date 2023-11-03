@@ -220,10 +220,10 @@ class Subscriber(
 
         socket.getOutputStream().use { outputStream ->
             PrintWriter(OutputStreamWriter(outputStream)).apply {
-                for (i in 1..100) {
-                    println("HELLO, server we are subscriber! count: $i")
-                    flush()
-                }
+                //WE NEED TO IMPLEMENT THE READING FROM CACHE HERE AND SEND ALL THAT INFORMATION OVER.
+                var data = "10, 3, 49, 49, 49, 18, 35, 10, 3, 49, 49, 49, 18, 10, 83, 111, 109, 101, 95, 82, 80, 95, 73, 68, 24, 69, 34, 12, 8, 228, 226, 146, 170, 6, 16, 176, 156, 205, 200, 1, 40, 1"
+                println(data)
+                flush()
                 socket.shutdownOutput()
                 Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
             }

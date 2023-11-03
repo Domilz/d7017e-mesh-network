@@ -48,7 +48,7 @@ object WifiAwareUtility {
         connection.doOutput = true
 
         val outputStream = DataOutputStream(connection.outputStream)
-        outputStream.writeUTF(data)
+        outputStream.writeBytes(data)
         outputStream.flush()
         outputStream.close()
 
