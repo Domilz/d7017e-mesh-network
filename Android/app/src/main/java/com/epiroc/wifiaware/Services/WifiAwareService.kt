@@ -31,7 +31,7 @@ import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.net.Publisher
 import com.epiroc.wifiaware.net.Subscriber
-import com.epiroc.wifiaware.net.utility.WifiAwareUtility
+import com.epiroc.wifiaware.net.utilities.WifiAwareUtility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -53,14 +53,12 @@ class WifiAwareService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        // Initialize WifiAwareManager and WifiAwareSession
         wifiAwareManager = getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager
-
-         serviceUUID = UUID.randomUUID().toString()
+        serviceUUID = UUID.randomUUID().toString()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("1Wifi","STARTED")
+        Log.d("1Wifi","WifiAwareService STARTED")
 
         // Show notification for the foreground service
         val intent = Intent(this, MainActivity::class.java).apply {
@@ -79,6 +77,7 @@ class WifiAwareService : Service() {
             .build()
 
         createNotificationChannel()
+        createNotification()
         startForeground(1, notification)
 
         wifiAwareState()
@@ -107,7 +106,12 @@ class WifiAwareService : Service() {
                 } else {
                     Log.e("1Wifi", "subscriber: not init")
                 }
-                cleanUpHandler.postDelayed(this, 1000)
+                utility.incrementTryCount()
+                if(utility.getTryCount() <= 10)
+                    cleanUpHandler.postDelayed(this, 1000)
+                else(
+                    cleanUpHandler.postDelayed(this, 10000)
+                )
             }
         }
         cleanUpHandler.post(cleanUpRunnable)
@@ -120,7 +124,6 @@ class WifiAwareService : Service() {
         publisher.closeServerSocket()
         serviceScope.cancel()
     }
-
 
     companion object {
         const val CHANNEL_ID = "wifiAwareServiceChannel"

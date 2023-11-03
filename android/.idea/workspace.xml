@@ -9,12 +9,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0205958b-2b50-4ff4-bcb7-473a28743cf7" name="Changes" comment="progress">
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt" afterDir="false" />
+    <list default="true" id="0205958b-2b50-4ff4-bcb7-473a28743cf7" name="Changes" comment="code cleanup">
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/Publisher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/Publisher.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/Subscriber.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/Subscriber.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/utility/WifiAwareUtility.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/utility/AwareUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/utility/AwareUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/net/utilities/AwareUtils.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -290,7 +289,14 @@
       <option name="project" value="LOCAL" />
       <updated>1698936851911</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="code cleanup">
+      <created>1699013645565</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1699013645565</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -317,7 +323,8 @@
     <MESSAGE value="idk more changes but no work" />
     <MESSAGE value="UUID" />
     <MESSAGE value="progress" />
-    <option name="LAST_COMMIT_MESSAGE" value="progress" />
+    <MESSAGE value="code cleanup" />
+    <option name="LAST_COMMIT_MESSAGE" value="code cleanup" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -14,16 +14,13 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
-import androidx.core.content.edit
-import com.epiroc.wifiaware.net.utility.WifiAwareUtility
-import java.io.IOException
+import com.epiroc.wifiaware.net.utilities.WifiAwareUtility
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.Timer
 import java.util.TimerTask
-import java.util.UUID
 
 class Subscriber(
     ctx: Context,
@@ -33,7 +30,6 @@ class Subscriber(
     uuid: String
 ) {
     private lateinit var subNetwork : Network
-    private lateinit var currentNetworkCapabilities: NetworkCapabilities
     private lateinit var networkCallbackSub: ConnectivityManager.NetworkCallback
 
     private val serviceUUID = uuid
@@ -168,7 +164,7 @@ class Subscriber(
                     establishConnectionSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
                     establishConnectionSocket.connect(InetSocketAddress(peerIpv6, peerPort), 5000)
                 } catch (e: Exception) {
-                    Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message} THIS IS THE currentNetworkCapabilities: (${currentNetworkCapabilities.toString()})")
+                    Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
                     wifiAwareSession!!.close()
                     return
                 }

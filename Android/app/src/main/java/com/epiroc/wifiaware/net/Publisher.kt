@@ -18,7 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ComponentActivity
 import com.epiroc.wifiaware.Screens.permissionsToRequest
-import com.epiroc.wifiaware.net.utility.WifiAwareUtility
+import com.epiroc.wifiaware.net.utilities.WifiAwareUtility
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
@@ -106,6 +106,7 @@ class Publisher(
                                 try {
                                     networkMessageLiveData.value = "NETWORK: we are connected to this network $network"
                                     serverSocket?.soTimeout = 5000
+                                    serverSocket?.reuseAddress = true  //TODO: Test this
 
                                     try {
                                         clientSocket = serverSocket?.accept()
@@ -117,7 +118,7 @@ class Publisher(
                                     handleClient(clientSocket)
                                     Log.d("1Wifi", "PUBLISH: Accepting client $network")
                                 } catch (e: Exception) {
-                                    Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
+                                    Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client. Check Wifi.", e)
                                 }
                             }
 
@@ -138,9 +139,9 @@ class Publisher(
                                 } catch (e: IOException) {
                                     Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
                                 }
+
                                 Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED")
                                 wifiAwareSession?.close()
-
                             }
                         }
                         //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

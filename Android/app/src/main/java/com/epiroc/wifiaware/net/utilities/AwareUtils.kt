@@ -1,13 +1,21 @@
-package com.epiroc.wifiaware.net.utility
+package com.epiroc.wifiaware.net.utilities
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.util.Log
+import androidx.core.app.ActivityCompat
 import java.io.DataOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
 object WifiAwareUtility {
     private val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
+    private var tryCount = 0
 
     fun add(deviceIdentifier: DeviceConnection) {
+        if (!recentlyConnectedDevices.contains(deviceIdentifier))
+            tryCount = 0
         recentlyConnectedDevices.add(deviceIdentifier)
     }
 
@@ -31,6 +39,14 @@ object WifiAwareUtility {
 
     fun isNotEmpty() : Boolean {
         return recentlyConnectedDevices.isNotEmpty()
+    }
+
+    fun incrementTryCount(){
+        tryCount++
+    }
+
+    fun getTryCount(): Int {
+        return tryCount
     }
 
     fun count(): Int {
