@@ -8,16 +8,21 @@ import (
 
 func main() {
 	//StartGrpcServer()
-	StartSentLog()
+	StartGRPCServerAndSentLog()
+	//s := StartSentLog()
+	//f := sentLog.CreateRssiForm("testid")
+	//s.SaveRssiForm(*f)
 	select {}
 }
 func StartGrpcServer() {
-	server.StartGrpcServer()
+
 }
 func StartDebugLog() {
 	debugLog.StartDebugLogServer("debugLog/database/DebugLogDatabase.db", "./debugLog/debugLogFormat.html")
 }
 
-func StartSentLog() {
-	sentLog.StartSentLogServer("debugLog/database/DebugLogDatabase.db", "./sentLog/sentLogFormat.html")
+func StartGRPCServerAndSentLog() *sentLog.SentLogServer {
+	s := sentLog.StartSentLogServer("sentLog/database/SentLogDatabase.db", "./sentLog/sentLogFormat.html")
+	server.StartGrpcServer(s.SentLogDatabaseHandler)
+	return s
 }

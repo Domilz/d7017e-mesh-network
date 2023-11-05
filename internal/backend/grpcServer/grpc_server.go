@@ -8,6 +8,7 @@ import (
 	"net"
 
 	handler "github.com/Domilz/d7017e-mesh-network/internal/backend/handlers"
+	sentLog "github.com/Domilz/d7017e-mesh-network/internal/backend/sentLog"
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 	"github.com/Domilz/d7017e-mesh-network/internal/protocol/utils"
 	"google.golang.org/grpc"
@@ -76,8 +77,8 @@ func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationS
 	return nil
 }
 
-func StartGrpcServer() {
-	backendStateHandler.InitStateHandler("SERVER-TAG")
+func StartGrpcServer(sentLogDB *sentLog.SentLogDatabaseHandler) {
+	backendStateHandler.InitStateHandler("SERVER-TAG", sentLogDB)
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))

@@ -4,12 +4,18 @@ import (
 	"fmt"
 
 	structs "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer/forms"
+	sentLog "github.com/Domilz/d7017e-mesh-network/internal/backend/sentLog"
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type DirectHandler struct {
-	//Object for log
+	sentLog *sentLog.SentLogDatabaseHandler
+}
+
+func InitDirectHandler(sLog *sentLog.SentLogDatabaseHandler) *DirectHandler {
+	directHandler := &DirectHandler{sLog}
+	return directHandler
 }
 
 func (directHandler *DirectHandler) FillOutAndSendForm(reading *pb.Reading) {

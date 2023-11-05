@@ -1,87 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sent Logs</title>
-<style>
-  .json-tree-view { display: none; }
-  .json-tree-view pre { white-space: pre-wrap; word-wrap: break-word; }
-  table { width: 100%; border-collapse: collapse; }
-  th { background-color: #f2f2f2; }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    min-width: 100px; /* for example, set a minimum width */
-  }
-  html {
-  overflow-y: scroll; /* This will always show the vertical scrollbar */
-}
-
-  /* You can also set explicit widths for each column if you prefer */
-  .formtype-col { width: 200px; } /* Adjust the width as needed */
-  .size-col { width: 100px; }
-  .details-col { width: 300px; }
-  
-  /* Ensure the details content does not overflow */
-  details {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    max-width: 100%; /* Prevent it from expanding beyond the cell width */
-  }
-  
-</style>
-<script>
-  function toggleTreeView(id) {
-    var element = document.getElementById('json-tree-view-' + id);
-    if (element.style.display === 'none') {
-      element.style.display = 'block';
-    } else {
-      element.style.display = 'none';
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sent Logs</title>
+  <style>
+    .json-tree-view {
+      display: none;
     }
-  }
 
-  function createTreeView(jsonData, parentElement) {
-    // This is where you'd parse the JSON and create a tree view.
-    // For simplicity, I'm just going to display it as preformatted text.
-    if (typeof jsonData === 'string') {
-      jsonData = JSON.parse(jsonData);
+    .json-tree-view pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
-    var pre = document.createElement('pre');
-    pre.textContent = JSON.stringify(jsonData, null, 2);
-    parentElement.appendChild(pre);
-  }
-</script>
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      min-width: 100px;
+
+    }
+
+    html {
+      overflow-y: scroll;
+      /* This will always show the vertical scrollbar */
+    }
+
+    .receivedDate-col {
+      width: 200px;
+    }
+
+
+    .formtype-col {
+      width: 200px;
+    }
+
+
+    .size-col {
+      width: 100px;
+    }
+
+    .details-col {
+      width: 300px;
+    }
+
+
+    details {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-width: 100%;
+
+    }
+  </style>
+  <script>
+    function toggleTreeView(id) {
+      var element = document.getElementById('json-tree-view-' + id);
+      if (element.style.display === 'block') {
+        element.style.display = 'none';
+      } else {
+        element.style.display = 'block';
+      }
+    }
+
+    function createTreeView(jsonData, parentElement) {
+
+      if (typeof jsonData === 'string') {
+        jsonData = JSON.parse(jsonData);
+      }
+      var pre = document.createElement('pre');
+      pre.textContent = JSON.stringify(jsonData, null, 2);
+      parentElement.appendChild(pre);
+    }
+  </script>
 </head>
+
 <body>
-<h1>Sent Logs</h1>
-<table>
-  <tr>
-    <th class="formtype-col">Formtype</th>
-    <th class="size-col">Size</th>
-    <th class="details-col">Details</th>
-  </tr>
-  {{range .Items}}
-  <tr>
-    <td>{{.FormType}}</td>
-    <td>{{.Size}}</td>
-    <td><button onclick="toggleTreeView('{{.FormType}}')">Show Data</button></td>
-  </tr>
-  <tr id="json-tree-view-{{.FormType}}" class="json-tree-view">
-    <td colspan="3">
-      <div> <!-- Ideally, you would create a more interactive tree view here -->
-        <script>
-          document.addEventListener("DOMContentLoaded", function() {
-            var jsonData = '{{.Data}}';
-            var parentElement = document.getElementById('json-tree-view-{{.FormType}}');
-            createTreeView(jsonData, parentElement);
-          });
-        </script>
-      </div>
-    </td>
-  </tr>
-  {{end}}
-</table>
+  <h1>Sent Logs</h1>
+  <table>
+    <tr>
+      <th class="receivedDate-col">ReceivedDate</th>
+      <th class="formtype-col">Formtype</th>
+      <th class="size-col">Size</th>
+      <th class="details-col">Details</th>
+    </tr>
+    {{range .Items}}
+    <tr>
+      <td>{{.ReceivedDate}}</td>
+      <td>{{.FormType}}</td>
+      <td>{{.Size}}</td>
+      <td><button onclick="toggleTreeView('{{.ReceivedDate}}')">Show Data</button></td>
+    </tr>
+    <tr id="json-tree-view-{{.ReceivedDate}}" class="json-tree-view">
+      <td colspan="4">
+        <div>
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              var jsonData = '{{.JsonString}}';
+              var parentElement = document.getElementById('json-tree-view-{{.ReceivedDate}}');
+              createTreeView(jsonData, parentElement);
+            });
+          </script>
+        </div>
+      </td>
+    </tr>
+    {{end}}
+  </table>
 </body>
+
 </html>

@@ -5,6 +5,7 @@ import (
 	"sort"
 	"sync"
 
+	sentLog "github.com/Domilz/d7017e-mesh-network/internal/backend/sentLog"
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 	"google.golang.org/protobuf/proto"
 )
@@ -15,10 +16,12 @@ type BackendStateHandler struct {
 	mutex         sync.RWMutex
 	directHandler *DirectHandler
 	//indirectHandler *IndirectHandler
+
 }
 
-func (stateHandler *BackendStateHandler) InitStateHandler(id string) {
+func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLog *sentLog.SentLogDatabaseHandler) {
 	stateHandler.lock()
+	stateHandler.directHandler = InitDirectHandler(sLog)
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
 	stateHandler.unLock()

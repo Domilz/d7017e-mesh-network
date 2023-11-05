@@ -2,11 +2,9 @@ package sentLog
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"time"
 
-	structs "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer/forms"
 	_ "github.com/mattn/go-sqlite3" // Import SQLite methods.
 )
 
@@ -15,10 +13,10 @@ type SentLogDatabaseHandler struct {
 }
 
 type SentLogData struct {
-	receivedDate string
-	formType     string
-	size         int
-	jsonString   string
+	ReceivedDate string `json:"receivedDate"`
+	FormType     string `json:"formType"`
+	Size         int    `json:"size"`
+	JsonString   string `json:"jsonString"`
 }
 
 func InitSentLogDatabase(path string) *SentLogDatabaseHandler {
@@ -37,30 +35,11 @@ func InitSentLogDatabase(path string) *SentLogDatabaseHandler {
 
 	} else {
 		debugLogDatabaseHandler.database = db
+		fmt.Println("Connected to sentLog database")
 		return debugLogDatabaseHandler
 	}
 	return nil
 
-}
-
-func (sentLogDatabaseHandler *SentLogDatabaseHandler) SendRssiForm(form structs.RssiForm) {
-	jsonData, err := json.Marshal(form)
-	if err != nil {
-		fmt.Println("error during json marshal")
-	} else {
-		jsonString := string(jsonData)
-		sentLogDatabaseHandler.saveToDB("RssiForm", len(form.Readings), jsonString)
-	}
-
-}
-func (sentLogDatabaseHandler *SentLogDatabaseHandler) SendReferencePointForm(form structs.ReferencePointForm) {
-	jsonData, err := json.Marshal(form)
-	if err != nil {
-		fmt.Println("error during json marshal")
-	} else {
-		jsonString := string(jsonData)
-		sentLogDatabaseHandler.saveToDB("ReferencePointForm", len(form.Operands), jsonString)
-	}
 }
 
 func (sentLogDatabaseHandler *SentLogDatabaseHandler) saveToDB(formType string, size int, jsonString string) {
@@ -74,13 +53,13 @@ func (sentLogDatabaseHandler *SentLogDatabaseHandler) saveToDB(formType string, 
 	}
 }
 
-func (debugLogDatabaseHandler *SentLogDatabaseHandler) GetDebugLog() []SentLogData {
+func (debugLogDatabaseHandler *SentLogDatabaseHandler) GetSentLog() []SentLogData {
 
 	data := []SentLogData{}
-	data.a
+
 	var rows *sql.Rows
 	//var err error
-	rows, _ = debugLogDatabaseHandler.database.Query("SELECT * FROM DebugLog")
+	rows, _ = debugLogDatabaseHandler.database.Query("SELECT * FROM SentLog")
 	defer rows.Close()
 
 	for rows.Next() {
@@ -92,11 +71,11 @@ func (debugLogDatabaseHandler *SentLogDatabaseHandler) GetDebugLog() []SentLogDa
 		err := rows.Scan(&recivedDate, &formType, &size, &jsonString)
 		if err != nil {
 			println(err.Error())
-			panic("Encounterd an error while quering the database table DebugLog")
+			panic("Encounterd an error while quering the database table SentLog")
 		} else {
 
 		}
-		data = append(data, SentLogData{re})
+		data = append(data, SentLogData{recivedDate, formType, size, jsonString})
 
 	}
 	return data
