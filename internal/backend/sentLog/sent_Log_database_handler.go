@@ -2,7 +2,7 @@ package sentLog
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3" // Import SQLite methods.
@@ -20,26 +20,22 @@ type SentLogData struct {
 }
 
 func InitSentLogDatabase(path string) *SentLogDatabaseHandler {
-	//database/data/DB.db
 	debugLogDatabaseHandler := &SentLogDatabaseHandler{}
 	db, err := sql.Open("sqlite3", "file:"+path+"?cache=shared&_journal=WAL&_foreign_keys=on")
 	if err != nil {
+		log.Printf("Encountered during at DebugLogDatabaseHandler when opening the SentLogDatabase: %v", err)
 		panic(err.Error())
 
 	}
 
 	if err := db.Ping(); err != nil {
-		fmt.Println("Failed to ping sentLog database")
-		fmt.Println(err)
+		log.Printf("Encountered during at SentLogDatabaseHandler when pinging the SentLogDatabase: %v", err)
 		panic(err.Error())
 
-	} else {
-		debugLogDatabaseHandler.database = db
-		fmt.Println("Connected to sentLog database")
-		return debugLogDatabaseHandler
 	}
-	return nil
-
+	debugLogDatabaseHandler.database = db
+	log.Printf("Successfully connected to SentLogDatabase")
+	return debugLogDatabaseHandler
 }
 
 func (sentLogDatabaseHandler *SentLogDatabaseHandler) saveToDB(formType string, size int, jsonString string) {
@@ -48,8 +44,8 @@ func (sentLogDatabaseHandler *SentLogDatabaseHandler) saveToDB(formType string, 
 	_, err = stmt.Exec(currentTime, formType, size, jsonString)
 	defer stmt.Close()
 	if err != nil {
-		println(err.Error())
-		panic("Encounterd an error, SentLog failed to save")
+		log.Printf("Encountered during at SentLogDatabaseHandler when saving to SentLogDatabase: %v", err)
+		panic(err.Error())
 	}
 }
 
@@ -70,8 +66,8 @@ func (debugLogDatabaseHandler *SentLogDatabaseHandler) GetSentLog() []SentLogDat
 
 		err := rows.Scan(&recivedDate, &formType, &size, &jsonString)
 		if err != nil {
-			println(err.Error())
-			panic("Encounterd an error while quering the database table SentLog")
+			log.Printf("Encountered during at SentLogDatabaseHandler when querying the SentLogDatabase for data: %v", err)
+			panic(err.Error())
 		} else {
 
 		}

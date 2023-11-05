@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"strconv"
-	"strings"
 	"time"
 
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
@@ -23,38 +21,6 @@ var (
 )
 
 func main() {
-	input := "[10, 3, 49, 49, 49, 18, 35, 10, 3, 49, 49, 49, 18, 10, 83, 111, 109, 101, 95, 82, 80, 95, 73, 68, 24, 69, 34, 12, 8, 228, 226, 146, 170, 6, 16, 176, 156, 205, 200, 1, 40, 1]"
-
-	// Remove "[" and "]" from the input string
-	input = strings.TrimPrefix(input, "[")
-	input = strings.TrimSuffix(input, "]")
-
-	// Split the string by commas
-	parts := strings.Split(input, ", ")
-
-	// Create a byte array and parse each part into an integer
-	byteArray := make([]byte, len(parts))
-	for i, part := range parts {
-		num, err := strconv.Atoi(part)
-		if err != nil {
-			fmt.Printf("Error parsing part at index %d: %v\n", i, err)
-			return
-		}
-		byteArray[i] = byte(num)
-	}
-
-	// Print the resulting byte array
-	fmt.Println(byteArray)
-}
-
-//This code first removes the "[" and "]" characters from the input string, splits the string into parts using strings.Split, and then converts each part into an integer using strconv.Atoi. Finally, it creates a byte array and assigns the parsed integers to it.
-
-func main1() {
-	xx := []byte{10, 3, 49, 49, 49, 18, 35, 10, 3, 49, 49, 49, 18, 10, 83, 111, 109, 101, 95, 82, 80, 95, 73, 68, 24, 69, 34, 12, 8, 228, 226, 146, 170, 6, 16, 176, 156, 205, 200, 1, 40, 1}
-	PrintDeserializedState(xx)
-	//printSerializedState()
-}
-func main2() {
 	flag.Parse()
 
 	// Establish a connection to the gRPC server
@@ -115,7 +81,7 @@ func prepareRequest(stateID string, readingID string) ([]byte, error) {
 	// Mocked `Reading`
 	reading := &pb.Reading{
 		TagId: readingID,
-		RpId:  "Some_RP_ID",
+		RpId:  "RpId not set ",
 		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
@@ -210,21 +176,4 @@ func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*p
 func closeStream(stream pb.StatePropagation_PropagationClient) error {
 	err := stream.CloseSend()
 	return err
-}
-
-func printSerializedState() {
-	request, err := prepareRequest("111", "111")
-	if err != nil {
-		log.Fatalf("error with prepared request: %v", err)
-	}
-	fmt.Println(request)
-}
-func PrintDeserializedState(serializedState []byte) {
-	deserializedState, err := utils.DeserializeState(serializedState)
-	if err != nil {
-		fmt.Println("Error deserializeing data")
-	} else {
-		utils.PrintFormattedState(deserializedState)
-	}
-
 }

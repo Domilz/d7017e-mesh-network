@@ -7,22 +7,29 @@ import (
 )
 
 func main() {
-	go StartGrpcServer()
-	StartGRPCServerAndSentLog()
-	//s := StartSentLog()
-	//f := sentLog.CreateRssiForm("testid")
-	//s.SaveRssiForm(*f)
+	StartBackend()
 	select {}
 }
-func StartGrpcServer() {
+
+func StartBackend() {
+	StartDebugLog()
+	sentLogServer := StartSentLog()
+	StartGRPCServer(sentLogServer)
 
 }
+
 func StartDebugLog() {
 	debugLog.StartDebugLogServer("debugLog/database/DebugLogDatabase.db", "./debugLog/debugLogFormat.html")
 }
 
-func StartGRPCServerAndSentLog() *sentLog.SentLogServer {
-	s := sentLog.StartSentLogServer("sentLog/database/SentLogDatabase.db", "./sentLog/sentLogFormat.html")
-	server.StartGrpcServer(s.SentLogDatabaseHandler)
-	return s
+func StartSentLog() *sentLog.SentLogServer {
+	sentLogServer := sentLog.StartSentLogServer("sentLog/database/SentLogDatabase.db", "./sentLog/sentLogFormat.html")
+	return sentLogServer
+
+}
+
+func StartGRPCServer(sLogServer *sentLog.SentLogServer) {
+
+	server.StartGrpcServer(sLogServer)
+
 }

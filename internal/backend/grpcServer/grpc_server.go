@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	serverAddress       = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
+	//serverAddress       = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
 	port                = flag.Int("port", 50051, "The server port")
 	backendStateHandler handler.BackendStateHandler
 )
@@ -65,8 +65,8 @@ func processClientRequest(srv pb.StatePropagation_PropagationServer) error {
 
 func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationServer) error {
 
-	fmt.Println("Recived state from client")
-	utils.PrintFormattedState(request)
+	log.Printf("Recived state from client with tagId:  %v", request.TagId)
+	//utils.PrintFormattedState(request)
 	backendStateHandler.InsertMultipleReadings(request)
 	respState := &pb.State{TagId: "Received state"}
 	if err := srv.Send(respState); err != nil {
@@ -77,8 +77,8 @@ func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationS
 	return nil
 }
 
-func StartGrpcServer(sentLogDB *sentLog.SentLogDatabaseHandler) {
-	backendStateHandler.InitStateHandler("SERVER-TAG", sentLogDB)
+func StartGrpcServer(sentLogServer *sentLog.SentLogServer) {
+	backendStateHandler.InitStateHandler("SERVER-TAG", sentLogServer)
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
@@ -89,7 +89,7 @@ func StartGrpcServer(sentLogDB *sentLog.SentLogDatabaseHandler) {
 	s := grpc.NewServer()
 	pb.RegisterStatePropagationServer(s, &server{})
 
-	log.Printf("server listening at: %s", *serverAddress)
+	log.Printf("grpcServer listening at port : %d", *port)
 
 	if err := s.Serve(listener); err != nil {
 		log.Fatalf("failed to build server: %v", err)

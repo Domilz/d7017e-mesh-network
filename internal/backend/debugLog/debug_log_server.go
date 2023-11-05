@@ -2,9 +2,9 @@ package debuglog
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -31,10 +31,10 @@ func StartDebugLogServer(dbPath string, htmlFormatPath string) {
 	dbuggLogServer := &DebugLogServer{InitDebugLogDatabase(dbPath), htmlFormatPath}
 
 	debugLogServer = dbuggLogServer
-	fmt.Println("Started debuggLogServer")
+
 	http.HandleFunc("/debuglog", PostLog)
-	fmt.Println("Starting sentLog server")
-	http.ListenAndServe(":4242", nil)
+	log.Println("Starting debugLog server")
+	go http.ListenAndServe(":4242", nil)
 
 }
 
@@ -64,7 +64,6 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 		req.Body.Close()
 		str := string(body[:])
 		b := stringTOByteArr(str)
-		//fmt.Println(b)
 
 		debugLogServer.debugLogDatabaseHandler.Save(b)
 		server.SideStepGRPCServer(b)
@@ -98,13 +97,11 @@ func stringTOByteArr(input string) []byte {
 	for i, part := range parts {
 		num, err := strconv.Atoi(part)
 		if err != nil {
-			fmt.Printf("Error parsing part at index %d: %v\n", i, err)
+			log.Printf("Encountered during at DebugLogServer during stringTOByteArr : %v", err)
 			return nil
 		}
 		byteArray[i] = byte(num)
 	}
 
-	// Print the resulting byte array
-	//fmt.Println(byteArray)
 	return byteArray
 }

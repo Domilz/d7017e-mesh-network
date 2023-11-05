@@ -2,8 +2,8 @@ package sentLog
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 
 	structs "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer/forms"
@@ -29,7 +29,7 @@ func StartSentLogServer(dbPath string, htmlFormatPath string) *SentLogServer {
 
 	sentLogServer = sLogServer
 	http.HandleFunc("/sentlog", SentLog)
-	fmt.Println("Starting sentLog server")
+	log.Printf("Starting sentLog server")
 	go http.ListenAndServe(":4242", nil)
 	return sentLogServer
 }
@@ -43,7 +43,7 @@ func SentLog(w http.ResponseWriter, req *http.Request) {
 		tmpl.Execute(w, sentLogCollection)
 
 	default:
-		println("Method not supported: ", req.Method)
+		log.Printf("Got a request for a unsupported method : %v", req.Method)
 
 	}
 }
@@ -51,7 +51,8 @@ func SentLog(w http.ResponseWriter, req *http.Request) {
 func (sentLogServer *SentLogServer) SaveRssiForm(form structs.RssiForm) {
 	jsonData, err := json.Marshal(form)
 	if err != nil {
-		fmt.Println("error during json marshal at SaveRssiForm")
+		log.Printf("SentLogServer encountered a during json marshal at SaveRssiForm")
+
 	} else {
 		jsonString := string(jsonData)
 		sentLogServer.SentLogDatabaseHandler.saveToDB("RssiForm", len(form.Readings), jsonString)
@@ -62,7 +63,7 @@ func (sentLogServer *SentLogServer) SaveRssiForm(form structs.RssiForm) {
 func (sentLogServer *SentLogServer) SaveReferencePointForm(form structs.ReferencePointForm) {
 	jsonData, err := json.Marshal(form)
 	if err != nil {
-		fmt.Println("error during json marshal at SaveReferencePointForm")
+		log.Printf("SentLogServer encountered a during json marshal at SaveReferencePointForm")
 	} else {
 		jsonString := string(jsonData)
 		sentLogServer.SentLogDatabaseHandler.saveToDB("ReferencePointForm", len(form.Operands), jsonString)

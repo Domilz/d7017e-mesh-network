@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"sync"
 
@@ -19,9 +20,10 @@ type BackendStateHandler struct {
 
 }
 
-func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLog *sentLog.SentLogDatabaseHandler) {
+func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer) {
 	stateHandler.lock()
-	stateHandler.directHandler = InitDirectHandler(sLog)
+	stateHandler.directHandler = InitDirectHandler(sLogServer)
+	//stateHandler.directHandler = InitIndirectHandler(sLogServer) //When implemented
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
 	stateHandler.unLock()
@@ -124,7 +126,7 @@ func DeserializeState(stateArray []byte) (*pb.State, error) {
 }
 
 func (stateHandler *BackendStateHandler) InsertMultipleReadings(state *pb.State) {
-	fmt.Println("got state:", state.TagId)
+	log.Printf("InsertMultipleReadings call with tagId :  %v", state.TagId)
 	for _, reading := range state.Readings {
 		stateHandler.InsertSingleReading(reading)
 

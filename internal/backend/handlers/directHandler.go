@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	structs "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer/forms"
 	sentLog "github.com/Domilz/d7017e-mesh-network/internal/backend/sentLog"
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
@@ -10,10 +8,10 @@ import (
 )
 
 type DirectHandler struct {
-	sentLog *sentLog.SentLogDatabaseHandler
+	sentLog *sentLog.SentLogServer
 }
 
-func InitDirectHandler(sLog *sentLog.SentLogDatabaseHandler) *DirectHandler {
+func InitDirectHandler(sLog *sentLog.SentLogServer) *DirectHandler {
 	directHandler := &DirectHandler{sLog}
 	return directHandler
 }
@@ -48,5 +46,5 @@ func (directHandler *DirectHandler) FillOutAndSendForm(reading *pb.Reading) {
 // Should send to api but don't have access so sending to log instead when
 // it is created. Using print so the system does not complain.
 func (directHandler *DirectHandler) sendFormToCentral(rssiForm *structs.RssiForm) {
-	fmt.Println(rssiForm)
+	directHandler.sentLog.SaveRssiForm(*rssiForm)
 }
