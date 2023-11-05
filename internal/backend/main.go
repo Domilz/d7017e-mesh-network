@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	//StartGrpcServer()
+	go StartGrpcServer()
 	StartGRPCServerAndSentLog()
 	//s := StartSentLog()
 	//f := sentLog.CreateRssiForm("testid")

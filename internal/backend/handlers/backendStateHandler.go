@@ -124,6 +124,7 @@ func DeserializeState(stateArray []byte) (*pb.State, error) {
 }
 
 func (stateHandler *BackendStateHandler) InsertMultipleReadings(state *pb.State) {
+	fmt.Println("got state:", state.TagId)
 	for _, reading := range state.Readings {
 		stateHandler.InsertSingleReading(reading)
 

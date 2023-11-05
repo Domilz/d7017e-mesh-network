@@ -95,3 +95,13 @@ func StartGrpcServer(sentLogDB *sentLog.SentLogDatabaseHandler) {
 		log.Fatalf("failed to build server: %v", err)
 	}
 }
+
+func SideStepGRPCServer(serializedState []byte) {
+	state, err := utils.DeserializeState(serializedState)
+	if err != nil {
+		log.Println("Error during DeserializeState", err)
+	} else {
+		backendStateHandler.InsertMultipleReadings(state)
+	}
+
+}
