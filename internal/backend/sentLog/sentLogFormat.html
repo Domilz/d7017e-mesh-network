@@ -4,8 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sent Logs</title>
+  <title>Sent Log</title>
   <style>
+    * {
+      font-family: 'Helvetica';
+    }
+
     .json-tree-view {
       display: none;
     }
@@ -14,6 +18,8 @@
       white-space: pre-wrap;
       word-wrap: break-word;
     }
+
+
 
     table {
       width: 100%;
@@ -87,20 +93,21 @@
 </head>
 
 <body>
-  <h1>Sent Logs</h1>
+  <h1>Sent Log</h1>
   <table>
     <tr>
-      <th class="receivedDate-col">ReceivedDate</th>
-      <th class="formtype-col">Formtype</th>
+      <th class="receivedDate-col">Date received</th>
+      <th class="formtype-col">Type of form</th>
       <th class="size-col">Size</th>
-      <th class="details-col">Details</th>
+      <th class="details-col">Show more</th>
     </tr>
     {{range .Items}}
     <tr>
       <td>{{.ReceivedDate}}</td>
       <td>{{.FormType}}</td>
       <td>{{.Size}}</td>
-      <td><button onclick="toggleTreeView('{{.ReceivedDate}}')">Show Data</button></td>
+      <td><button onclick="toggleTreeView('{{.ReceivedDate}}')">Show
+          data</button></td>
     </tr>
     <tr id="json-tree-view-{{.ReceivedDate}}" class="json-tree-view">
       <td colspan="4">
@@ -117,6 +124,7 @@
     </tr>
     {{end}}
   </table>
+
 </body>
 
 </html>
