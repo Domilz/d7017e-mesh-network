@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"sync"
 
+	sentLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/sentLog"
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 	"google.golang.org/protobuf/proto"
 )
@@ -15,10 +17,13 @@ type BackendStateHandler struct {
 	mutex         sync.RWMutex
 	directHandler *DirectHandler
 	//indirectHandler *IndirectHandler
+
 }
 
-func (stateHandler *BackendStateHandler) InitStateHandler(id string) {
+func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer) {
 	stateHandler.lock()
+	stateHandler.directHandler = InitDirectHandler(sLogServer)
+	//stateHandler.directHandler = InitIndirectHandler(sLogServer) //When implemented
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
 	stateHandler.unLock()
@@ -121,6 +126,7 @@ func DeserializeState(stateArray []byte) (*pb.State, error) {
 }
 
 func (stateHandler *BackendStateHandler) InsertMultipleReadings(state *pb.State) {
+	log.Printf("InsertMultipleReadings call with tagId :  %v", state.TagId)
 	for _, reading := range state.Readings {
 		stateHandler.InsertSingleReading(reading)
 

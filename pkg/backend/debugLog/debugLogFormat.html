@@ -1,11 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Log</title>
+    <style>
+        * {
+            font-family: 'Helvetica';
+        }
+
+
+
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            min-width: 100px;
+
+        }
+
+        .dateReceived-col {
+            width: 300px;
+        }
+    </style>
+</head>
+
 <body>
+    <h1>Debug Log</h1>
     <table>
         <tr>
-            <th>Date</th>
-            <th>Data</th>
+            <th class="dateReceived-col">Date received</th>
+
+            <th class="dataReceived-col">Data received</th>
 
         </tr>
         {{ range .Items}}

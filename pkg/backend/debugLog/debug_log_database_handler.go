@@ -2,7 +2,7 @@ package debuglog
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3" // Import SQLite methods.
@@ -13,23 +13,22 @@ type DebugLogDatabaseHandler struct {
 }
 
 func InitDebugLogDatabase(path string) *DebugLogDatabaseHandler {
-	//database/data/DB.db
 	debugLogDatabaseHandler := &DebugLogDatabaseHandler{}
 	db, err := sql.Open("sqlite3", "file:"+path+"?cache=shared&_journal=WAL&_foreign_keys=on")
 	if err != nil {
+		log.Printf("Encountered during at DebugLogDatabaseHandler when opening the DebugLogDatabase: %v", err)
 		panic(err.Error())
 
 	}
 
 	if err := db.Ping(); err != nil {
-		fmt.Println("could not connect to database:")
-		fmt.Println(err)
+		log.Printf("Encountered during at DebugLogDatabaseHandler when pinging the DebugLogDatabase: %v", err)
 		panic(err.Error())
 
-	} else {
-		debugLogDatabaseHandler.database = db
-		return debugLogDatabaseHandler
 	}
+	debugLogDatabaseHandler.database = db
+	log.Printf("Successfully connected to DebugLogDatabase")
+	return debugLogDatabaseHandler
 
 }
 
@@ -39,8 +38,8 @@ func (debugLogDatabaseHandler *DebugLogDatabaseHandler) Save(data []byte) {
 	_, err = stmt.Exec(currentTime, data)
 	defer stmt.Close()
 	if err != nil {
-		println(err.Error())
-		panic("Encounterd an error, debugLog failed to save")
+		log.Printf("Encountered during at DebugLogDatabaseHandler when saving to DebugLogDatabase: %v", err)
+		panic(err.Error())
 	}
 }
 
@@ -59,8 +58,8 @@ func (debugLogDatabaseHandler *DebugLogDatabaseHandler) GetDebugLog() ([]string,
 		var data []byte
 		err := rows.Scan(&address, &data)
 		if err != nil {
-			println(err.Error())
-			panic("Encounterd an error while quering the database table DebugLog")
+			log.Printf("Encountered during at DebugLogDatabaseHandler when querying the DebugLogDatabase for data: %v", err)
+			panic(err.Error())
 		} else {
 
 			dates = append(dates, address)
