@@ -8,8 +8,8 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
-	"github.com/Domilz/d7017e-mesh-network/internal/protocol/utils"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
+	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/utils"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

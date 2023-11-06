@@ -1,8 +1,8 @@
 package main
 
 import (
-	debugLog "github.com/Domilz/d7017e-mesh-network/internal/backend/debugLog"
-	server "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer"
+	debugLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/debugLog"
+	server "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer"
 )
 
 func main() {

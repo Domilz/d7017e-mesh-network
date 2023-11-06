@@ -5,7 +5,7 @@ import (
 	"sort"
 	"sync"
 
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 	"google.golang.org/protobuf/proto"
 )
 

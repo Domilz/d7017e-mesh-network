@@ -7,7 +7,7 @@ import (
 	"sort"
 	"testing"
 
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
