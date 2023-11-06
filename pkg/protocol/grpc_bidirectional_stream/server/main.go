@@ -7,8 +7,8 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
-	"github.com/Domilz/d7017e-mesh-network/internal/protocol/utils"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
+	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/utils"
 	"google.golang.org/grpc"
 )
 

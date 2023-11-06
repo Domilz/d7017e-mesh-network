@@ -6,8 +6,8 @@ import (
 	"sort"
 	"sync"
 
-	sentLog "github.com/Domilz/d7017e-mesh-network/internal/backend/sentLog"
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
+	sentLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/sentLog"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 	"google.golang.org/protobuf/proto"
 )
 

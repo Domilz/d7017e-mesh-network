@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 )
 
 // PrintFormattedState prints a formatted State message with multiple Readings.
