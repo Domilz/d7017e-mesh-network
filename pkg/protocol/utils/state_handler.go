@@ -36,8 +36,18 @@ func (stateHandler *StateHandler) GetReading(id string) *pb.Reading {
 	stateHandler.unLock()
 	return r
 }
+func (stateHandler *StateHandler) GetState() *pb.State {
+	stateHandler.lock()
+	s := &pb.State{TagId: stateHandler.TagId}
+	for _, reading := range stateHandler.readingsMap {
+		s.Readings = append(s.Readings, reading)
+	}
 
-func (stateHandler *StateHandler) GetState() ([]byte, error) {
+	stateHandler.unLock()
+	return s
+}
+
+func (stateHandler *StateHandler) GetSerializedState() ([]byte, error) {
 
 	stateHandler.lock()
 	s := pb.State{TagId: stateHandler.TagId}
@@ -55,7 +65,7 @@ func (stateHandler *StateHandler) GetState() ([]byte, error) {
 }
 
 func (stateHandler *StateHandler) getStateSorted() (*pb.State, error) {
-	serializedState, err := stateHandler.GetState()
+	serializedState, err := stateHandler.GetSerializedState()
 	if err != nil {
 		return nil, err
 	}

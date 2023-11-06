@@ -65,7 +65,7 @@ func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationS
 	// Print the `State` and `Reading` from the client
 	fmt.Println("ACK")
 	stateHandler.InsertMultipleReadings(request)
-	serializedState, err := stateHandler.GetState()
+	serializedState, err := stateHandler.GetSerializedState()
 	if err != nil {
 		return err
 	}

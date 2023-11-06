@@ -109,7 +109,7 @@ func TestGetState(t *testing.T) {
 	sh.InitStateHandler("666")
 	sh.InsertSingleReading(mockReading)
 
-	serializedState, _ := sh.GetState()
+	serializedState, _ := sh.GetSerializedState()
 	actualState, _ := DeserializeState(serializedState)
 
 	if !reflect.DeepEqual(actualState, mockState) {
@@ -168,7 +168,7 @@ func TestMultipleGetState(t *testing.T) {
 	sh.InsertSingleReading(mockReading3)
 	sh.InsertSingleReading(mockReading4)
 
-	serializedState, _ := sh.GetState()
+	serializedState, _ := sh.GetSerializedState()
 	actualState, _ := DeserializeState(serializedState)
 
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
