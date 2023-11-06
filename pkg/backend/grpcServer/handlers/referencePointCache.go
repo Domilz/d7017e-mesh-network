@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	structs "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer/forms"
+	structs "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/forms"
 )
 
 type ReferencePointCache struct {

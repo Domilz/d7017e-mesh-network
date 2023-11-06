@@ -1,4 +1,4 @@
-package grpcserver
+package main
 
 import (
 	"flag"
@@ -7,16 +7,15 @@ import (
 	"log"
 	"net"
 
-	handler "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer/handlers"
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
-	"github.com/Domilz/d7017e-mesh-network/internal/protocol/utils"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
+	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/utils"
 	"google.golang.org/grpc"
 )
 
 var (
-	serverAddress       = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
-	port                = flag.Int("port", 50051, "The server port")
-	backendStateHandler handler.BackendStateHandler
+	serverAddress = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
+	port          = flag.Int("port", 50051, "The server port")
+	stateHandler  utils.StateHandler
 )
 
 type server struct {
@@ -63,21 +62,26 @@ func processClientRequest(srv pb.StatePropagation_PropagationServer) error {
 }
 
 func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationServer) error {
-
-	fmt.Println("Recived state from client")
-	utils.PrintFormattedState(request)
-	backendStateHandler.InsertMultipleReadings(request)
-	respState := &pb.State{TagId: "Received state"}
-	if err := srv.Send(respState); err != nil {
-		log.Printf("send error %v", err)
+	// Print the `State` and `Reading` from the client
+	fmt.Println("ACK")
+	stateHandler.InsertMultipleReadings(request)
+	serializedState, err := stateHandler.GetState()
+	if err != nil {
 		return err
 	}
+
+	state, err := utils.DeserializeState(serializedState)
+	if err != nil {
+		return err
+	}
+
+	utils.PrintFormattedState(state)
 
 	return nil
 }
 
-func StartGrpcServer() {
-	backendStateHandler.InitStateHandler("SERVER-TAG")
+func main() {
+	stateHandler.InitStateHandler("MOCKED STATE")
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))

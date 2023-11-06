@@ -3,8 +3,8 @@ package handlers
 import (
 	"fmt"
 
-	structs "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer/forms"
-	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
+	structs "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/forms"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
