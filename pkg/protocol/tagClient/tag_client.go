@@ -40,5 +40,10 @@ func (client *Client) SendToServer() {
 	utils.SendToBackend(s)
 
 }
+
 func (client *Client) UpdateReadingofSelf(rpId string) {
+}
+
+func GetClient() *Client {
+	return &Client{}
 }
