@@ -63,7 +63,7 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 		}
 		req.Body.Close()
 		str := string(body[:])
-		b := stringTOByteArr(str)
+		b := stringToByteArr(str)
 
 		debugLogServer.debugLogDatabaseHandler.Save(b)
 		server.SideStepGRPCServer(b)
@@ -84,7 +84,7 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func stringTOByteArr(input string) []byte {
+func stringToByteArr(input string) []byte {
 	// Remove "[" and "]" from the input string
 	input = strings.TrimPrefix(input, "[")
 	input = strings.TrimSuffix(input, "]")
