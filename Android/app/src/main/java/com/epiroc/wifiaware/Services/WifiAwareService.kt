@@ -27,6 +27,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.transport.Publisher
@@ -34,6 +38,7 @@ import com.epiroc.wifiaware.transport.Subscriber
 import com.epiroc.wifiaware.transport.network.PublisherNetwork
 import com.epiroc.wifiaware.transport.network.SubscriberNetwork
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
+import com.epiroc.wifiaware.workers.NetworkWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -86,6 +91,7 @@ class WifiAwareService : Service() {
         createNotification()
         startForeground(1, notification)
 
+        startNetworkWorker()
         wifiAwareState()
         acquireWifiAwareSession()
 
@@ -274,4 +280,20 @@ class WifiAwareService : Service() {
     override fun onBind(intent: Intent?): IBinder? {
         return binder
     }
+
+    private fun startNetworkWorker() {
+        // Set up constraints to require network connectivity
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        // Create a WorkRequest for your Worker and set the constraints
+        val networkWorkRequest = OneTimeWorkRequest.Builder(NetworkWorker::class.java)
+            .setConstraints(constraints)
+            .build()
+
+        // Enqueue the work
+        WorkManager.getInstance(this).enqueue(networkWorkRequest)
+    }
+
 }

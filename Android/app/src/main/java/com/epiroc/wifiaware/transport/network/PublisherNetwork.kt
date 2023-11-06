@@ -11,6 +11,7 @@ import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
 import android.util.Log
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
+import java.io.File
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
@@ -21,7 +22,9 @@ class PublisherNetwork {
     private var clientSocket: Socket? = null
     private val messagesReceived: MutableList<String> = mutableListOf()
     private val utility: WifiAwareUtility = WifiAwareUtility
+    private lateinit var context : Context
     fun createNetwork(currentPubSession : DiscoverySession, peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context){
+        this.context = context
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
         if (serverSocket == null || serverSocket!!.isClosed) {
             serverSocket = ServerSocket(0)
@@ -90,11 +93,10 @@ class PublisherNetwork {
             }
         }
         Log.d("1Wifi", "PUBLISH: All information received we are done $messagesReceived")
-
-        utility.sendPostRequest(messagesReceived.toString())
-
         Log.d("DONEEE", "publisherDone = true")
+        utility.saveToFile(context,messagesReceived.toString())
     }
+
 
     fun closeServerSocket() {
         try {

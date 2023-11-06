@@ -1,6 +1,8 @@
 package com.epiroc.wifiaware.transport.utility
 
+import android.content.Context
 import java.io.DataOutputStream
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -68,6 +70,11 @@ object WifiAwareUtility {
     fun getTryCount(): Int {
         return tryCount
     }
+    fun saveToFile(context : Context, information : String){
+        val file = File(context.filesDir, "MyState.txt")
+        file.writeText(information)
+    }
+
 }
 
 data class DeviceConnection(val deviceIdentifier: String, val timestamp: Long)
