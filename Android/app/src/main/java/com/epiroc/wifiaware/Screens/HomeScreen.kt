@@ -16,12 +16,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.epiroc.wifiaware.Services.BLEService
 import com.epiroc.wifiaware.Services.WifiAwareService
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 val permissionsToRequest = arrayOf(
     Manifest.permission.ACCESS_FINE_LOCATION,
-    Manifest.permission.NEARBY_WIFI_DEVICES
+    Manifest.permission.NEARBY_WIFI_DEVICES,
+    Manifest.permission.BLUETOOTH_SCAN
 )
 val LocalWifiAwareService = compositionLocalOf<WifiAwareService?> { null }
 
@@ -36,14 +38,17 @@ fun ServiceAwareContent(service: WifiAwareService) {
     ) {
         Button(
             onClick = {
-                val intent = Intent(context, WifiAwareService::class.java)
+                val nanIntent = Intent(context, WifiAwareService::class.java)
+                val bleIntent = Intent(context, BLEService::class.java)
                 if (!isServiceRunning) {
                     // Start the service
-                    ContextCompat.startForegroundService(context, intent)
+                    ContextCompat.startForegroundService(context, nanIntent)
+                    ContextCompat.startForegroundService(context, bleIntent)
                     isServiceRunning = true
                 } else {
                     // Stop the service
-                    context.stopService(intent)
+                    context.stopService(nanIntent)
+                    context.stopService(bleIntent)
                     isServiceRunning = false
                 }
             },
