@@ -7,7 +7,7 @@ import (
 	"log"
 	"net"
 
-	handler "github.com/Domilz/d7017e-mesh-network/internal/backend/handlers"
+	handler "github.com/Domilz/d7017e-mesh-network/internal/backend/grpcServer/handlers"
 	pb "github.com/Domilz/d7017e-mesh-network/internal/protocol/protofiles/tag"
 	"github.com/Domilz/d7017e-mesh-network/internal/protocol/utils"
 	"google.golang.org/grpc"
