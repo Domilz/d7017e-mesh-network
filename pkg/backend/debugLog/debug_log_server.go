@@ -4,7 +4,12 @@ import (
 	"encoding/json"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"strconv"
+	"strings"
+
+	server "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer"
 )
 
 var debugLogServer *DebugLogServer
@@ -26,8 +31,10 @@ func StartDebugLogServer(dbPath string, htmlFormatPath string) {
 	dbuggLogServer := &DebugLogServer{InitDebugLogDatabase(dbPath), htmlFormatPath}
 
 	debugLogServer = dbuggLogServer
+
 	http.HandleFunc("/debuglog", PostLog)
-	http.ListenAndServe(":4242", nil)
+	log.Println("Starting debugLog server")
+	go http.ListenAndServe(":4242", nil)
 
 }
 
@@ -55,8 +62,11 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 
 		}
 		req.Body.Close()
-		debugLogServer.debugLogDatabaseHandler.Save(body)
+		str := string(body[:])
+		b := stringTOByteArr(str)
 
+		debugLogServer.debugLogDatabaseHandler.Save(b)
+		server.SideStepGRPCServer(b)
 		w.Header().Set("Content-Type", "application/json")
 		jsonResp, err := json.Marshal("Added")
 
@@ -72,4 +82,26 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 		println("Method not supported: ", req.Method)
 
 	}
+}
+
+func stringTOByteArr(input string) []byte {
+	// Remove "[" and "]" from the input string
+	input = strings.TrimPrefix(input, "[")
+	input = strings.TrimSuffix(input, "]")
+
+	// Split the string by commas
+	parts := strings.Split(input, ", ")
+
+	// Create a byte array and parse each part into an integer
+	byteArray := make([]byte, len(parts))
+	for i, part := range parts {
+		num, err := strconv.Atoi(part)
+		if err != nil {
+			log.Printf("Encountered during at DebugLogServer during stringTOByteArr : %v", err)
+			return nil
+		}
+		byteArray[i] = byte(num)
+	}
+
+	return byteArray
 }
