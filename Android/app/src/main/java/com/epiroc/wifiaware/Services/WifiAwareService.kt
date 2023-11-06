@@ -46,13 +46,10 @@ class WifiAwareService : Service() {
     private val utility: WifiAwareUtility = WifiAwareUtility
     private val serviceScope = CoroutineScope(Dispatchers.Main)
     private val binder = LocalBinder()
-    private val cleanUpHandler = Handler(Looper.getMainLooper())
 
     private var connectivityManager: ConnectivityManager? = null
     private var wifiAwareSession: WifiAwareSession? = null
     private var wifiAwareManager: WifiAwareManager? = null
-    private var cleanUpRunnable: Runnable? = null
-
 
     private lateinit var serviceUUID: String
     private lateinit var publisher: Publisher
@@ -92,7 +89,8 @@ class WifiAwareService : Service() {
         wifiAwareState()
         acquireWifiAwareSession()
 
-        cleanUpRunnable = object: Runnable {
+        val cleanUpHandler = Handler(Looper.getMainLooper())
+        val cleanUpRunnable = object: Runnable {
             override fun run() {
                 if (::subscriber.isInitialized) {
                     if(utility.isNotEmpty()) {
@@ -121,7 +119,7 @@ class WifiAwareService : Service() {
                     cleanUpHandler.postDelayed(this, 10000)
             }
         }
-        cleanUpHandler.post(cleanUpRunnable as Runnable)
+        cleanUpHandler.post(cleanUpRunnable)
         return START_STICKY
     }
 
@@ -130,8 +128,6 @@ class WifiAwareService : Service() {
         super.onDestroy()
         publisher.closeServerSocket()
         serviceScope.cancel()
-        cleanUpRunnable?.let { cleanUpHandler.removeCallbacks(it) }
-        cleanUpRunnable = null
     }
 
     companion object {
