@@ -41,4 +41,5 @@ func (client *Client) SendToServer() {
 
 }
 func (client *Client) UpdateReadingofSelf(rpId string) {
+
 }
