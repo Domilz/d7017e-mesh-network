@@ -12,7 +12,9 @@ type Client struct {
 }
 
 func (client *Client) SetupClient(id string) {
-	client.stateHandler.InitStateHandler(id)
+	sh := &utils.StateHandler{}
+	sh.InitStateHandler(id)
+	client.stateHandler = sh
 }
 
 func (client *Client) GetState() ([]byte, error) {
