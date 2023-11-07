@@ -41,6 +41,8 @@ class Subscriber(
     private var wifiAwareSession = nanSession
     private lateinit var currentSubSession: DiscoverySession
 
+
+
     fun subscribeToWifiAwareSessions() {
         val handler = Handler(Looper.getMainLooper()) // Use the main looper.
         Log.d("1Wifi","SUBSCRIBE: subscribeToWifiAwareSessions called")

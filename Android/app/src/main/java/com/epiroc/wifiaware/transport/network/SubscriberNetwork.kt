@@ -11,6 +11,7 @@ import android.net.wifi.aware.WifiAwareNetworkInfo
 import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
 import android.util.Log
+import tag.Tag.getClient
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.net.InetSocketAddress
@@ -87,7 +88,11 @@ class SubscriberNetwork {
         socket.getOutputStream().use { outputStream ->
             PrintWriter(OutputStreamWriter(outputStream)).apply {
                 //WE NEED TO IMPLEMENT THE READING FROM CACHE HERE AND SEND ALL THAT INFORMATION OVER.
-                var data = "10, 3, 49, 49, 49, 18, 35, 10, 3, 49, 49, 49, 18, 10, 83, 111, 109, 101, 95, 82, 80, 95, 73, 68, 24, 69, 34, 12, 8, 228, 226, 146, 170, 6, 16, 176, 156, 205, 200, 1, 40, 1"
+                //var data = "10, 3, 49, 49, 49, 18, 35, 10, 3, 49, 49, 49, 18, 10, 83, 111, 109, 101, 95, 82, 80, 95, 73, 68, 24, 69, 34, 12, 8, 228, 226, 146, 170, 6, 16, 176, 156, 205, 200, 1, 40, 1"
+                var client = getClient()
+                client.setupClient("daniel")
+                client.insertSingleMockedReading()
+                var data = client.state
                 println(data)
                 flush()
                 socket.shutdownOutput()

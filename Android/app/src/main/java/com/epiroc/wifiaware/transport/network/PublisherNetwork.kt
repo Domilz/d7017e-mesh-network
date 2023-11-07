@@ -11,6 +11,7 @@ import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
 import android.util.Log
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
+import tag.Tag
 import java.io.File
 import java.io.IOException
 import java.net.ServerSocket
@@ -86,15 +87,23 @@ class PublisherNetwork {
 
     private fun handleClient(clientSocket: Socket?) {
         Log.d("1Wifi", "PUBLISH: handleClient started.")
+        var client = Tag.getClient()
+        client.setupClient("oliver")
+        client.insertSingleMockedReading()
         clientSocket!!.getInputStream().bufferedReader().use { reader ->
             reader.lineSequence().forEach { line ->
                 messagesReceived.add(line)
                 Log.d("INFOFROMCLIENT", "Received from client: $line")
+                client.insert(line.toByteArray())
             }
         }
+        var data = client.state
+        var dataString = String(data)
+        Log.d("PublisherClient", data.toString())
+
         Log.d("1Wifi", "PUBLISH: All information received we are done $messagesReceived")
         Log.d("DONEEE", "publisherDone = true")
-        utility.saveToFile(context,messagesReceived.toString())
+        utility.saveToFile(context,client.state.toString())
     }
 
 

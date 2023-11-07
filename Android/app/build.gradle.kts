@@ -64,6 +64,7 @@ dependencies {
     implementation("androidx.navigation:navigation-runtime-ktx:2.6.0")
     implementation("androidx.navigation:navigation-compose:2.6.0")
     implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation(files("libs/tag.aar"))
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
