@@ -17,6 +17,8 @@ import android.Manifest
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 
 class MainActivity : ComponentActivity() {
@@ -36,6 +38,8 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.navigationBarColor = Color.Black.toArgb()
+        window.statusBarColor = Color.Black.toArgb()
         Log.d("1Wifi","Service created in main")
         if (ActivityCompat.checkSelfPermission(
                 this,

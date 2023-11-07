@@ -4,11 +4,16 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.Services.BLEService
 import com.epiroc.wifiaware.Services.WifiAwareService
+
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 val permissionsToRequest = arrayOf(
@@ -29,12 +35,15 @@ val LocalWifiAwareService = compositionLocalOf<WifiAwareService?> { null }
 
 @Composable
 fun ServiceAwareContent(service: WifiAwareService) {
+
     val context = LocalContext.current
     var isServiceRunning by remember { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
     ) {
         Button(
             onClick = {
