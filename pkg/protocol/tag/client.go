@@ -36,8 +36,12 @@ func (client *Client) GetState() ([]byte, error) {
 	return client.stateHandler.GetSerializedState()
 }
 
-func (client *Client) Insert(serialized []byte) {
-	client.stateHandler.InsertSerializedState(serialized)
+func (client *Client) Insert(serialized []byte) error {
+	err := client.stateHandler.InsertSerializedState(serialized)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (client *Client) InsertSingleMockedReading() {
