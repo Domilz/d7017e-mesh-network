@@ -28,7 +28,6 @@ func (client *Client) GetReadableOfSingleState(state []byte) (string, error) {
 		return "", err
 	}
 	str := fmt.Sprintf("%v", deserializedState)
-	fmt.Println(deserializedState)
 	return str, nil
 }
 
@@ -44,9 +43,9 @@ func (client *Client) Insert(serialized []byte) error {
 	return nil
 }
 
-func (client *Client) InsertSingleMockedReading() {
+func (client *Client) InsertSingleMockedReading(tagId string) {
 	reading := &pb.Reading{
-		TagId: "TestTadId",
+		TagId: tagId,
 		RpId:  "TestRpId",
 		Rssi:  69,
 		Ts: &timestamp.Timestamp{
