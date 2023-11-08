@@ -22,6 +22,12 @@ go.work
 go.work.sum
 
 # Java kotlin
+caches
+wrapper
+native
+daemon
+FakeDependency.jar
+*.tmp
 .DS_Store
 .idea/shelf
 /confluence/target
