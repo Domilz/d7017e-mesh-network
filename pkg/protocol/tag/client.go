@@ -5,13 +5,15 @@ import (
 
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/utils"
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Client struct {
 	stateHandler *utils.StateHandler
+}
+
+func TagMain() {
 }
 
 func (client *Client) SetupClient(id string) {
@@ -21,12 +23,12 @@ func (client *Client) SetupClient(id string) {
 }
 
 func (client *Client) GetReadableOfSingleState(state []byte) (string, error) {
-	var reading = &pb.State{}
-	err := proto.Unmarshal(state, reading)
+	deserializedState, err := utils.DeserializeState(state)
 	if err != nil {
 		return "", err
 	}
-	str := fmt.Sprintf("%v", reading)
+	str := fmt.Sprintf("%v", deserializedState)
+	fmt.Println(deserializedState)
 	return str, nil
 }
 
