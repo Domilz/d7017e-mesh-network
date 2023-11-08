@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -13,7 +12,6 @@ import (
 
 func main() {
 	// Main function, add more cases for main functions of packages when defined.
-	fmt.Println(os.Args)
 	args := os.Args[1:]
 	if len(args) == 0 {
 		log.Println("No arguments provided")
