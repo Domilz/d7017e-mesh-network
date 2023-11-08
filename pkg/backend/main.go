@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	debugLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/debugLog"
@@ -6,7 +6,7 @@ import (
 	sentLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/sentLog"
 )
 
-func main() {
+func Main() {
 	StartBackend()
 	select {}
 }

@@ -1,4 +1,4 @@
-package main
+package grpc
 
 import (
 	"context"
@@ -20,7 +20,7 @@ var (
 	serverAddress2 = flag.String("serverAddress2", "83.233.46.128:50051", "the address to the server for client connection")
 )
 
-func main() {
+func Main() {
 	flag.Parse()
 
 	// Establish a connection to the gRPC server
