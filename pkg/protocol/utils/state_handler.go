@@ -111,19 +111,19 @@ func (stateHandler *StateHandler) getStatesReadingLimit(limit int) ([]*pb.State,
 
 func SerializeState(state *pb.State) ([]byte, error) {
 	marshaledState, err := proto.Marshal(state)
-	if err == nil {
-		return marshaledState, nil
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, err
+	return marshaledState, nil
 }
 
 func DeserializeState(stateArray []byte) (*pb.State, error) {
 	stateMessage := &pb.State{}
 	err := proto.Unmarshal(stateArray, stateMessage)
-	if err == nil {
-		return stateMessage, nil
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, err
+	return stateMessage, nil
 }
