@@ -14,6 +14,10 @@ type Client struct {
 }
 
 func Main() {
+	client := GetClient()
+	client.SetupClient("MainClient")
+	client.InsertSingleMockedReading("MainTest")
+	// Test whatever here
 }
 
 func (client *Client) SetupClient(id string) {
