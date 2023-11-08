@@ -8,6 +8,7 @@ import (
 
 	"github.com/Domilz/d7017e-mesh-network/pkg/backend"
 	grpc "github.com/Domilz/d7017e-mesh-network/pkg/protocol/grpc/client"
+	"github.com/Domilz/d7017e-mesh-network/pkg/protocol/tag"
 )
 
 func main() {
@@ -27,6 +28,9 @@ func main() {
 	case "grpc":
 		log.Println("Starting GRPC Client")
 		grpc.Main()
+	case "tag":
+		log.Println("Starting Tag Client")
+		tag.Main()
 	default:
 		log.Println("No Main function for given arg")
 		return

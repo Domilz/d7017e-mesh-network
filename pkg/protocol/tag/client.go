@@ -13,7 +13,7 @@ type Client struct {
 	stateHandler *utils.StateHandler
 }
 
-func TagMain() {
+func Main() {
 }
 
 func (client *Client) SetupClient(id string) {
