@@ -11,13 +11,16 @@ import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
 import android.util.Log
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
-import tag.Tag
-import java.io.File
+import tag.Client
+import java.io.ByteArrayOutputStream
+import java.io.DataInputStream
+import java.io.EOFException
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
 
-class PublisherNetwork {
+class PublisherNetwork(client : Client) {
+    private var client = client
     private var serverSocket: ServerSocket? = null
     private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
     private var clientSocket: Socket? = null
@@ -87,25 +90,42 @@ class PublisherNetwork {
 
     private fun handleClient(clientSocket: Socket?) {
         Log.d("1Wifi", "PUBLISH: handleClient started.")
-        var client = Tag.getClient()
-        client.setupClient("oliver")
-        client.insertSingleMockedReading()
-        clientSocket!!.getInputStream().bufferedReader().use { reader ->
-            reader.lineSequence().forEach { line ->
-                messagesReceived.add(line)
-                Log.d("INFOFROMCLIENT", "Received from client: $line")
-                client.insert(line.toByteArray())
+        client.insertSingleMockedReading("publish")
+        var sdfsdf = client.state
+        clientSocket!!.getInputStream().use { inputStream ->
+            val dataInputStream = DataInputStream(inputStream)
+
+            try {
+                val size = dataInputStream.readInt()
+                if (size > 0) {
+                    val messageBytes = ByteArray(size)
+                    dataInputStream.readFully(messageBytes)
+                    try{
+                        client.insert(messageBytes)
+                    }catch (e: Exception){
+                        Log.d("1Wifi", e.message.toString())
+                    }
+
+                    Log.d("INFOFROMCLIENT", "Received protobuf message: ${client.getReadableOfSingleState(messageBytes)}")
+                } else {
+                    Log.d("INFOFROMCLIENT", "End of stream reached or the connection")
+                    //return
+                }
+            } catch (e: EOFException) {
+                // End of stream has been reached or the connection was closed
+                Log.d("INFOFROMCLIENT", "End of stream reached or the connection was closed.")
+            } catch (e: IOException) {
+                // Handle I/O error
+                Log.e("INFOFROMCLIENT", "I/O error: ${e.message}")
             }
         }
-        var data = client.state
-        var dataString = String(data)
-        Log.d("PublisherClient", data.toString())
-
         Log.d("1Wifi", "PUBLISH: All information received we are done $messagesReceived")
         Log.d("DONEEE", "publisherDone = true")
-        utility.saveToFile(context,client.state.toString())
-    }
+        Log.d("1Wifi", "${client.getReadableOfSingleState(sdfsdf)}" )
+        Log.d("1Wifi", "${client.getReadableOfSingleState(client.state)}" )
 
+        utility.saveToFile(context,client.state)
+    }
 
     fun closeServerSocket() {
         try {

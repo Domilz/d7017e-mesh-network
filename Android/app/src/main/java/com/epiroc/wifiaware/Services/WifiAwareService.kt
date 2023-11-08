@@ -33,6 +33,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
+import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.transport.Publisher
 import com.epiroc.wifiaware.transport.Subscriber
 import com.epiroc.wifiaware.transport.network.PublisherNetwork
@@ -202,21 +203,21 @@ class WifiAwareService : Service() {
                 wifiAwareSession = session
                 Timer().schedule(object : TimerTask() {
                     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-
+                    var c = Client.setupClient(serviceUUID)!!
                     override fun run() {
                         val serviceName = "epiroc_mesh"
                         // Initialize the publisher and subscriber
                         publisher = Publisher(
                             ctx = applicationContext,
                             nanSession = wifiAwareSession!!,
-                            network = PublisherNetwork(),
+                            network = PublisherNetwork(c),
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )
                         subscriber = Subscriber(
                             ctx = applicationContext,
                             nanSession = session,
-                            network = SubscriberNetwork(),
+                            network = SubscriberNetwork(c),
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )

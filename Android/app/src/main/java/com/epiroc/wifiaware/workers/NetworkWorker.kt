@@ -14,15 +14,16 @@ class NetworkWorker(appContext: Context, workerParams: WorkerParameters) :
     override fun doWork(): Result {
         return try {
             val file = File(context.filesDir, "MyState.txt")
+
             if (file.exists() && file.length() > 0) { // Check if file is not empty
-                file.forEachLine { line ->
-                    if (line.isNotBlank()) { // Check if the line is not blank
-                        utility.sendPostRequest(line)
-                    }
-                }
+                utility.sendPostRequest(file.readBytes())
+            // Clear the file after all lines have been processed.
                 file.writeText("")
+                Result.success()
+            }else{
+                Result.retry()
             }
-            Result.success()
+
         } catch (e: Exception) {
             Result.retry()
         }

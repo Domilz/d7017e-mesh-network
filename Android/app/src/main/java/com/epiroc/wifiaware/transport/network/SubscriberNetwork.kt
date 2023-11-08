@@ -11,15 +11,17 @@ import android.net.wifi.aware.WifiAwareNetworkInfo
 import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
 import android.util.Log
-import tag.Tag.getClient
+import tag.Client
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.nio.ByteBuffer
 import java.util.Timer
 import java.util.TimerTask
 
-class SubscriberNetwork {
+class SubscriberNetwork (client : Client) {
+    private var client = client
     private lateinit var networkCallbackSub: ConnectivityManager.NetworkCallback
     private lateinit var  subNetwork : Network
 
@@ -84,21 +86,24 @@ class SubscriberNetwork {
 
     private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket,connectivityManager : ConnectivityManager) {
         Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
+        client.insertSingleMockedReading("Client")
+        val state = client.state
 
         socket.getOutputStream().use { outputStream ->
-            PrintWriter(OutputStreamWriter(outputStream)).apply {
-                //WE NEED TO IMPLEMENT THE READING FROM CACHE HERE AND SEND ALL THAT INFORMATION OVER.
-                //var data = "10, 3, 49, 49, 49, 18, 35, 10, 3, 49, 49, 49, 18, 10, 83, 111, 109, 101, 95, 82, 80, 95, 73, 68, 24, 69, 34, 12, 8, 228, 226, 146, 170, 6, 16, 176, 156, 205, 200, 1, 40, 1"
-                var client = getClient()
-                client.setupClient("daniel")
-                client.insertSingleMockedReading()
-                var data = client.state
-                println(data)
-                flush()
-                socket.shutdownOutput()
-                Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
-            }
+
+            val size = state.size
+            outputStream.write(ByteBuffer.allocate(4).putInt(size).array())
+
+            // Now write the actual protobuf message bytes
+            outputStream.write(state)
+            outputStream.flush()
+
+            // Optionally, you can shutdown the output if you're done sending data
+            socket.shutdownOutput()
+
+            Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
         }
+
         Log.d("DONEEE", "subscriberDone = true")
         //subscriberDone = true
         Timer().schedule(object : TimerTask() {

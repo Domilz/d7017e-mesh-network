@@ -1,10 +1,13 @@
 package com.epiroc.wifiaware.transport.utility
 
 import android.content.Context
+import android.util.Log
 import java.io.DataOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Base64
 
 object WifiAwareUtility {
     private val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
@@ -42,7 +45,7 @@ object WifiAwareUtility {
         return recentlyConnectedDevices.count()
     }
 
-    fun sendPostRequest(data : String) {
+    fun sendPostRequest(data : ByteArray) {
         val url = URL("http://83.233.46.128:4242/debuglog")
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
@@ -50,7 +53,8 @@ object WifiAwareUtility {
         connection.doOutput = true
 
         val outputStream = DataOutputStream(connection.outputStream)
-        outputStream.writeBytes(data)
+        var c = data.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toInt().and(0xFF).toString() }
+        outputStream.writeBytes(c)
         outputStream.flush()
         outputStream.close()
 
@@ -70,11 +74,28 @@ object WifiAwareUtility {
     fun getTryCount(): Int {
         return tryCount
     }
-    fun saveToFile(context : Context, information : String){
+    fun saveToFile(context: Context, information: ByteArray){
         val file = File(context.filesDir, "MyState.txt")
-        file.writeText(information)
+        writeByteArrayToFile(information,file.path,file)
+
+    }
+    private fun writeByteArrayToFile(byteArray: ByteArray, filePath: String,file: File) {
+        try {
+            FileOutputStream(filePath).use { fileOutputStream ->
+                fileOutputStream.write(byteArray)
+                Log.d("1Wifi", byteArray.toString())
+            }
+
+            println("Successfully wrote byte array to file: $filePath")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            println("Failed to write byte array to file: $filePath")
+        }
     }
 
 }
+
+
+
 
 data class DeviceConnection(val deviceIdentifier: String, val timestamp: Long)
