@@ -14,30 +14,20 @@ type Client struct {
 	stateHandler *utils.StateHandler
 }
 
-func TagMain() {
-	client := GetClient()
-	client.SetupClient("daniel")
-	client.InsertSingleMockedReading()
-	state, _ := client.GetState()
-	client.GetReadableOfSingleState(state)
-
-}
-
 func (client *Client) SetupClient(id string) {
 	sh := &utils.StateHandler{}
 	sh.InitStateHandler(id)
 	client.stateHandler = sh
 }
 
-func (client *Client) GetReadableOfSingleState(state []byte) {
+func (client *Client) GetReadableOfSingleState(state []byte) (string, error) {
 	var reading = &pb.State{}
 	err := proto.Unmarshal(state, reading)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
 	str := fmt.Sprintf("%v", reading)
-	fmt.Println(str)
+	return str, nil
 }
 
 func (client *Client) GetState() ([]byte, error) {
