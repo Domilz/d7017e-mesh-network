@@ -126,3 +126,8 @@ func TestGetXYZError(t *testing.T) {
 
 	assert.Equal(t, "No such reference point id.", err.Error())
 }
+
+func TestPopulateWithMockedData(t *testing.T) {
+	rpCache := InitReferencePointCache()
+	rpCache.PopulateWithMockedData()
+}
