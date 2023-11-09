@@ -61,18 +61,7 @@ func (client *Client) InsertSingleMockedReading(tagId string) {
 	client.stateHandler.InsertSingleReading(reading)
 }
 
-func (client *Client) SendToServer() {
-	reading := &pb.Reading{
-		TagId: "TestTadId",
-		RpId:  "TestRpId",
-		Rssi:  69,
-		Ts: &timestamp.Timestamp{
-			Seconds: timestamppb.Now().Seconds,
-			Nanos:   timestamppb.Now().Nanos,
-		},
-		IsDirect: 1,
-	}
-	client.stateHandler.InsertSingleReading(reading)
+func (client *Client) SendStateToServer() {
 	s := client.stateHandler.GetState()
 
 	utils.SendToBackend(s)
