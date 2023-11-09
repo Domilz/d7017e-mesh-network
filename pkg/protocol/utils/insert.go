@@ -39,6 +39,16 @@ func (stateHandler *StateHandler) InsertSingleReading(reading *pb.Reading) {
 	stateHandler.unLock()
 }
 
+func (stateHandler *StateHandler) InsertSerializedState(serializedState []byte) error {
+	state, err := DeserializeState(serializedState)
+	if err != nil {
+		return err
+	}
+	stateHandler.InsertMultipleReadings(state)
+	return nil
+
+}
+
 func findLatestTimestamp(reading *pb.Reading, otherReading *pb.Reading) bool {
 	return reading.Ts.Seconds <= otherReading.Ts.Seconds
 }

@@ -43,7 +43,7 @@ func TestInsertSingleReading(t *testing.T) {
 		Readings: []*pb.Reading{mockReading, mockReading2},
 	}
 
-	serializedState, _ := sh.GetState()
+	serializedState, _ := sh.GetSerializedState()
 	actualState, _ := DeserializeState(serializedState)
 
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
@@ -178,7 +178,7 @@ func TestInsertMultipleReadings(t *testing.T) {
 		Readings: []*pb.Reading{mockReading, mockReading2, mockReading3, mockReading4},
 	}
 
-	serializedState, _ := sh.GetState()
+	serializedState, _ := sh.GetSerializedState()
 	actualState, _ := DeserializeState(serializedState)
 
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
@@ -223,7 +223,7 @@ func TestInsertMultipleReadingsOneState(t *testing.T) {
 		Readings: []*pb.Reading{mockReading, mockReading2},
 	}
 
-	serializedState, _ := sh.GetState()
+	serializedState, _ := sh.GetSerializedState()
 	actualState, _ := DeserializeState(serializedState)
 
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {
@@ -292,7 +292,7 @@ func TestInsertMultipleReadingsMultipleStates(t *testing.T) {
 		Readings: []*pb.Reading{mockReading, mockReading2, mockReading3, mockReading4},
 	}
 
-	serializedState, _ := sh.GetState()
+	serializedState, _ := sh.GetSerializedState()
 	actualState, _ := DeserializeState(serializedState)
 
 	sort.SliceStable(actualState.Readings, func(i, j int) bool {

@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	serverAddress = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
+	serverAddress2 = flag.String("serverAddress2", "83.233.46.128:50051", "the address to the server for client connection")
 )
 
 func Main() {
@@ -73,7 +73,7 @@ func Main() {
 }
 
 func connectToServer() (*grpc.ClientConn, error) {
-	conn, err := grpc.Dial(*serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(*serverAddress2, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	return conn, err
 }
 
@@ -102,7 +102,7 @@ func prepareRequest(stateID string, readingID string) ([]byte, error) {
 	state := utils.StateHandler{}
 	state.InitStateHandler(stateID)
 	state.InsertMultipleReadings(request)
-	serializedState, err := state.GetState()
+	serializedState, err := state.GetSerializedState()
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func prepareOldRequest(stateID string, readingID string) ([]byte, error) {
 	state := utils.StateHandler{}
 	state.InitStateHandler(stateID)
 	state.InsertMultipleReadings(request)
-	serializedState, err := state.GetState()
+	serializedState, err := state.GetSerializedState()
 	if err != nil {
 		return nil, err
 	}

@@ -36,8 +36,18 @@ func (stateHandler *StateHandler) GetReading(id string) *pb.Reading {
 	stateHandler.unLock()
 	return r
 }
+func (stateHandler *StateHandler) GetState() *pb.State {
+	stateHandler.lock()
+	s := &pb.State{TagId: stateHandler.TagId}
+	for _, reading := range stateHandler.readingsMap {
+		s.Readings = append(s.Readings, reading)
+	}
 
-func (stateHandler *StateHandler) GetState() ([]byte, error) {
+	stateHandler.unLock()
+	return s
+}
+
+func (stateHandler *StateHandler) GetSerializedState() ([]byte, error) {
 
 	stateHandler.lock()
 	s := pb.State{TagId: stateHandler.TagId}
@@ -55,7 +65,7 @@ func (stateHandler *StateHandler) GetState() ([]byte, error) {
 }
 
 func (stateHandler *StateHandler) getStateSorted() (*pb.State, error) {
-	serializedState, err := stateHandler.GetState()
+	serializedState, err := stateHandler.GetSerializedState()
 	if err != nil {
 		return nil, err
 	}
@@ -101,19 +111,19 @@ func (stateHandler *StateHandler) getStatesReadingLimit(limit int) ([]*pb.State,
 
 func SerializeState(state *pb.State) ([]byte, error) {
 	marshaledState, err := proto.Marshal(state)
-	if err == nil {
-		return marshaledState, nil
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, err
+	return marshaledState, nil
 }
 
 func DeserializeState(stateArray []byte) (*pb.State, error) {
 	stateMessage := &pb.State{}
 	err := proto.Unmarshal(stateArray, stateMessage)
-	if err == nil {
-		return stateMessage, nil
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, err
+	return stateMessage, nil
 }
