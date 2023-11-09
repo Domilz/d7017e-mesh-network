@@ -179,6 +179,22 @@ func TestMultipleGetState(t *testing.T) {
 		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualState, expectedMockState)
 	}
 }
+func TestUpdateReadingofSelf(t *testing.T) {
+	sh := StateHandler{}
+	sh.InitStateHandler("RandomUniqueId")
+	mockReading := &pb.Reading{
+		TagId: "RandomUniqueId",
+		RpId:  "11111",
+		Rssi:  10,
+		Ts: &timestamp.Timestamp{
+			Seconds: timestamppb.Now().Seconds,
+		},
+	}
+	sh.InsertSingleReading(mockReading)
+	sh.UpdateReadingofSelf("22222", 5)
+	assert.Equal(t, sh.GetReading("RandomUniqueId").RpId, "22222")
+
+}
 
 // For testing
 func generateMockReading(count int) []*pb.Reading {
