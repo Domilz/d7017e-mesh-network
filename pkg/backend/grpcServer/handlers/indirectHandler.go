@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	structs "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/forms"
 	sentLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/sentLog"
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
@@ -84,7 +82,8 @@ func (indirectHandler *IndirectHandler) sendFormToCentral(rpForm *structs.Refere
 	indirectHandler.sentLog.SaveReferencePointForm(*rpForm)
 }
 
-// Not finished, need the position estimation algorithm.
+// This is a naive approach. The algorithm estimates the position of the indirect tag based on the last seen reference point.
+// TODO: Improve
 func (indirect *IndirectHandler) estimatePosition(rpId string) *structs.XYZ {
 
 	beaconPosition, err := indirect.rpCache.GetXYZ(rpId)
@@ -93,14 +92,5 @@ func (indirect *IndirectHandler) estimatePosition(rpId string) *structs.XYZ {
 		return &structs.XYZ{}
 	}
 
-	//Use the position estimation algorithm. Using print so the program does not complain.
-	fmt.Print(beaconPosition)
-
-	estimatedPosition := &structs.XYZ{
-		X: 0,
-		Y: 0,
-		Z: 0,
-	}
-
-	return estimatedPosition
+	return beaconPosition
 }
