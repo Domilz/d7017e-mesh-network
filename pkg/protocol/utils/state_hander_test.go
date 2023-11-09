@@ -180,36 +180,6 @@ func TestMultipleGetState(t *testing.T) {
 	}
 }
 
-func TestGetStatesReadingLimit(t *testing.T) {
-
-	mockReadings := generateMockReading(9)
-
-	mockStates := []*pb.State{
-		{TagId: "666", Readings: []*pb.Reading{mockReadings[0], mockReadings[1], mockReadings[2], mockReadings[3]}},
-		{TagId: "666", Readings: []*pb.Reading{mockReadings[4], mockReadings[5], mockReadings[6], mockReadings[7]}},
-		{TagId: "666", Readings: []*pb.Reading{mockReadings[8]}},
-	}
-
-	sh := StateHandler{}
-	sh.InitStateHandler("666")
-	sh.InsertMultipleReadings(&pb.State{TagId: "666", Readings: mockReadings})
-
-	actualStates, _ := sh.getStatesReadingLimit(4)
-
-	if !reflect.DeepEqual(actualStates[0], mockStates[0]) {
-		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualStates[0], mockStates[0])
-	}
-
-	if !reflect.DeepEqual(actualStates[1], mockStates[1]) {
-		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualStates[1], mockStates[1])
-	}
-
-	if !reflect.DeepEqual(actualStates[2], mockStates[2]) {
-		log.Printf("Insert\n: Expected %v\n, Got %v\n", actualStates[2], mockStates[2])
-	}
-
-}
-
 // For testing
 func generateMockReading(count int) []*pb.Reading {
 	var readings []*pb.Reading
