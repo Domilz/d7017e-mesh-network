@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"fmt"
-	"sort"
 	"sync"
 
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
@@ -36,6 +34,7 @@ func (stateHandler *StateHandler) GetReading(id string) *pb.Reading {
 	stateHandler.unLock()
 	return r
 }
+
 func (stateHandler *StateHandler) GetState() *pb.State {
 	stateHandler.lock()
 	s := &pb.State{TagId: stateHandler.TagId}
@@ -62,51 +61,6 @@ func (stateHandler *StateHandler) GetSerializedState() ([]byte, error) {
 
 	stateHandler.unLock()
 	return serializedState, nil
-}
-
-func (stateHandler *StateHandler) getStateSorted() (*pb.State, error) {
-	serializedState, err := stateHandler.GetSerializedState()
-	if err != nil {
-		return nil, err
-	}
-
-	state, err := DeserializeState(serializedState)
-	if err != nil {
-		return nil, err
-	}
-
-	sort.SliceStable(state.Readings, func(i, j int) bool {
-		return state.Readings[i].TagId < state.Readings[j].TagId
-	})
-	return state, nil
-
-}
-
-func (stateHandler *StateHandler) getStatesReadingLimit(limit int) ([]*pb.State, error) {
-
-	states := []*pb.State{}
-	stateWhole, err := stateHandler.getStateSorted() //Not sure how to implement a test for GetStatesReadingLimit if this is not sorted (using the GetState function)
-	if err != nil {
-		return nil, err
-	}
-	stateChunk := &pb.State{TagId: stateWhole.TagId, Readings: []*pb.Reading{}}
-	i := 0
-	for _, reading := range stateWhole.Readings {
-		stateChunk.Readings = append(stateChunk.Readings, reading)
-		fmt.Println(reading)
-		i++
-		if i >= limit {
-			states = append(states, stateChunk)
-			stateChunk = &pb.State{TagId: stateWhole.TagId, Readings: []*pb.Reading{}}
-			i = 0
-		}
-
-	}
-	if len(stateChunk.Readings) != 0 {
-		states = append(states, stateChunk)
-	}
-	return states, nil
-
 }
 
 func SerializeState(state *pb.State) ([]byte, error) {
