@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type StateHandler struct {
@@ -80,4 +81,12 @@ func DeserializeState(stateArray []byte) (*pb.State, error) {
 	}
 
 	return stateMessage, nil
+}
+
+func (stateHandler *StateHandler) UpdateReadingofSelf(rpId string, rssi int32) {
+	stateHandler.lock()
+	r := &pb.Reading{TagId: stateHandler.TagId, RpId: rpId, Rssi: rssi, Ts: timestamppb.Now(), IsDirect: 1}
+	stateHandler.readingsMap[stateHandler.TagId] = r
+	stateHandler.unLock()
+
 }

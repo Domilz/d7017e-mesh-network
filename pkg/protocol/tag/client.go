@@ -68,8 +68,9 @@ func (client *Client) SendStateToServer() {
 
 }
 
-func (client *Client) UpdateReadingofSelf(rpId string) {
-
+// When a tag sees a beacon
+func (client *Client) UpdateReadingofSelf(rpId string, rssi int32) {
+	client.stateHandler.UpdateReadingofSelf(rpId, rssi)
 }
 
 func GetClient() *Client {
