@@ -11,18 +11,17 @@ import (
 )
 
 type BackendStateHandler struct {
-	TagId         string
-	readingsMap   map[string]*pb.Reading
-	mutex         sync.RWMutex
-	directHandler *DirectHandler
-	//indirectHandler *IndirectHandler
-
+	TagId           string
+	readingsMap     map[string]*pb.Reading
+	mutex           sync.RWMutex
+	directHandler   *DirectHandler
+	indirectHandler *IndirectHandler
 }
 
 func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer) {
 	stateHandler.lock()
 	stateHandler.directHandler = InitDirectHandler(sLogServer)
-	//stateHandler.directHandler = InitIndirectHandler(sLogServer) //When implemented
+	stateHandler.indirectHandler = InitIndirectHandler(sLogServer) //When implemented
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
 	stateHandler.unLock()
@@ -98,7 +97,7 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 		if reading.IsDirect == 0 {
 			println("Recieved indirect reading for tag: ", reading.TagId)
 			//Send to indirectHandler in go routine
-			//go stateHandler.indirectHandler.FillOutAndSendForm()
+			go stateHandler.indirectHandler.FillOutAndSendForm(reading)
 		} else if reading.IsDirect == 1 {
 
 			go stateHandler.directHandler.FillOutAndSendForm(reading)

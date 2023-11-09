@@ -14,6 +14,16 @@ type IndirectHandler struct {
 	rpCache *ReferencePointCache
 }
 
+func InitIndirectHandler(sLog *sentLog.SentLogServer) *IndirectHandler {
+	indirectHandler := &IndirectHandler{}
+	indirectHandler.sentLog = sLog
+	rpCache := InitReferencePointCache()
+	rpCache.PopulateWithMockedData()
+	indirectHandler.rpCache = rpCache
+
+	return indirectHandler
+}
+
 func (indirectHanddler *IndirectHandler) FillOutAndSendForm(reading *pb.Reading) {
 	createTime := &structs.Time{
 		Seconds: int(timestamppb.Now().Seconds), //Change later.
