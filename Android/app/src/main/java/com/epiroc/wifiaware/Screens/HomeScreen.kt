@@ -52,12 +52,12 @@ fun ServiceAwareContent(service: WifiAwareService) {
                 if (!isServiceRunning) {
                     // Start the service
                     ContextCompat.startForegroundService(context, nanIntent)
-                    ContextCompat.startForegroundService(context, bleIntent)
+                    //ContextCompat.startForegroundService(context, bleIntent)
                     isServiceRunning = true
                 } else {
                     // Stop the service
                     context.stopService(nanIntent)
-                    context.stopService(bleIntent)
+                    //context.stopService(bleIntent)
                     isServiceRunning = false
                 }
             },
@@ -77,14 +77,14 @@ fun ServiceAwareContent(service: WifiAwareService) {
         }
         // Conditionally display HomeScreen content when service is running
         if (isServiceRunning) {
-            HomeScreen(service)
+            HomeScreen()
         }
     }
 }
 
 
 @Composable
-fun HomeScreen(service: WifiAwareService) {
+fun HomeScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()

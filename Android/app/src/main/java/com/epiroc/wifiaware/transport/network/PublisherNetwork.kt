@@ -73,12 +73,7 @@ class PublisherNetwork(client : Client) {
                 currentPubSession?.close()
                 //currentPubSession = null
 
-                try {
-                    serverSocket?.close()
-                    serverSocket = null
-                } catch (e: IOException) {
-                    Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
-                }
+                closeServerSocket()
                 Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED")
                 wifiAwareSession?.close()
 
@@ -135,5 +130,4 @@ class PublisherNetwork(client : Client) {
             Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
         }
     }
-
 }

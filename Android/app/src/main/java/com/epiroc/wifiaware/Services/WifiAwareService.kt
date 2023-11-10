@@ -21,6 +21,8 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
@@ -47,6 +49,7 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
 
+
 class WifiAwareService : Service() {
     private val hasWifiAwareText: MutableState<String> = mutableStateOf("")
     private val utility: WifiAwareUtility = WifiAwareUtility
@@ -61,6 +64,8 @@ class WifiAwareService : Service() {
     private lateinit var publisher: Publisher
     private lateinit var subscriber: Subscriber
 
+    private lateinit var wakeLock: WakeLock
+
     override fun onCreate() {
         super.onCreate()
         // Initialize WifiAwareManager and WifiAwareSession
@@ -71,6 +76,13 @@ class WifiAwareService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("1Wifi","WifiAwareService STARTED")
+
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "MyApp:MyWakeLockTag"
+        )
+        wakeLock.acquire()
 
         // Show notification for the foreground service
         val intent = Intent(this, MainActivity::class.java).apply {
@@ -122,6 +134,8 @@ class WifiAwareService : Service() {
                 utility.incrementTryCount()
                 if(utility.getTryCount() <= 10)
                     cleanUpHandler.postDelayed(this, 1000)
+                else if (utility.getTryCount() >= 25)
+                    wifiAwareSession?.close()
                 else
                     cleanUpHandler.postDelayed(this, 10000)
             }
@@ -133,6 +147,9 @@ class WifiAwareService : Service() {
     override fun onDestroy() {
         Log.d("1Wifi","Service destroyed")
         super.onDestroy()
+        if (wakeLock.isHeld) {
+            wakeLock.release();
+        }
         publisher.closeServerSocket()
         serviceScope.cancel()
     }
@@ -202,8 +219,8 @@ class WifiAwareService : Service() {
             override fun onAttached(session: WifiAwareSession) {
                 wifiAwareSession = session
                 Timer().schedule(object : TimerTask() {
-                    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                     var c = Client.setupClient(serviceUUID)!!
+                    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                     override fun run() {
                         val serviceName = "epiroc_mesh"
                         // Initialize the publisher and subscriber

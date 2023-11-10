@@ -12,6 +12,7 @@ import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
 import android.util.Log
 import tag.Client
+import java.io.IOException
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.net.InetSocketAddress
@@ -24,10 +25,11 @@ class SubscriberNetwork (client : Client) {
     private var client = client
     private lateinit var networkCallbackSub: ConnectivityManager.NetworkCallback
     private lateinit var  subNetwork : Network
+    private lateinit var clientSocket: Socket
 
     fun createNetwork(currentSubSession : DiscoverySession, peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context) {
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
-        var establishConnectionSocket: Socket    // temp socket
+           // temp socket
 
 
         Log.d("1Wifi", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
@@ -49,19 +51,19 @@ class SubscriberNetwork (client : Client) {
                 val peerPort = peerAwareInfo.port
 
                 try {
-                    establishConnectionSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
-                    establishConnectionSocket.reuseAddress = true
-                    establishConnectionSocket.connect(InetSocketAddress(peerIpv6, peerPort), 5000)
+                    clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
+                    clientSocket.reuseAddress = true
+                    clientSocket.connect(InetSocketAddress(peerIpv6, peerPort), 5000)
+                    handleDataExchange(peerHandle, clientSocket,connectivityManager)
+
                 } catch (e: Exception) {
                     Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
+                    clientSocket.close()
                     wifiAwareSession!!.close()
                     return
                 }
 
-                if (establishConnectionSocket != null) {
-                    handleDataExchange(peerHandle, establishConnectionSocket,connectivityManager)
-                }
-                establishConnectionSocket?.close()
+                clientSocket?.close()
             }
 
             override fun onAvailable(network: Network) {
@@ -74,8 +76,10 @@ class SubscriberNetwork (client : Client) {
                 Log.d("1Wifi", "SUBSCRIBE: Network lost for peer: $peerHandle")
                 Log.d("1Wifi", "SUBSCRIBE: SUBSCRIBE CONNECTION LOST")
 
+
                 // Close the SubscribeDiscoverySession
                 currentSubSession?.close()
+                closeClientSocket()
                 //currentSubSession = null
                 wifiAwareSession?.close()
             }
@@ -95,11 +99,14 @@ class SubscriberNetwork (client : Client) {
             outputStream.write(ByteBuffer.allocate(4).putInt(size).array())
 
             // Now write the actual protobuf message bytes
-            outputStream.write(state)
-            outputStream.flush()
-
-            // Optionally, you can shutdown the output if you're done sending data
-            socket.shutdownOutput()
+            try{
+                outputStream.write(state)
+                outputStream.flush()
+                socket.shutdownOutput()
+                //outputStream.close()
+            }catch (e: Exception){
+                Log.e("1Wifi", "SUBSCRIBE: ERROR HERE!!!!!!!!!!!")
+            }
 
             Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
         }
@@ -112,4 +119,13 @@ class SubscriberNetwork (client : Client) {
             }
         }, 1000) // Delay in milliseconds
     }
+
+    fun closeClientSocket() {
+        try {
+            clientSocket?.close()
+        } catch (e: IOException) {
+            Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
+        }
+    }
+
 }

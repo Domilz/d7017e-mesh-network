@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <!-- If your app targets Android 13 (API level 33)
          or higher, you must declare the NEARBY_WIFI_DEVICES permission. -->
     <!-- <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" -->
@@ -45,13 +47,13 @@
         </activity>
         <service
             android:name=".Services.BLEService"
-            android:foregroundServiceType="location"
+            android:foregroundServiceType="dataSync|location"
             android:enabled="true"
             android:exported="false">
         </service>
         <service
             android:name=".Services.WifiAwareService"
-            android:foregroundServiceType="location"
+            android:foregroundServiceType="dataSync|location"
             android:enabled="true"
             android:exported="false">
         </service>
