@@ -46,8 +46,9 @@ class Publisher(
         Log.d("1Wifi", "PUBLISH: Attempting to start publishUsingWifiAware.")
         if (wifiAwareSession != null) {
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
+
             val config = PublishConfig.Builder()
-                .setServiceName(serviceName)
+                .setServiceName("test")
                 .build()
             val handler = Handler(Looper.getMainLooper())
             if (ActivityCompat.checkSelfPermission(

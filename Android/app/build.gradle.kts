@@ -7,6 +7,10 @@ android {
     namespace = "com.epiroc.wifiaware"
     compileSdk = 33
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
     defaultConfig {
         applicationId = "com.epiroc.wifiaware"
         minSdk = 29
