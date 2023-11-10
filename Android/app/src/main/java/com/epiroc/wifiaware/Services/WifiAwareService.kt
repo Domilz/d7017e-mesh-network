@@ -12,6 +12,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.net.wifi.aware.AttachCallback
 import android.net.wifi.aware.IdentityChangedListener
 import android.net.wifi.aware.WifiAwareManager
@@ -23,6 +24,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
+import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
@@ -45,6 +47,7 @@ import com.epiroc.wifiaware.workers.NetworkWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
@@ -104,6 +107,7 @@ class WifiAwareService : Service() {
         createNotification()
         startForeground(1, notification)
 
+        val context = this
         startNetworkWorker()
         wifiAwareState()
         acquireWifiAwareSession()
@@ -111,6 +115,7 @@ class WifiAwareService : Service() {
         val cleanUpHandler = Handler(Looper.getMainLooper())
         val cleanUpRunnable = object: Runnable {
             override fun run() {
+                checkBatteryOptimizations(context)
                 if (::subscriber.isInitialized) {
                     if(utility.isNotEmpty()) {
                         var didremove = utility.removeIf()
@@ -121,9 +126,9 @@ class WifiAwareService : Service() {
                         if (didremove) {
                             Log.e(
                                 "1Wifi",
-                                "It removed? : $didremove YES AND IT CLOSES THE SESSION!"
+                                "It removed? : $didremove YES"
                             )
-                            wifiAwareSession?.close()
+                            //wifiAwareSession?.close()
                         }
                     } else {
                         Log.e("1Wifi", "recentlyConnectedDevices: ${utility.count()}")
@@ -218,6 +223,7 @@ class WifiAwareService : Service() {
         val attachCallback = object : AttachCallback() {
             override fun onAttached(session: WifiAwareSession) {
                 wifiAwareSession = session
+
                 Timer().schedule(object : TimerTask() {
                     var c = Client.setupClient(serviceUUID)!!
                     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -225,21 +231,30 @@ class WifiAwareService : Service() {
                         val serviceName = "epiroc_mesh"
                         // Initialize the publisher and subscriber
                         publisher = Publisher(
+                            wakeLock = wakeLock,
                             ctx = applicationContext,
                             nanSession = wifiAwareSession!!,
-                            network = PublisherNetwork(c),
+                            network = PublisherNetwork(c,wakeLock),
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )
                         subscriber = Subscriber(
+                            wakeLock = wakeLock,
                             ctx = applicationContext,
                             nanSession = session,
-                            network = SubscriberNetwork(c),
+                            network = SubscriberNetwork(c,wakeLock),
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )
-                        publisher.publishUsingWifiAware()
-                        subscriber.subscribeToWifiAwareSessions()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            publisher.publishUsingWifiAware()
+                        }
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            subscriber.subscribeToWifiAwareSessions()
+                        }
+
+
                     }
                 }, 1000) // Delay in milliseconds
             }
@@ -289,6 +304,7 @@ class WifiAwareService : Service() {
         } ?: run {
             return "Wifi Aware manager is null."
         }
+
     }
 
     inner class LocalBinder : Binder() {
@@ -313,5 +329,23 @@ class WifiAwareService : Service() {
         // Enqueue the work
         WorkManager.getInstance(this).enqueue(networkWorkRequest)
     }
+    fun checkBatteryOptimizations(context: Context) {
+        val packageName = context.packageName
+        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
+        if (pm != null) {
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                Log.d("BatteryOptimization", "App is not on the whitelist. Asking user to disable battery optimization.")
+                // App is not on the whitelist, show dialog to ask user to disable battery optimization
+                val intent = Intent()
+                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                intent.data = Uri.parse("package:$packageName")
+                context.startActivity(intent)
+            } else {
+                Log.d("BatteryOptimization", "App is already on the whitelist.")
+            }
+        } else {
+            Log.e("BatteryOptimization", "PowerManager is null.")
+        }
+    }
 }

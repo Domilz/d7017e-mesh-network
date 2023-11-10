@@ -11,6 +11,8 @@ import android.net.wifi.aware.*
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
@@ -20,6 +22,9 @@ import androidx.core.app.ComponentActivity
 import com.epiroc.wifiaware.Screens.permissionsToRequest
 import com.epiroc.wifiaware.transport.network.PublisherNetwork
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
@@ -27,6 +32,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 class Publisher(
+    wakeLock : WakeLock,
     ctx: Context,
     nanSession: WifiAwareSession,
     network: PublisherNetwork,
@@ -34,6 +40,7 @@ class Publisher(
     uuid: String
 ) {
     private var serviceUUID = uuid
+    private val wakeLock = wakeLock
     private var context = ctx
     private var network = network
     private lateinit var currentPubSession: DiscoverySession
@@ -41,8 +48,12 @@ class Publisher(
     private val serviceName = srvcName
     private val wifiAwareSession = nanSession
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
+
     fun publishUsingWifiAware() {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
         Log.d("1Wifi", "PUBLISH: Attempting to start publishUsingWifiAware.")
         if (wifiAwareSession != null) {
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
@@ -59,12 +70,7 @@ class Publisher(
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 Log.d("1Wifi","PUBLISH: NO PREM FOR PUB")
-                // Permissions are not granted, request them first.
-                ActivityCompat.requestPermissions(
-                    this as ComponentActivity, // Cast to ComponentActivity if needed
-                    permissionsToRequest,
-                    123 // Use a unique request code, e.g., 123
-                )
+
             } else {
                 Log.d("1Wifi","PUBLISH: WE HAVE PREM TO PUBLISH")
                 // Permissions are granted, proceed with publishing.
@@ -76,7 +82,9 @@ class Publisher(
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                         Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
                         //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                        network.createNetwork(currentPubSession,peerHandle,wifiAwareSession,context)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            network.createNetwork(currentPubSession, peerHandle, wifiAwareSession, context)
+                        }
                         //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
                         // Respond to the sender (Device A) if needed.
                         //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
@@ -90,7 +98,7 @@ class Publisher(
                                     serviceUUID.toByteArray(Charsets.UTF_8)
                                 )
                             }
-                        }, 1000) // Delay in milliseconds*/
+                        }, 2000) // Delay in milliseconds*/
                     }
                 }, handler)
             }

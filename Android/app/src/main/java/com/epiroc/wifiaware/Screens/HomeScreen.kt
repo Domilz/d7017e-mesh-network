@@ -2,36 +2,31 @@ package com.epiroc.wifiaware.Screens
 
 import android.Manifest
 import android.content.Intent
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.ContextCompat.startForegroundService
 import com.epiroc.wifiaware.Services.BLEService
 import com.epiroc.wifiaware.Services.WifiAwareService
 
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 val permissionsToRequest = arrayOf(
     Manifest.permission.ACCESS_FINE_LOCATION,
     Manifest.permission.NEARBY_WIFI_DEVICES,
     Manifest.permission.BLUETOOTH_SCAN
 )
-val LocalWifiAwareService = compositionLocalOf<WifiAwareService?> { null }
 
 @Composable
 fun ServiceAwareContent(service: WifiAwareService) {
@@ -49,16 +44,17 @@ fun ServiceAwareContent(service: WifiAwareService) {
             onClick = {
                 val nanIntent = Intent(context, WifiAwareService::class.java)
                 val bleIntent = Intent(context, BLEService::class.java)
-                if (!isServiceRunning) {
+                isServiceRunning = if (!isServiceRunning) {
                     // Start the service
-                    ContextCompat.startForegroundService(context, nanIntent)
+                    startForegroundService(context, nanIntent)
+
                     //ContextCompat.startForegroundService(context, bleIntent)
-                    isServiceRunning = true
+                    true
                 } else {
                     // Stop the service
                     context.stopService(nanIntent)
                     //context.stopService(bleIntent)
-                    isServiceRunning = false
+                    false
                 }
             },
             shape = CircleShape,

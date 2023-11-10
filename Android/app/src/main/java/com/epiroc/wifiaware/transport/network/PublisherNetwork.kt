@@ -9,6 +9,7 @@ import android.net.wifi.aware.DiscoverySession
 import android.net.wifi.aware.PeerHandle
 import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
+import android.os.PowerManager.WakeLock
 import android.util.Log
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import tag.Client
@@ -18,9 +19,12 @@ import java.io.EOFException
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.Timer
+import java.util.TimerTask
 
-class PublisherNetwork(client : Client) {
+class PublisherNetwork(client : Client, wakelock : WakeLock) {
     private var client = client
+    private var wakeLock = wakelock
     private var serverSocket: ServerSocket? = null
     private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
     private var clientSocket: Socket? = null
@@ -28,6 +32,10 @@ class PublisherNetwork(client : Client) {
     private val utility: WifiAwareUtility = WifiAwareUtility
     private lateinit var context : Context
     fun createNetwork(currentPubSession : DiscoverySession, peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context){
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
+
         this.context = context
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
         if (serverSocket == null || serverSocket!!.isClosed) {
@@ -44,20 +52,33 @@ class PublisherNetwork(client : Client) {
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
             .setNetworkSpecifier(networkSpecifier)
             .build()
-
+        Log.d("NETWORKWIFI","PUBLISH: All necessary wifiaware network things created now awaiting callback")
         networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 try {
-                    serverSocket?.soTimeout = 5000
+                    Log.d("NETWORKWIFI","PUBLISH: onAvailable")
+                    serverSocket?.soTimeout = 1000
                     serverSocket?.reuseAddress = true
 
                     try {
                         clientSocket = serverSocket?.accept()
                     } catch (e: Exception) {
                         serverSocket?.close()
-                        return
+                        try {
+                            if (serverSocket == null || serverSocket!!.isClosed) {
+                                serverSocket = ServerSocket(0)
+                                serverSocket?.soTimeout = 1000
+                                serverSocket?.reuseAddress = true
+                                clientSocket = serverSocket?.accept()
+                            }
+                        } catch (e: Exception) {
+                            serverSocket?.close()
+
+                            return
+                        }
+
                     }
-                    handleClient(clientSocket)
+                    handleClient(clientSocket,connectivityManager)
                     Log.d("1Wifi", "PUBLISH: Accepting client $network")
                 } catch (e: Exception) {
                     Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
@@ -65,6 +86,7 @@ class PublisherNetwork(client : Client) {
             }
 
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                Log.d("NETWORKWIFI","PUBLISH: onCapabilitiesChanged")
                 Log.d("1Wifi", "PUBLISH: onCapabilitiesChanged incoming: $networkCapabilities")
             }
 
@@ -83,7 +105,11 @@ class PublisherNetwork(client : Client) {
         connectivityManager.requestNetwork(myNetworkRequest, networkCallbackPub);
     }
 
-    private fun handleClient(clientSocket: Socket?) {
+    private fun handleClient(clientSocket: Socket?,connectivityManager : ConnectivityManager ) {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
+
         Log.d("1Wifi", "PUBLISH: handleClient started.")
         client.insertSingleMockedReading("publish")
         var sdfsdf = client.state
@@ -120,6 +146,7 @@ class PublisherNetwork(client : Client) {
         Log.d("1Wifi", "${client.getReadableOfSingleState(client.state)}" )
 
         utility.saveToFile(context,client.state)
+        connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }
 
     fun closeServerSocket() {
