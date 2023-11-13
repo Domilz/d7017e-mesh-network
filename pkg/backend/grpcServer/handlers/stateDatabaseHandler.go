@@ -42,11 +42,20 @@ func (stateDatabaseHandler *StateDatabaseHandler) Save(reading *pb.Reading) {
 		jsonString := string(jsonData)
 		log.Printf("Json string: %v", jsonString)
 		stmt, err := stateDatabaseHandler.database.Prepare("INSERT INTO Readings (tagId, readingJson) VALUES (?,?)")
+
 		_, err = stmt.Exec(reading.TagId, jsonString)
 		defer stmt.Close()
 		if err != nil {
-			log.Printf("Encountered during at StateDatabaseHandler when saving to StateDatabase: %v", err)
-			panic(err.Error())
+			log.Print("Found duplicate when inserting in State DB, updating instead")
+			stmt, err := stateDatabaseHandler.database.Prepare("UPDATE Readings SET (tagId, readingJson) = (?,?) WHERE tagId = ?")
+
+			_, err = stmt.Exec(reading.TagId, jsonString, reading.TagId)
+			defer stmt.Close()
+			if err != nil {
+				println(err.Error())
+				panic("Encounterd an error during registration while inserting service, (updateService)")
+			}
+
 		}
 
 	}

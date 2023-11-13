@@ -115,3 +115,12 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 func findLatestTimestamp(reading *pb.Reading, otherReading *pb.Reading) bool {
 	return reading.Ts.Seconds <= otherReading.Ts.Seconds
 }
+
+func (stateHandler *BackendStateHandler) InsertDataFromDB(readings []pb.Reading) {
+	stateHandler.lock()
+	for _, reading := range readings {
+		stateHandler.readingsMap[reading.TagId] = &reading
+	}
+
+	stateHandler.unLock()
+}
