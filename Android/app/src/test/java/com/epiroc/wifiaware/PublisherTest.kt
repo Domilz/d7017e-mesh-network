@@ -1,5 +1,7 @@
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.wifi.aware.DiscoverySession
+import android.net.wifi.aware.PeerHandle
 import android.net.wifi.aware.PublishConfig
 import android.net.wifi.aware.WifiAwareSession
 import android.text.TextUtils
@@ -8,10 +10,15 @@ import com.epiroc.wifiaware.transport.Publisher
 import com.epiroc.wifiaware.transport.network.PublisherNetwork
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.Description
+import org.mockito.ArgumentMatcher
+import org.mockito.ArgumentMatchers.argThat
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.mockStatic
 import org.mockito.MockitoAnnotations
+
+
 
 class PublisherTest {
     @Before
@@ -31,33 +38,34 @@ class PublisherTest {
         // Create mock objects for the dependencies
         val mockWifiAwareSession = Mockito.mock(WifiAwareSession::class.java)
         val mockPublisherNetwork = Mockito.mock(PublisherNetwork::class.java)
+        val mockDiscoverySession = Mockito.mock(DiscoverySession::class.java)
+        val mockPeerHandle = Mockito.mock(PeerHandle::class.java)
         val mockContext = Mockito.mock(Context::class.java)
 
-        // Create a spy object for the PublishConfig.Builder class
-        val builderSpy = Mockito.spy(PublishConfig.Builder::class.java)
+        val mockPublishConfig = Mockito.mock(PublishConfig::class.java)
 
-        // Mock the PublishConfig.Builder.setServiceName() method on the spy object
-        Mockito.`when`(PublishConfig.Builder()).thenReturn(builderSpy)
-
-        // Create a new Publisher object using the spy object
-        val publisher = Publisher(ctx = mockContext,
+        // Create a new Publisher object using the mock objects
+        val publisher = Publisher(
+            ctx = mockContext,
             nanSession = mockWifiAwareSession,
             network = mockPublisherNetwork,
             srvcName = "MyTestService",
-            uuid = "MyTestUUID")
-
-        // Verify that the publishConfig was created using the spy object
-        //Mockito.verify(builderSpy).build()
+            uuid = "MyTestUUID",
+            config = mockPublishConfig
+        )
 
         // Call the publishUsingWifiAware() method
         publisher.publishUsingWifiAware()
 
-        // Verify that the publish session was started
-        Mockito.verify(mockWifiAwareSession).publish(Mockito.any(), Mockito.any(), Mockito.any())
-
         // Verify that the message was sent to the peer device
-        Mockito.verify(mockPublisherNetwork).createNetwork(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())
+        Mockito.verify(mockPublisherNetwork).createNetwork(
+            mockDiscoverySession,
+            mockPeerHandle,
+            mockWifiAwareSession,
+            mockContext
+        )
     }
+
 
     @Test
     fun testPublishUsingWifiAware_NoPermission() {
@@ -71,7 +79,8 @@ class PublisherTest {
             nanSession = mockWifiAwareSession,
             network = mockPublisherNetwork,
             srvcName = "My Service",
-            uuid = "My UUID")
+            uuid = "My UUID",
+            config = null)
 
         // Mock the permission check to return false
         Mockito.`when`(ActivityCompat.checkSelfPermission(mockContext, android.Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_DENIED)

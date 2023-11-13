@@ -31,7 +31,8 @@ class Publisher(
     nanSession: WifiAwareSession,
     network: PublisherNetwork,
     srvcName: String,
-    uuid: String
+    uuid: String,
+    val config: PublishConfig? = null
 ) {
     private var serviceUUID = uuid
     private var context = ctx
@@ -47,8 +48,8 @@ class Publisher(
         if (wifiAwareSession != null) {
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
 
-            val config = PublishConfig.Builder()
-                .setServiceName("test")
+            val config = this.config ?: PublishConfig.Builder()
+                .setServiceName(serviceName)
                 .build()
             val handler = Handler(Looper.getMainLooper())
             if (ActivityCompat.checkSelfPermission(
