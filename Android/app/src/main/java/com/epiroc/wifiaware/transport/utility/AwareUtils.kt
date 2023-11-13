@@ -74,6 +74,10 @@ object WifiAwareUtility {
     fun getTryCount(): Int {
         return tryCount
     }
+
+    fun setTryCount(count : Int) {
+        tryCount = count
+    }
     fun saveToFile(context: Context, information: ByteArray){
         val file = File(context.filesDir, "MyState.txt")
         writeByteArrayToFile(information,file.path,file)
