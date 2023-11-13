@@ -10,8 +10,11 @@ import android.net.wifi.aware.PeerHandle
 import android.net.wifi.aware.WifiAwareNetworkInfo
 import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
 import android.util.Log
 import tag.Client
+import java.io.IOException
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.net.InetSocketAddress
@@ -20,14 +23,19 @@ import java.nio.ByteBuffer
 import java.util.Timer
 import java.util.TimerTask
 
-class SubscriberNetwork (client : Client) {
+class SubscriberNetwork (client : Client, wakelock : WakeLock) {
     private var client = client
+    private var wakeLock = wakelock
     private lateinit var networkCallbackSub: ConnectivityManager.NetworkCallback
     private lateinit var  subNetwork : Network
+    private lateinit var clientSocket: Socket
 
     fun createNetwork(currentSubSession : DiscoverySession, peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context) {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
-        var establishConnectionSocket: Socket    // temp socket
+           // temp socket
 
 
         Log.d("1Wifi", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
@@ -40,42 +48,45 @@ class SubscriberNetwork (client : Client) {
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
             .setNetworkSpecifier(networkSpecifier)
             .build()
-
+        Log.d("NETWORKWIFI","SUBSCRIBER: All necessary wifiaware network things created now awaiting callback")
         networkCallbackSub = object : ConnectivityManager.NetworkCallback() {
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                Log.d("NETWORKWIFI","SUBSCRIBER: onCapabilitiesChanged")
                 Log.d("1Wifi", "SUBSCRIBE: Network capabilities changed for peer: $peerHandle")
                 val peerAwareInfo = networkCapabilities.transportInfo as WifiAwareNetworkInfo
                 val peerIpv6 = peerAwareInfo.peerIpv6Addr
                 val peerPort = peerAwareInfo.port
 
                 try {
-                    establishConnectionSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
-                    establishConnectionSocket.reuseAddress = true
-                    establishConnectionSocket.connect(InetSocketAddress(peerIpv6, peerPort), 5000)
+                    clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
+                    clientSocket.reuseAddress = true
+                    clientSocket.connect(InetSocketAddress(peerIpv6, peerPort), 1000)
+                    handleDataExchange(peerHandle, clientSocket,connectivityManager)
+
                 } catch (e: Exception) {
                     Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
+                    clientSocket.close()
                     wifiAwareSession!!.close()
-                    return
                 }
 
-                if (establishConnectionSocket != null) {
-                    handleDataExchange(peerHandle, establishConnectionSocket,connectivityManager)
-                }
-                establishConnectionSocket?.close()
+                clientSocket?.close()
             }
 
             override fun onAvailable(network: Network) {
+                Log.d("NETWORKWIFI","SUBSCRIBER: onCapabilitiesChanged")
                 Log.d("1Wifi", "SUBSCRIBE: Network available for peer: $peerHandle")
                 subNetwork = network
             }
 
             override fun onLost(network: Network) {
-
+                Log.d("NETWORKWIFI","SUBSCRIBER: onCapabilitiesChanged")
                 Log.d("1Wifi", "SUBSCRIBE: Network lost for peer: $peerHandle")
                 Log.d("1Wifi", "SUBSCRIBE: SUBSCRIBE CONNECTION LOST")
 
+
                 // Close the SubscribeDiscoverySession
                 currentSubSession?.close()
+                closeClientSocket()
                 //currentSubSession = null
                 wifiAwareSession?.close()
             }
@@ -85,6 +96,9 @@ class SubscriberNetwork (client : Client) {
     }
 
     private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket,connectivityManager : ConnectivityManager) {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
         Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
         client.insertSingleMockedReading("Client")
         val state = client.state
@@ -95,21 +109,30 @@ class SubscriberNetwork (client : Client) {
             outputStream.write(ByteBuffer.allocate(4).putInt(size).array())
 
             // Now write the actual protobuf message bytes
-            outputStream.write(state)
-            outputStream.flush()
-
-            // Optionally, you can shutdown the output if you're done sending data
-            socket.shutdownOutput()
+            try{
+                outputStream.write(state)
+                outputStream.flush()
+                socket.shutdownOutput()
+                //outputStream.close()
+            }catch (e: Exception){
+                Log.e("1Wifi", "SUBSCRIBE: ERROR HERE!!!!!!!!!!!")
+            }
 
             Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
         }
 
         Log.d("DONEEE", "subscriberDone = true")
         //subscriberDone = true
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
-            }
-        }, 1000) // Delay in milliseconds
+        connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
+
     }
+
+    fun closeClientSocket() {
+        try {
+            clientSocket?.close()
+        } catch (e: IOException) {
+            Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
+        }
+    }
+
 }

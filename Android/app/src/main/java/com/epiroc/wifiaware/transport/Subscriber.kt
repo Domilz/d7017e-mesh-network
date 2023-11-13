@@ -10,6 +10,7 @@ import android.net.NetworkRequest
 import android.net.wifi.aware.*
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager.WakeLock
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +18,9 @@ import androidx.core.app.ActivityCompat
 import com.epiroc.wifiaware.transport.network.PublisherNetwork
 import com.epiroc.wifiaware.transport.network.SubscriberNetwork
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.net.InetSocketAddress
@@ -25,6 +29,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 class Subscriber(
+    wakeLock : WakeLock,
     ctx: Context,
     nanSession: WifiAwareSession,
     network: SubscriberNetwork,
@@ -33,6 +38,7 @@ class Subscriber(
 ) {
 
     private val serviceUUID = uuid
+    private val wakeLock = wakeLock
     private val serviceName = srvcName
     private val context = ctx
     private val network = network
@@ -44,6 +50,9 @@ class Subscriber(
 
 
     fun subscribeToWifiAwareSessions() {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
         val handler = Handler(Looper.getMainLooper()) // Use the main looper.
         Log.d("1Wifi","SUBSCRIBE: subscribeToWifiAwareSessions called")
 
@@ -81,7 +90,7 @@ class Subscriber(
                                 serviceUUID.toByteArray(Charsets.UTF_8)
                             )
                         }
-                    }, 1000) // Delay in milliseconds
+                    }, 0) // Delay in milliseconds
                 }else{
                     Log.e("1Wifi", "SUBSCRIBE: Peerhandle is null")
                 }
@@ -91,7 +100,10 @@ class Subscriber(
                 Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
                 if(shouldConnectToDevice(String(message, Charsets.UTF_8))){
                     utility.add(utility.createDeviceConnection(String(message, Charsets.UTF_8),System.currentTimeMillis()))
-                    network.createNetwork(currentSubSession,peerHandle,wifiAwareSession,context)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        network.createNetwork(currentSubSession,peerHandle,wifiAwareSession,context)
+                    }
+
 
                 }else{
                     Log.e("1Wifi", "SUBSCRIBE: Device has already been discovered "+String(message, Charsets.UTF_8))
@@ -114,6 +126,9 @@ class Subscriber(
     }
 
     fun shouldConnectToDevice(deviceIdentifier: String): Boolean {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
         val currentTime = System.currentTimeMillis()
         val fiveMinutesInMillis: Long = 5 * 60 * 1000
         val deviceConnection = utility.findDevice(deviceIdentifier)
