@@ -42,21 +42,15 @@ func (stateHandler *BackendStateHandler) GetReading(id string) *pb.Reading {
 	return r
 }
 
-func (stateHandler *BackendStateHandler) GetState() ([]byte, error) {
-
+func (stateHandler *BackendStateHandler) GetState() *pb.State {
 	stateHandler.lock()
-	s := pb.State{TagId: stateHandler.TagId}
+	s := &pb.State{TagId: stateHandler.TagId}
 	for _, reading := range stateHandler.readingsMap {
 		s.Readings = append(s.Readings, reading)
 	}
 
-	serializedState, err := SerializeState(&s)
-	if err != nil {
-		return nil, err
-	}
-
 	stateHandler.unLock()
-	return serializedState, nil
+	return s
 }
 
 func SerializeState(state *pb.State) ([]byte, error) {
