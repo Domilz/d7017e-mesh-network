@@ -25,6 +25,7 @@ func main() {
 	case "tag":
 		log.Println("Starting Tag Client")
 		tag.Main()
+
 	default:
 		log.Println("No Main function for given arg")
 		return

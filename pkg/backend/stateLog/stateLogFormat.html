@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Log</title>
+    <style>
+        * {
+            font-family: 'Helvetica';
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            min-width: 100px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>State Log</h1>
+    <table>
+        <tr>
+            <th class="tagid-col">TagId</th>
+            <th class="rpid-col">RpId</th>
+            <th class="rssi-col">RSSI</th>
+            <th class="timestamp-col">Timestamp</th>
+            <th class="isdirect-col">Direct(1)/Indirect(0)</th>
+
+        </tr>
+        {{ range .Items}}
+        <tr>
+            <td>{{ .TagId }}</td>
+            <td>{{ .RpId }}</td>
+            <td>{{ .Rssi }}</td>
+            <td>{{ .Ts }}</td>
+            <td>{{ .IsDirect }}</td>
+        </tr>
+        {{ end}}
+    </table>
+</body>
+
+</html>
