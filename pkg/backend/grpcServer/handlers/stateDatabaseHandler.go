@@ -40,7 +40,7 @@ func (stateDatabaseHandler *StateDatabaseHandler) Save(reading *pb.Reading) {
 
 	} else {
 		jsonString := string(jsonData)
-		log.Printf("Json string: %v", jsonString)
+
 		stmt, err := stateDatabaseHandler.database.Prepare("INSERT INTO Readings (tagId, readingJson) VALUES (?,?)")
 
 		_, err = stmt.Exec(reading.TagId, jsonString)
@@ -92,5 +92,6 @@ func (stateDatabaseHandler *StateDatabaseHandler) LoadFromDB() []pb.Reading {
 		readings = append(readings, reading)
 
 	}
+	log.Print("Loaded from DB:", readings)
 	return readings
 }

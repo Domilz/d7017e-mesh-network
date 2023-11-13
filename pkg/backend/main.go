@@ -30,6 +30,6 @@ func StartSentLog() *sentLog.SentLogServer {
 
 func StartGRPCServer(sLogServer *sentLog.SentLogServer) {
 
-	server.StartGrpcServer(sLogServer, "grpcServer/database_state/state.db", "./stateLog/stateLogFormat.html")
+	server.StartGrpcServer(sLogServer, "stateLog/database/state.db", "./stateLog/stateLogFormat.html")
 
 }

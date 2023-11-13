@@ -45,14 +45,15 @@ func (stateHandler *BackendStateHandler) GetReading(id string) *pb.Reading {
 }
 
 func (stateHandler *BackendStateHandler) GetState() *pb.State {
+
 	stateHandler.lock()
-	s := &pb.State{TagId: stateHandler.TagId}
+	s := pb.State{TagId: stateHandler.TagId}
 	for _, reading := range stateHandler.readingsMap {
 		s.Readings = append(s.Readings, reading)
 	}
 
 	stateHandler.unLock()
-	return s
+	return &s
 }
 
 func SerializeState(state *pb.State) ([]byte, error) {
@@ -109,12 +110,16 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 func findLatestTimestamp(reading *pb.Reading, otherReading *pb.Reading) bool {
 	return reading.Ts.Seconds <= otherReading.Ts.Seconds
 }
-
-func (stateHandler *BackendStateHandler) InsertDataFromDB(readings []pb.Reading) {
+func (stateHandler *BackendStateHandler) insertOne(reading *pb.Reading) {
 	stateHandler.lock()
-	for _, reading := range readings {
-		stateHandler.readingsMap[reading.TagId] = &reading
+	stateHandler.readingsMap[reading.TagId] = reading
+	stateHandler.unLock()
+
+}
+func (stateHandler *BackendStateHandler) InsertDataFromDB(readings []pb.Reading) {
+
+	for i := 0; i < len(readings); i++ {
+		stateHandler.insertOne(&readings[i])
 	}
 
-	stateHandler.unLock()
 }
