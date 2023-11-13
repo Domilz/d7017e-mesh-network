@@ -25,6 +25,9 @@ func main() {
 	case "tag":
 		log.Println("Starting Tag Client")
 		tag.Main()
+	case "test":
+		log.Println("Testing StateDB")
+		backend.TestStateDb()
 	default:
 		log.Println("No Main function for given arg")
 		return

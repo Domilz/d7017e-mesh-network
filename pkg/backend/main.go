@@ -1,9 +1,14 @@
 package backend
 
 import (
+	"fmt"
+
 	debugLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/debugLog"
-	server "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer"
+	handler "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/handlers"
 	sentLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/sentLog"
+	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
+	"github.com/golang/protobuf/ptypes/timestamp"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Main() {
@@ -30,6 +35,23 @@ func StartSentLog() *sentLog.SentLogServer {
 
 func StartGRPCServer(sLogServer *sentLog.SentLogServer) {
 
-	server.StartGrpcServer(sLogServer)
+	//server.StartGrpcServer(sLogServer)
+
+}
+
+func TestStateDb() {
+
+	stateDB := handler.InitStateDatabase("grpcServer/database_state/state.db")
+	mockReading := &pb.Reading{
+		TagId: "MOCKTAG",
+		RpId:  "321",
+		Rssi:  69,
+		Ts: &timestamp.Timestamp{
+			Seconds: timestamppb.Now().Seconds,
+		},
+	}
+	stateDB.Save(mockReading)
+	s := stateDB.LoadFromDB()
+	fmt.Println(s)
 
 }
