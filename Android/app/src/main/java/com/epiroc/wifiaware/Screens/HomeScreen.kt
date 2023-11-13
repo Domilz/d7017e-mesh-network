@@ -1,9 +1,12 @@
 package com.epiroc.wifiaware.Screens
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -47,7 +50,7 @@ fun ServiceAwareContent(service: WifiAwareService) {
                 isServiceRunning = if (!isServiceRunning) {
                     // Start the service
                     startForegroundService(context, nanIntent)
-
+                    checkBatteryOptimizations(context)
                     //ContextCompat.startForegroundService(context, bleIntent)
                     true
                 } else {
@@ -89,5 +92,25 @@ fun HomeScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // TODO: Maybe implement further
+    }
+}
+
+fun checkBatteryOptimizations(context: Context) {
+    val packageName = context.packageName
+    val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+
+    if (pm != null) {
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            Log.d("BatteryOptimization", "App is not on the whitelist. Asking user to disable battery optimization.")
+            // App is not on the whitelist, show dialog to ask user to disable battery optimization
+            val intent = Intent()
+            intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+            intent.data = Uri.parse("package:$packageName")
+            context.startActivity(intent)
+        } else {
+            Log.d("BatteryOptimization", "App is already on the whitelist.")
+        }
+    } else {
+        Log.e("BatteryOptimization", "PowerManager is null.")
     }
 }

@@ -115,7 +115,7 @@ class WifiAwareService : Service() {
         val cleanUpHandler = Handler(Looper.getMainLooper())
         val cleanUpRunnable = object: Runnable {
             override fun run() {
-                checkBatteryOptimizations(context)
+
                 if (::subscriber.isInitialized) {
                     if(utility.isNotEmpty()) {
                         var didremove = utility.removeIf()
@@ -329,23 +329,5 @@ class WifiAwareService : Service() {
         // Enqueue the work
         WorkManager.getInstance(this).enqueue(networkWorkRequest)
     }
-    fun checkBatteryOptimizations(context: Context) {
-        val packageName = context.packageName
-        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
-        if (pm != null) {
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                Log.d("BatteryOptimization", "App is not on the whitelist. Asking user to disable battery optimization.")
-                // App is not on the whitelist, show dialog to ask user to disable battery optimization
-                val intent = Intent()
-                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                intent.data = Uri.parse("package:$packageName")
-                context.startActivity(intent)
-            } else {
-                Log.d("BatteryOptimization", "App is already on the whitelist.")
-            }
-        } else {
-            Log.e("BatteryOptimization", "PowerManager is null.")
-        }
-    }
 }
