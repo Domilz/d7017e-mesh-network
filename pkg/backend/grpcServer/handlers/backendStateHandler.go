@@ -11,19 +11,21 @@ import (
 )
 
 type BackendStateHandler struct {
-	TagId           string
-	readingsMap     map[string]*pb.Reading
-	mutex           sync.RWMutex
-	directHandler   *DirectHandler
-	indirectHandler *IndirectHandler
+	TagId                string
+	readingsMap          map[string]*pb.Reading
+	mutex                sync.RWMutex
+	directHandler        *DirectHandler
+	indirectHandler      *IndirectHandler
+	stateDatabaseHandler *StateDatabaseHandler
 }
 
-func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer) {
+func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer, sDatabaseHandler *StateDatabaseHandler) {
 	stateHandler.lock()
 	stateHandler.directHandler = InitDirectHandler(sLogServer)
 	stateHandler.indirectHandler = InitIndirectHandler(sLogServer) //When implemented
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
+	stateHandler.stateDatabaseHandler = sDatabaseHandler
 	stateHandler.unLock()
 }
 
@@ -92,7 +94,7 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 	value, keyExist := stateHandler.readingsMap[reading.TagId]
 
 	if !keyExist || findLatestTimestamp(value, reading) {
-
+		stateHandler.stateDatabaseHandler.Save(reading)
 		stateHandler.readingsMap[reading.TagId] = reading
 		if reading.IsDirect == 0 {
 			println("Recieved indirect reading for tag: ", reading.TagId)

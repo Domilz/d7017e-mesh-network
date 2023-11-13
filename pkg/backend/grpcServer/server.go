@@ -77,8 +77,10 @@ func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationS
 	return nil
 }
 
-func StartGrpcServer(sentLogServer *sentLog.SentLogServer) {
-	backendStateHandler.InitStateHandler("SERVER-TAG", sentLogServer)
+func StartGrpcServer(sentLogServer *sentLog.SentLogServer, stateDBPath string) {
+	//Load from state db
+	stateDatabaseHandler := handler.InitStateDatabase(stateDBPath)
+	backendStateHandler.InitStateHandler("SERVER-TAG", sentLogServer, stateDatabaseHandler)
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
