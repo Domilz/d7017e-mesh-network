@@ -24,7 +24,6 @@ import androidx.core.content.ContextCompat.startForegroundService
 import com.epiroc.wifiaware.Services.BLEService
 import com.epiroc.wifiaware.Services.WifiAwareService
 
-
 val permissionsToRequest = arrayOf(
     Manifest.permission.ACCESS_FINE_LOCATION,
     Manifest.permission.NEARBY_WIFI_DEVICES,

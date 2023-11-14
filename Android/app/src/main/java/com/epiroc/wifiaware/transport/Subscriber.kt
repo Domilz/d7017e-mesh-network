@@ -99,16 +99,20 @@ class Subscriber(
             }
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
-                if(shouldConnectToDevice(String(message, Charsets.UTF_8))){
-                    utility.add(utility.createDeviceConnection(String(message, Charsets.UTF_8),System.currentTimeMillis()))
-                    CoroutineScope(Dispatchers.IO).launch {
-                        createNetwork(peerHandle,wifiAwareSession,context)
+                if(message.toString() == "onLost"){
+                    networkCallbackSub.onLost(subNetwork)
+                } else {
+                    Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
+                    if(shouldConnectToDevice(String(message, Charsets.UTF_8))){
+                        utility.add(utility.createDeviceConnection(String(message, Charsets.UTF_8),System.currentTimeMillis()))
+                        CoroutineScope(Dispatchers.IO).launch {
+                            createNetwork(peerHandle,wifiAwareSession,context)
+                        }
+
+
+                    }else{
+                        Log.e("1Wifi", "SUBSCRIBE: Device has already been discovered "+String(message, Charsets.UTF_8))
                     }
-
-
-                }else{
-                    Log.e("1Wifi", "SUBSCRIBE: Device has already been discovered "+String(message, Charsets.UTF_8))
                 }
             }
         }
@@ -185,11 +189,13 @@ class Subscriber(
                     Log.d("1Wifi","port for clientsocket: ${clientSocket.port}")
                     handleDataExchange(peerHandle, clientSocket,connectivityManager)
 
+
                 } catch (e: Exception) {
                     Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
+                    onLost(network)
                 }
 
-                clientSocket?.close()
+                //clientSocket?.close()
             }
 
             override fun onAvailable(network: Network) {
@@ -207,7 +213,8 @@ class Subscriber(
                 currentSubSession?.close()
                 currentSubSession = null
                 closeClientSocket()
-                Log.d("1Wifi", "SUBSCRIBE: EVERYTHING IN SUBSCRIBER CLOSED AND WE ARE NOW RESETTING THE SUBSCRIBER ")
+                connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
+                Log.e("1Wifi", "SUBSCRIBE: EVERYTHING IN SUBSCRIBER CLOSED AND WE ARE NOW RESETTING THE SUBSCRIBER ")
                 subscribeToWifiAwareSessions()
 
             }
@@ -241,11 +248,16 @@ class Subscriber(
             outputStream.close()
 
             Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
+
         }
 
         Log.d("DONEEE", "subscriberDone = true")
+        val onLostMessage = "onLost".toByteArray(Charsets.UTF_8)
+        currentSubSession?.sendMessage(peerHandle,0,onLostMessage)
+        networkCallbackSub.onLost(subNetwork)
         //subscriberDone = true
-        connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
+        //connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
+
 
     }
 

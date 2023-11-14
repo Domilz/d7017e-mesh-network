@@ -36,6 +36,7 @@ import androidx.work.WorkManager
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.lib.Client
+import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.Publisher
 import com.epiroc.wifiaware.transport.Subscriber
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
@@ -44,6 +45,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
@@ -225,7 +227,7 @@ class WifiAwareService : Service() {
                     var c = Client.setupClient(serviceUUID)!!
                     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                     override fun run() {
-                        val serviceName = "epiroc_mesh"
+                        val serviceName = Config.getConfigData()?.getString("service_name")
                         // Initialize the publisher and subscriber
                         publisher = Publisher(
                             wakeLock = wakeLock,
@@ -240,7 +242,7 @@ class WifiAwareService : Service() {
                             ctx = applicationContext,
                             nanSession = session,
                             client = c,
-                            srvcName = serviceName,
+                            srvcName = serviceName!!,
                             uuid = serviceUUID
                         )
                         CoroutineScope(Dispatchers.IO).launch {

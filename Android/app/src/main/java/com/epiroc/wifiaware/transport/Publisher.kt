@@ -32,7 +32,7 @@ class Publisher(
     ctx: Context,
     nanSession: WifiAwareSession,
     client: Client,
-    srvcName: String,
+    srvcName: String?,
     uuid: String
 ) {
     private var serviceUUID = uuid
@@ -42,6 +42,7 @@ class Publisher(
     private val utility: WifiAwareUtility = WifiAwareUtility
     private val serviceName = srvcName
     private val wifiAwareSession = nanSession
+    private lateinit var currentNetwork : Network
 
     private var client = client
     private var serverSocket: ServerSocket? = null
@@ -59,7 +60,7 @@ class Publisher(
         if (wifiAwareSession != null) {
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
             val config = PublishConfig.Builder()
-                .setServiceName(serviceName)
+                .setServiceName(serviceName!!)
                 .build()
             val handler = Handler(Looper.getMainLooper())
             if (ActivityCompat.checkSelfPermission(
@@ -81,25 +82,29 @@ class Publisher(
                         currentPubSession = session
                     }
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                        Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
-                        //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                        CoroutineScope(Dispatchers.IO).launch {
-                            createNetwork(peerHandle, wifiAwareSession, context)
-                        }
-                        //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
-                        // Respond to the sender (Device A) if needed.
-                        //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
-                        Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
-
-                        Timer().schedule(object : TimerTask() {
-                            override fun run() {
-                                currentPubSession?.sendMessage(
-                                    peerHandle,
-                                    0, // Message type (0 for unsolicited)
-                                    serviceUUID.toByteArray(Charsets.UTF_8)
-                                )
+                        if(message.toString() == "onLost"){
+                            networkCallbackPub.onLost(currentNetwork)
+                        }else{
+                            Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
+                            //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                            CoroutineScope(Dispatchers.IO).launch {
+                                createNetwork(peerHandle, wifiAwareSession, context)
                             }
-                        }, 2000) // Delay in milliseconds*/
+                            //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
+                            // Respond to the sender (Device A) if needed.
+                            //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
+                            Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
+
+                            Timer().schedule(object : TimerTask() {
+                                override fun run() {
+                                    currentPubSession?.sendMessage(
+                                        peerHandle,
+                                        0, // Message type (0 for unsolicited)
+                                        serviceUUID.toByteArray(Charsets.UTF_8)
+                                    )
+                                }
+                            }, 2000) // Delay in milliseconds*/
+                        }
                     }
                 }, handler)
             }
@@ -133,6 +138,7 @@ class Publisher(
         Log.d("NETWORKWIFI","PUBLISH: All necessary wifiaware network things created now awaiting callback on port $port and this is port from local ${serverSocket!!.localPort}")
         networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
+                currentNetwork = network
                 try {
                     Log.d("NETWORKWIFI","PUBLISH: onAvailable")
                     serverSocket?.soTimeout = 1000
@@ -163,6 +169,8 @@ class Publisher(
                     Log.d("NETWORKWIFI","PUBLISH: DET GICK BRA")
                     handleClient(clientSocket,connectivityManager)
                     clientSocket!!.close()
+                    val onLostMessage = "onLost".toByteArray(Charsets.UTF_8)
+                    currentPubSession?.sendMessage(peerHandle, 0, onLostMessage)
                     Log.d("1Wifi", "PUBLISH: Accepting client $network")
                 } catch (e: Exception) {
                     Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
@@ -180,6 +188,7 @@ class Publisher(
                 currentPubSession = null
 
                 closeServerSocket()
+                connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
                 Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED RESETTING PUBLISHER")
                 publishUsingWifiAware()
             }
@@ -230,7 +239,7 @@ class Publisher(
         Log.d("1Wifi", "${client.getReadableOfSingleState(client.state)}" )
 
         utility.saveToFile(context,client.state)
-        connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
+       // connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }
 
     fun closeServerSocket() {
