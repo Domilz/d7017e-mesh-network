@@ -103,7 +103,6 @@ class WifiAwareService : Service() {
         createNotification()
         startForeground(1, notification)
 
-        val context = this
         startNetworkWorker()
         wifiAwareState()
         acquireWifiAwareSession()
@@ -133,16 +132,15 @@ class WifiAwareService : Service() {
                     Log.e("1Wifi", "subscriber: not init")
                 }
                 Log.d("1Wifi","tryCount: ${utility.getTryCount()}")
-                if(utility.getTryCount() <= 10)
-                    cleanUpHandler.postDelayed(this, 1000)
-                else if (utility.getTryCount() >= 15){
-                    //wifiAwareSession?.close()
-                    publisher.getCurrent()?.close()
+                if (utility.getTryCount() == 10) {
+                   /* publisher.getCurrent()?.close()
                     subscriber.getCurrent()?.close()
+                    publisher.publishUsingWifiAware()
+                    subscriber.subscribeToWifiAwareSessions()*/
                     utility.setTryCount(0)
                 }
-                else
-                    cleanUpHandler.postDelayed(this, 1000)
+                cleanUpHandler.postDelayed(this, 1000)
+
             }
         }
         cleanUpHandler.post(cleanUpRunnable)

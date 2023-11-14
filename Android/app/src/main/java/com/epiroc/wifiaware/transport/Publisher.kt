@@ -128,7 +128,9 @@ class Publisher(
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
             .setNetworkSpecifier(networkSpecifier)
             .build()
-        Log.d("NETWORKWIFI","PUBLISH: All necessary wifiaware network things created now awaiting callback")
+
+
+        Log.d("NETWORKWIFI","PUBLISH: All necessary wifiaware network things created now awaiting callback on port $port and this is port from local ${serverSocket!!.localPort}")
         networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 try {
@@ -137,10 +139,13 @@ class Publisher(
                     serverSocket?.reuseAddress = true
 
                     try {
+                        Log.d("NETWORKWIFI","PUBLISH: TESTAR ATT ACCA SOCKET")
                         clientSocket = serverSocket?.accept()
                     } catch (e: Exception) {
+                        Log.d("NETWORKWIFI","PUBLISH: DET GICK INTE, FÖRSÖKER IGEN")
                         serverSocket?.close()
                         try {
+
                             if (serverSocket == null || serverSocket!!.isClosed) {
                                 serverSocket = ServerSocket(0)
                                 serverSocket?.soTimeout = 1000
@@ -148,13 +153,16 @@ class Publisher(
                                 clientSocket = serverSocket?.accept()
                             }
                         } catch (e: Exception) {
+                            Log.d("NETWORKWIFI","PUBLISH: SKET SIG IGEN")
                             serverSocket?.close()
-
+                            clientSocket?.close()
                             return
                         }
 
                     }
+                    Log.d("NETWORKWIFI","PUBLISH: DET GICK BRA")
                     handleClient(clientSocket,connectivityManager)
+                    clientSocket!!.close()
                     Log.d("1Wifi", "PUBLISH: Accepting client $network")
                 } catch (e: Exception) {
                     Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
@@ -163,7 +171,7 @@ class Publisher(
 
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
                 Log.d("NETWORKWIFI","PUBLISH: onCapabilitiesChanged")
-                Log.d("1Wifi", "PUBLISH: onCapabilitiesChanged incoming: $networkCapabilities")
+                Log.d("1Wifi", "PUBLISH: onCapabilitiesChanged incoming: ${networkCapabilities.transportInfo}")
             }
 
             override fun onLost(network: Network) {
@@ -174,9 +182,6 @@ class Publisher(
                 closeServerSocket()
                 Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED RESETTING PUBLISHER")
                 publishUsingWifiAware()
-
-
-
             }
         }
 
@@ -192,6 +197,7 @@ class Publisher(
         client.insertSingleMockedReading("publish")
         var sdfsdf = client.state
         clientSocket!!.getInputStream().use { inputStream ->
+
             val dataInputStream = DataInputStream(inputStream)
 
             try {

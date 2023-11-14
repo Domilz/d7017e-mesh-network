@@ -156,8 +156,6 @@ class Subscriber(
             wakeLock.acquire()
         }
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
-        // temp socket
-
 
         Log.d("1Wifi", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
         val networkSpecifier = currentSubSession?.let {
@@ -178,16 +176,17 @@ class Subscriber(
                 val peerIpv6 = peerAwareInfo.peerIpv6Addr
                 val peerPort = peerAwareInfo.port
 
+                Log.d("1Wifi", "peerport is: $peerPort, aware info: $peerAwareInfo")
+
                 try {
                     clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
                     clientSocket.reuseAddress = true
                     clientSocket.connect(InetSocketAddress(peerIpv6, peerPort), 1000)
+                    Log.d("1Wifi","port for clientsocket: ${clientSocket.port}")
                     handleDataExchange(peerHandle, clientSocket,connectivityManager)
 
                 } catch (e: Exception) {
                     Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
-                    clientSocket.close()
-                    //wifiAwareSession!!.close()
                 }
 
                 clientSocket?.close()
@@ -239,6 +238,7 @@ class Subscriber(
             }catch (e: Exception){
                 Log.e("1Wifi", "SUBSCRIBE: ERROR HERE!!!!!!!!!!!")
             }
+            outputStream.close()
 
             Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
         }
