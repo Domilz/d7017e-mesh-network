@@ -92,6 +92,6 @@ func (stateDatabaseHandler *StateDatabaseHandler) LoadFromDB() []pb.Reading {
 		readings = append(readings, reading)
 
 	}
-	log.Print("Loaded from DB:", readings)
+	log.Printf("StateDatabaseHandler loaded %v readings from DB, loaded readings: %v", len(readings), readings)
 	return readings
 }
