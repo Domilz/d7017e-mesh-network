@@ -1,4 +1,4 @@
-#Wed Oct 18 15:16:25 CEST 2023
+#Wed Nov 15 12:41:19 CET 2023
 base.0=/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
 base.1=/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
 base.10=/home/daniel/Dev/D7017E/d7017e-mesh-network/Android/TransportBLE/app/build/intermediates/dex/debug/mergeExtDexDebug/classes2.dex

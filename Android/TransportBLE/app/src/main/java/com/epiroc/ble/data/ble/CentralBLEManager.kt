@@ -93,10 +93,12 @@ class CentralBLEManager @Inject constructor(
                     gatt.discoverServices()
                     this@CentralBLEManager.gatt = gatt
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    coroutineScope.launch {
+                    /*coroutineScope.launch {
                         data.emit(Resource.Success(data = ConnectionResult("", CentralState.Disconnected)))
                     }
+                     */
                     gatt.close()
+
                 }
             } else {
                 gatt.close()
@@ -151,13 +153,15 @@ class CentralBLEManager @Inject constructor(
                 when (uuid) {
                     UUID.fromString(CHARACTERISTIC_UUID) -> {
                         val charData = String(value, Charset.defaultCharset())
-                        val result = ConnectionResult(charData, CentralState.Connected)
+                        /*val result = ConnectionResult(charData, CentralState.Connected)
 
                         coroutineScope.launch{
                             data.emit(
                                 Resource.Success(data = result)
                             )
                         }
+
+                         */
                     }
 
                     else -> Unit
@@ -177,13 +181,15 @@ class CentralBLEManager @Inject constructor(
                     UUID.fromString(CHARACTERISTIC_UUID) -> {
 
                         val charData = String(value, Charset.defaultCharset())
-                        val result = ConnectionResult(charData, CentralState.Connected)
+                        /*val result = ConnectionResult(charData, CentralState.Connected)
 
                         coroutineScope.launch {
                             data.emit(
                                 Resource.Success(data = result)
                             )
                         }
+
+                         */
                     }
 
                     else -> Unit

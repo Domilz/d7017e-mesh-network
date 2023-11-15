@@ -35,10 +35,11 @@ class BleReadingsViewModel @Inject constructor(
 
     private fun subscribeToChanges(){
         viewModelScope.launch {
-            centralBLEManager.data.collect{ result ->
+            peripheralBLEManager.data.collect{ result ->
                 when(result){
                     is Resource.Success -> {
                         centralState = result.data.centralState
+                        peripheralState = result.data.peripheralState
                         resultMessage = result.data.title
                     }
 
@@ -68,13 +69,13 @@ class BleReadingsViewModel @Inject constructor(
     fun initializeConnection(){
         errorMessage = null
         subscribeToChanges()
-        centralBLEManager.startReceiving()
+        //centralBLEManager.startReceiving()
         peripheralBLEManager.startAdvertising()
     }
 
     override fun onCleared() {
         super.onCleared()
-        centralBLEManager.closeConnection()
+        //centralBLEManager.closeConnection()
         peripheralBLEManager.stopAdvertising()
     }
 }

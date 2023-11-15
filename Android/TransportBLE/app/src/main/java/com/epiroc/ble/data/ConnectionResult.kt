@@ -2,5 +2,6 @@ package com.epiroc.ble.data
 
 data class ConnectionResult(
     val title : String,
-    val centralState : CentralState
+    val centralState : CentralState,
+    val peripheralState: PeripheralState
 )

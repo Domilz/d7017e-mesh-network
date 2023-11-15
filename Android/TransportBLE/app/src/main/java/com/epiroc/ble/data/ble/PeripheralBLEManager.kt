@@ -16,10 +16,15 @@ import android.content.Context
 import android.os.Build
 import android.os.ParcelUuid
 import android.util.Log
+import com.epiroc.ble.data.CentralState
 import com.epiroc.ble.data.ConnectionResult
 import com.epiroc.ble.data.PeripheralManager
+import com.epiroc.ble.data.PeripheralState
 import com.epiroc.ble.util.Resource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import java.nio.charset.Charset
 import java.util.UUID
 import javax.inject.Inject
@@ -31,6 +36,9 @@ class PeripheralBLEManager @Inject constructor(
     private val context: Context
 ) : PeripheralManager {
     override val data: MutableSharedFlow<Resource<ConnectionResult>> = MutableSharedFlow()
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+
 
     private var bluetoothDevices: HashSet<BluetoothDevice>? = null
 
@@ -185,6 +193,10 @@ class PeripheralBLEManager @Inject constructor(
         gattServer = bluetoothManager.openGattServer(context, gattServerCallback)
         gattServer?.addService(service)
 
+        Log.d("PeripheralManagar", "Started advertising")
+        coroutineScope.launch {
+            data.emit(Resource.Success(data = ConnectionResult("Started advertising", CentralState.Connected, PeripheralState.Started)))
+        }
 
     }
 
