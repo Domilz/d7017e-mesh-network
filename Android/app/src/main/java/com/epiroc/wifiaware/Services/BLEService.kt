@@ -35,7 +35,7 @@ import java.util.UUID
 
 @SuppressLint("MissingPermission")
 class BLEService : Service() {
-    private val SERVICE_UUID = "0000181d-0000-1000-8000-00805f9b34fb"
+    private val SERVICE_UUID = "527af0f6-83af-11ee-b962-0242ac120002"
 
     private val binder = LocalBinder()
     private var bluetoothAdapter: BluetoothAdapter? = null
