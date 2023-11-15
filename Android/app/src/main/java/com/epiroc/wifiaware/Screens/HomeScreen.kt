@@ -47,13 +47,14 @@ fun ServiceAwareContent(service: WifiAwareService) {
                 isServiceRunning = if (!isServiceRunning) {
                     // Start the service
                     startForegroundService(context, nanIntent)
+                    startForegroundService(context, bleIntent)
 
                     //ContextCompat.startForegroundService(context, bleIntent)
                     true
                 } else {
                     // Stop the service
                     context.stopService(nanIntent)
-                    //context.stopService(bleIntent)
+                    context.stopService(bleIntent)
                     false
                 }
             },

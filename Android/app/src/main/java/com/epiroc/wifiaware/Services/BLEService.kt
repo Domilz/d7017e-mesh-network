@@ -1,48 +1,107 @@
 package com.epiroc.wifiaware.Services
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
+import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
+import java.util.UUID
 
+
+@SuppressLint("MissingPermission")
 class BLEService : Service() {
+    private val SERVICE_UUID = "0000181d-0000-1000-8000-00805f9b34fb"
+
     private val binder = LocalBinder()
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothLeScanner: BluetoothLeScanner? = null
+    private var gatt: BluetoothGatt? = null
+    private val context : Context = this
+
+    private val scanFilter = ScanFilter.Builder()
+        .setServiceUuid(ParcelUuid(UUID.fromString(SERVICE_UUID)))
+        .build()
+
+    private val scanSettings = ScanSettings.Builder()
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+        .build()
+
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            super.onScanResult(callbackType, result)
-            // TODO: Process the scan result, extract data
-            Log.d("BLEService", "Found BLE device: ${result.device.address} with data: ${result.scanRecord}")
-        }
+            val device = result?.device
 
-        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-            super.onBatchScanResults(results)
-            // TODO: Process batch scan results if necessary
+            if (device != null) {
+
+
+                if (result.scanRecord?.serviceUuids?.any { it == ParcelUuid(UUID.fromString(SERVICE_UUID)) } == true) {
+                    Log.d("BLEService", "Device is: ${result.device} and rssi is ${result.rssi}")
+                    result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+                }
+
+                // Find one and then stop for now? Should come up with an algorithm for how often to scan for same ble device.
+                bluetoothLeScanner?.stopScan(this)
+            }
         }
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
             Log.e("BLEService", "Scan failed with error code: $errorCode")
+        }
+    }
+
+    private val gattCallback = object : BluetoothGattCallback() {
+        override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                if (newState == BluetoothGatt.STATE_CONNECTED) {
+                    this@BLEService.gatt = gatt
+                } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
+                    gatt.close()
+                }
+            } else {
+                gatt.close()
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+            gatt.readRemoteRssi()
+            /*with(gatt) {
+                gatt.requestMtu(517)
+            }*/
+        }
+
+        override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                // RSSI value is available in the 'rssi' variable
+                Log.d("BLEService", "RSSI: $rssi")
+            } else {
+                // Handle failure to read RSSI
+            }
         }
     }
 
@@ -71,7 +130,6 @@ class BLEService : Service() {
         startForeground(1, notification)
 
 
-
         // Get BluetoothManager and BluetoothAdapter
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
@@ -83,33 +141,6 @@ class BLEService : Service() {
         }
 
         Log.d("BLEService", "BLE Service started!")
-    }
-
-    override fun onStartCommand(intent: android.content.Intent?, flags: Int, startId: Int): Int {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling ActivityCompat#requestPermissions here to request the missing permissions
-            Log.e("BLEService", "Location permission not granted")
-            stopSelf()
-        } else {
-            // Start scanning
-            bluetoothLeScanner?.startScan(scanCallback)
-            Log.d("BLEService", "BLE scanner has started")
-        }
-        return START_STICKY
-    }
-
-    override fun onDestroy() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_SCAN
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Request permissions?
-            return
-        }
-        bluetoothLeScanner?.stopScan(scanCallback)
-        super.onDestroy()
     }
 
     private fun createNotification(): Notification {
@@ -132,19 +163,44 @@ class BLEService : Service() {
     }
 
     private fun createNotificationChannel() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = "BLE Service Channel"
-            val description = "Channel for BLE foreground service"
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(WifiAwareService.CHANNEL_ID, channelName, importance).apply {
-                this.description = description
-            }
-
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val channelName = "BLE Service Channel"
+        val description = "Channel for BLE foreground service"
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val channel = NotificationChannel(WifiAwareService.CHANNEL_ID, channelName, importance).apply {
+            this.description = description
         }
+
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    override fun onStartCommand(intent: android.content.Intent?, flags: Int, startId: Int): Int {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling ActivityCompat#requestPermissions here to request the missing permissions
+            Log.e("BLEService", "Location permission not granted")
+            stopSelf()
+        } else {
+            // Start scanning
+            bluetoothLeScanner?.startScan(null, scanSettings, scanCallback)
+
+            Log.d("BLEService", "BLE scanner has started.")
+        }
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_SCAN
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request permissions?
+            return
+        }
+        bluetoothLeScanner?.stopScan(scanCallback)
+        super.onDestroy()
     }
 
     inner class LocalBinder : Binder() {
