@@ -57,11 +57,13 @@ class BLEService : Service() {
 
             if (device != null) {
 
+                Log.d("BLEService", "Device is: ${result.device} and rssi is ${result.rssi}")
+                result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
 
-                if (result.scanRecord?.serviceUuids?.any { it == ParcelUuid(UUID.fromString(SERVICE_UUID)) } == true) {
-                    Log.d("BLEService", "Device is: ${result.device} and rssi is ${result.rssi}")
-                    result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+                /*if (result.scanRecord?.serviceUuids?.any { it == ParcelUuid(UUID.fromString(SERVICE_UUID)) } == true) {
                 }
+
+                 */
 
                 // Find one and then stop for now? Should come up with an algorithm for how often to scan for same ble device.
                 bluetoothLeScanner?.stopScan(this)
@@ -183,7 +185,7 @@ class BLEService : Service() {
             stopSelf()
         } else {
             // Start scanning
-            bluetoothLeScanner?.startScan(null, scanSettings, scanCallback)
+            bluetoothLeScanner?.startScan(listOf(scanFilter), scanSettings, scanCallback)
 
             Log.d("BLEService", "BLE scanner has started.")
         }
