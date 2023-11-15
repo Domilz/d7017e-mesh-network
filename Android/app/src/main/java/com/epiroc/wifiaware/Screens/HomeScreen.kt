@@ -21,11 +21,24 @@ import androidx.core.content.ContextCompat.startForegroundService
 import com.epiroc.wifiaware.Services.BLEService
 import com.epiroc.wifiaware.Services.WifiAwareService
 
+/*val permissions = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+    listOf(
+        Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
+        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
+    )
+}else{
+    listOf(
+        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
+    )
+}
+
+ */
 
 val permissionsToRequest = arrayOf(
     Manifest.permission.ACCESS_FINE_LOCATION,
     Manifest.permission.NEARBY_WIFI_DEVICES,
-    Manifest.permission.BLUETOOTH_SCAN
+    Manifest.permission.BLUETOOTH_SCAN,
+    Manifest.permission.BLUETOOTH_CONNECT
 )
 
 @Composable
@@ -46,14 +59,14 @@ fun ServiceAwareContent(service: WifiAwareService) {
                 val bleIntent = Intent(context, BLEService::class.java)
                 isServiceRunning = if (!isServiceRunning) {
                     // Start the service
-                    startForegroundService(context, nanIntent)
+                    // startForegroundService(context, nanIntent)
                     startForegroundService(context, bleIntent)
 
                     //ContextCompat.startForegroundService(context, bleIntent)
                     true
                 } else {
                     // Stop the service
-                    context.stopService(nanIntent)
+                    // context.stopService(nanIntent)
                     context.stopService(bleIntent)
                     false
                 }

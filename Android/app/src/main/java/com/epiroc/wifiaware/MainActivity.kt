@@ -63,8 +63,12 @@ class MainActivity : ComponentActivity() {
             ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.BLUETOOTH_SCAN
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
             ) != PackageManager.PERMISSION_GRANTED
-        ) {
+            )
+        {
             ActivityCompat.requestPermissions(
                 this,
                 permissionsToRequest,
