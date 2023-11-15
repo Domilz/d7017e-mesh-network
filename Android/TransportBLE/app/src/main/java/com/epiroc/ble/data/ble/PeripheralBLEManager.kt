@@ -43,7 +43,7 @@ class PeripheralBLEManager @Inject constructor(
     private var bluetoothDevices: HashSet<BluetoothDevice>? = null
 
 
-    val SERVICE_UUID = UUID.fromString("0000181a-0000-1000-8000-00805f9b34fb")
+    val SERVICE_UUID = UUID.fromString("527af0f6-83af-11ee-b962-0242ac120002")
     val CHARACTERISTIC_UUID = UUID.fromString("dc78e1f1-45d7-4b14-b66d-71d6e3b6aaf5")
 
 
