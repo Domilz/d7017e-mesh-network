@@ -42,7 +42,7 @@ class Publisher(
     private val utility: WifiAwareUtility = WifiAwareUtility
     private val serviceName = srvcName
     private val wifiAwareSession = nanSession
-    private lateinit var currentNetwork : Network
+    private var currentNetwork : Network? = null
 
     private var client = client
     private var serverSocket: ServerSocket? = null
@@ -82,8 +82,24 @@ class Publisher(
                         currentPubSession = session
                     }
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                        if(message.toString() == "onLost"){
-                            networkCallbackPub.onLost(currentNetwork)
+                        if(String(message) == "onLost"){
+                            if(currentNetwork != null){
+                                Log.d("1Wifi","PUBLISH: WE RECIVED A ONLOST MESSAGE")
+                                networkCallbackPub.onLost(currentNetwork!!)
+                                return
+                            }
+
+                            Log.d("1Wifi","PUBLISH: WE RECIVED A ONLOST MESSAGE TO REMOVE CALLBACK")
+                            var connectivityManager = ConnectivityManagerHelper.getManager(context)
+                            currentPubSession?.close()
+                            currentPubSession = null
+                            currentNetwork = null
+                            clientSocket!!.close()
+                            closeServerSocket()
+                            connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
+                            Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED RESETTING PUBLISHER")
+                            publishUsingWifiAware()
+
                         }else{
                             Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
                             //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -118,7 +134,7 @@ class Publisher(
         }
 
         this.context = context
-        val connectivityManager = ConnectivityManagerHelper.getManager(context)
+        var connectivityManager = ConnectivityManagerHelper.getManager(context)
         //if (serverSocket == null || serverSocket!!.isClosed) {
         //}
         serverSocket = ServerSocket(0)
@@ -141,37 +157,23 @@ class Publisher(
                 currentNetwork = network
                 try {
                     Log.d("NETWORKWIFI","PUBLISH: onAvailable")
-                    serverSocket?.soTimeout = 1000
-                    serverSocket?.reuseAddress = true
+                    //serverSocket?.soTimeout = 3000
+                    serverSocket?.reuseAddress = false
 
                     try {
                         Log.d("NETWORKWIFI","PUBLISH: TESTAR ATT ACCA SOCKET")
                         clientSocket = serverSocket?.accept()
                     } catch (e: Exception) {
-                        Log.d("NETWORKWIFI","PUBLISH: DET GICK INTE, FÖRSÖKER IGEN")
+                        Log.d("NETWORKWIFI","PUBLISH: DET GICK INTE ${e.message} stack: ${Log.getStackTraceString(e)}")
                         serverSocket?.close()
-                        try {
-
-                            if (serverSocket == null || serverSocket!!.isClosed) {
-                                serverSocket = ServerSocket(0)
-                                serverSocket?.soTimeout = 1000
-                                serverSocket?.reuseAddress = true
-                                clientSocket = serverSocket?.accept()
-                            }
-                        } catch (e: Exception) {
-                            Log.d("NETWORKWIFI","PUBLISH: SKET SIG IGEN")
-                            serverSocket?.close()
-                            clientSocket?.close()
-                            return
-                        }
-
+                        return
                     }
                     Log.d("NETWORKWIFI","PUBLISH: DET GICK BRA")
                     handleClient(clientSocket,connectivityManager)
-                    clientSocket!!.close()
-                    val onLostMessage = "onLost".toByteArray(Charsets.UTF_8)
-                    currentPubSession?.sendMessage(peerHandle, 0, onLostMessage)
-                    Log.d("1Wifi", "PUBLISH: Accepting client $network")
+
+                    /*val onLostMessage = "onLost".toByteArray(Charsets.UTF_8)
+                    Log.e("1Wifi", "PUBLISH: NOW SEND ONLOST MESSAGE TO SUBSCRIBER")
+                    currentPubSession?.sendMessage(peerHandle, 0, onLostMessage)*/
                 } catch (e: Exception) {
                     Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
                 }
@@ -186,7 +188,8 @@ class Publisher(
                 Log.d("1Wifi", "PUBLISH: Connection lost: $network")
                 currentPubSession?.close()
                 currentPubSession = null
-
+                currentNetwork = null
+                clientSocket!!.close()
                 closeServerSocket()
                 connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
                 Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED RESETTING PUBLISHER")
