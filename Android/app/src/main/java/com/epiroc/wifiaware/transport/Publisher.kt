@@ -45,12 +45,9 @@ class Publisher(
     private var currentNetwork : Network? = null
 
     private var client = client
-    private var serverSocket: ServerSocket? = null
     private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
     private var clientSocket: Socket? = null
     private val messagesReceived: MutableList<String> = mutableListOf()
-
-
 
     fun publishUsingWifiAware() {
         if (!wakeLock.isHeld) {
@@ -72,7 +69,6 @@ class Publisher(
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 Log.d("1Wifi","PUBLISH: NO PREM FOR PUB")
-
             } else {
                 Log.d("1Wifi","PUBLISH: WE HAVE PREM TO PUBLISH")
                 // Permissions are granted, proceed with publishing.
@@ -82,45 +78,21 @@ class Publisher(
                         currentPubSession = session
                     }
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                        if(String(message) == "onLost"){
-                            if(currentNetwork != null){
-                                Log.d("1Wifi","PUBLISH: WE RECIVED A ONLOST MESSAGE")
-                                networkCallbackPub.onLost(currentNetwork!!)
-                                return
-                            }
-
-                            Log.d("1Wifi","PUBLISH: WE RECIVED A ONLOST MESSAGE TO REMOVE CALLBACK")
-                            var connectivityManager = ConnectivityManagerHelper.getManager(context)
-                            currentPubSession?.close()
-                            currentPubSession = null
-                            currentNetwork = null
-                            clientSocket!!.close()
-                            closeServerSocket()
-                            connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
-                            Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED RESETTING PUBLISHER")
-                            publishUsingWifiAware()
-
-                        }else{
-                            Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
-                            //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                            CoroutineScope(Dispatchers.IO).launch {
-                                createNetwork(peerHandle, wifiAwareSession, context)
-                            }
-                            //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
-                            // Respond to the sender (Device A) if needed.
-                            //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
-                            Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
-
-                            Timer().schedule(object : TimerTask() {
-                                override fun run() {
-                                    currentPubSession?.sendMessage(
-                                        peerHandle,
-                                        0, // Message type (0 for unsolicited)
-                                        serviceUUID.toByteArray(Charsets.UTF_8)
-                                    )
-                                }
-                            }, 2000) // Delay in milliseconds*/
+                        Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
+                        CoroutineScope(Dispatchers.IO).launch {
+                            createNetwork(peerHandle, context)
                         }
+                        Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
+
+                        Timer().schedule(object : TimerTask() {
+                            override fun run() {
+                                currentPubSession?.sendMessage(
+                                    peerHandle,
+                                    0, // Message type (0 for unsolicited)
+                                    serviceUUID.toByteArray(Charsets.UTF_8)
+                                )
+                            }
+                        }, 2000) // Delay in milliseconds*/
                     }
                 }, handler)
             }
@@ -128,18 +100,12 @@ class Publisher(
             Log.d("1Wifi", "PUBLISH: Wifi Aware session is not available.")
         }
     }
-    fun createNetwork(peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context){
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire()
-        }
-
+    fun createNetwork(peerHandle : PeerHandle, context : Context){
         this.context = context
         var connectivityManager = ConnectivityManagerHelper.getManager(context)
-        //if (serverSocket == null || serverSocket!!.isClosed) {
-        //}
-        serverSocket = ServerSocket(0)
 
-        var port = if (serverSocket!!.localPort != -1) serverSocket!!.localPort else 1337
+        val serverSocket = ServerSocket(0)
+        val port = serverSocket.localPort
 
         var networkSpecifier = WifiAwareNetworkSpecifier.Builder(currentPubSession!!, peerHandle)
             .setPskPassphrase("somePassword")
@@ -150,33 +116,21 @@ class Publisher(
             .setNetworkSpecifier(networkSpecifier)
             .build()
 
-
         Log.d("NETWORKWIFI","PUBLISH: All necessary wifiaware network things created now awaiting callback on port $port and this is port from local ${serverSocket!!.localPort}")
         networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 currentNetwork = network
+
                 try {
-                    Log.d("NETWORKWIFI","PUBLISH: onAvailable")
-                    //serverSocket?.soTimeout = 3000
-                    serverSocket?.reuseAddress = false
-
-                    try {
-                        Log.d("NETWORKWIFI","PUBLISH: TESTAR ATT ACCA SOCKET")
-                        clientSocket = serverSocket?.accept()
-                    } catch (e: Exception) {
-                        Log.d("NETWORKWIFI","PUBLISH: DET GICK INTE ${e.message} stack: ${Log.getStackTraceString(e)}")
-                        serverSocket?.close()
-                        return
-                    }
-                    Log.d("NETWORKWIFI","PUBLISH: DET GICK BRA")
-                    handleClient(clientSocket,connectivityManager)
-
-                    /*val onLostMessage = "onLost".toByteArray(Charsets.UTF_8)
-                    Log.e("1Wifi", "PUBLISH: NOW SEND ONLOST MESSAGE TO SUBSCRIBER")
-                    currentPubSession?.sendMessage(peerHandle, 0, onLostMessage)*/
+                    Log.d("NETWORKWIFI","PUBLISH: TESTAR ATT ACCA SOCKET")
+                    clientSocket = serverSocket?.accept()
                 } catch (e: Exception) {
-                    Log.e("1Wifi", "PUBLISH: ERROR Exception while accepting client", e)
+                    Log.d("NETWORKWIFI","PUBLISH: DET GICK INTE ${e.message} stack: ${Log.getStackTraceString(e)}")
+                    serverSocket?.close()
+                    return
                 }
+                Log.d("NETWORKWIFI","PUBLISH: DET GICK BRA")
+                handleClient(clientSocket, connectivityManager)
             }
 
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
@@ -186,17 +140,10 @@ class Publisher(
 
             override fun onLost(network: Network) {
                 Log.d("1Wifi", "PUBLISH: Connection lost: $network")
-                currentPubSession?.close()
-                currentPubSession = null
-                currentNetwork = null
-                clientSocket!!.close()
-                closeServerSocket()
-                connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
+                connectivityManager.unregisterNetworkCallback(networkCallbackPub)
                 Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED RESETTING PUBLISHER")
-                publishUsingWifiAware()
             }
         }
-
         connectivityManager.requestNetwork(myNetworkRequest, networkCallbackPub);
     }
 
@@ -242,16 +189,7 @@ class Publisher(
         Log.d("1Wifi", "${client.getReadableOfSingleState(client.state)}" )
 
         utility.saveToFile(context,client.state)
-       // connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
-    }
-
-    fun closeServerSocket() {
-        try {
-            serverSocket?.close()
-            serverSocket = null
-        } catch (e: IOException) {
-            Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
-        }
+        connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }
 
     fun getCurrent(): DiscoverySession? {

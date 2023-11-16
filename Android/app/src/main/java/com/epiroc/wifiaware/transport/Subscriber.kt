@@ -8,10 +8,12 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.aware.*
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager.WakeLock
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
@@ -19,7 +21,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tag.Client
-import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.nio.ByteBuffer
@@ -48,7 +49,6 @@ class Subscriber(
     private lateinit var networkCallbackSub: ConnectivityManager.NetworkCallback
     private lateinit var  subNetwork : Network
     private lateinit var clientSocket: Socket
-
 
 
     fun subscribeToWifiAwareSessions() {
@@ -80,6 +80,7 @@ class Subscriber(
             ) {
                 Log.d("1Wifi", "SUBSCRIBE: Service discovered from peer: $peerHandle")
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
+
                 if (peerHandle != null)   {
                     Log.d("1Wifi", "SUBSCRIBE: We Connected to $peerHandle In the sub")
                     Log.d("1Wifi", "SUBSCRIBE: we are sending a message now")
@@ -98,22 +99,17 @@ class Subscriber(
             }
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                if(String(message) == "onLost"){
-                    Log.d("1Wifi","SUBSCRIBE: WE RECIVED A ONLOST MESSAGE")
-                    networkCallbackSub.onLost(subNetwork)
-                } else {
-                    Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
-                    //if(shouldConnectToDevice(String(message, Charsets.UTF_8),peerHandle)){
-                    utility.add(utility.createDeviceConnection(String(message, Charsets.UTF_8),System.currentTimeMillis()))
+                Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
+                if(shouldConnectToDevice(serviceUUID)) {
+                    utility.add(
+                        utility.createDeviceConnection(
+                            serviceUUID,
+                            System.currentTimeMillis()
+                        )
+                    )
                     CoroutineScope(Dispatchers.IO).launch {
                         createNetwork(peerHandle,wifiAwareSession,context)
                     }
-                   // }else{
-                       // Log.e("1Wifi", "SUBSCRIBE: Device has already been discovered "+String(message, Charsets.UTF_8))
-                        /*val onLostMessage = "onLost".toByteArray(Charsets.UTF_8)
-                        Log.e("1Wifi", "SUBSCRIBER: NOW SEND ONLOST MESSAGE TO PUBLISHER DUE TO CONNECTION! this is the clientsocket: ${clientSocket.isClosed}")
-                        currentSubSession?.sendMessage(peerHandle,0,onLostMessage)*/
-                   // }
                 }
             }
         }
@@ -132,7 +128,93 @@ class Subscriber(
         wifiAwareSession!!.subscribe(subscribeConfig, discoverySessionCallback, handler)
     }
 
-    fun shouldConnectToDevice(deviceIdentifier: String, peerHandle: PeerHandle): Boolean {
+    fun createNetwork(peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context) {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
+        val connectivityManager = ConnectivityManagerHelper.getManager(context)
+
+        Log.d("1Wifi", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
+        val networkSpecifier = currentSubSession?.let {
+            WifiAwareNetworkSpecifier.Builder(it, peerHandle)
+                .setPskPassphrase("somePassword")
+                .build()
+        }
+        val myNetworkRequest = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
+            .setNetworkSpecifier(networkSpecifier)
+            .build()
+        Log.d("NETWORKWIFI","SUBSCRIBER: All necessary wifiaware network things created now awaiting callback")
+
+        networkCallbackSub = object : ConnectivityManager.NetworkCallback() {
+            @RequiresApi(Build.VERSION_CODES.R)
+            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                Log.d("NETWORKWIFI","SUBSCRIBER: onCapabilitiesChanged")
+                Log.d("1Wifi", "SUBSCRIBE: Network capabilities changed for peer: $peerHandle")
+                val peerAwareInfo = networkCapabilities.transportInfo as WifiAwareNetworkInfo
+                val peerIpv6 = peerAwareInfo.peerIpv6Addr
+                val peerPort = peerAwareInfo.port
+
+                Log.d("1Wifi", "peerport is: $peerPort, aware info: $peerAwareInfo")
+
+                try {
+                    clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
+                    clientSocket.reuseAddress = true
+                    Log.d("1Wifi","SUBSCRIBER: TRYING TO CONNECT!!!!!!!!!!! to port $peerPort")
+                    clientSocket.connect(InetSocketAddress(peerIpv6, peerPort))
+                    Log.d("1Wifi","port for clientsocket: ${clientSocket.port}")
+                    handleDataExchange(peerHandle, clientSocket,connectivityManager)
+                    clientSocket.close()
+                } catch (e: Exception) {
+                    Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
+                    Log.e("1Wifi", "SUBSCRIBE: ERROR ${e.stackTrace}")
+                }
+            }
+
+            override fun onAvailable(network: Network) {
+                Log.d("1Wifi", "SUBSCRIBE: Network available for peer: $peerHandle")
+                subNetwork = network
+            }
+
+            override fun onLost(network: Network) {
+                currentSubSession?.close()
+                currentSubSession = null
+                connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
+                subscribeToWifiAwareSessions()
+                Log.d("1Wifi", "SUBSCRIBE: Network lost for peer: $peerHandle, subscriber restarted")
+            }
+        }
+        // Request the network and handle connection in the callback as shown above.
+        connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackSub)
+    }
+
+    private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket,connectivityManager : ConnectivityManager) {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire()
+        }
+        Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
+        client.insertSingleMockedReading("Client")
+        val state = client.state
+
+        socket.getOutputStream().use { outputStream ->
+            val size = state.size
+            outputStream.write(ByteBuffer.allocate(4).putInt(size).array())
+
+            // Now write the actual protobuf message bytes
+            try{
+                outputStream.write(state)
+                outputStream.flush()
+                socket.shutdownOutput()
+            }catch (e: Exception){
+                Log.e("1Wifi", "SUBSCRIBE: ERROR HERE!!!!!!!!!!!")
+            }
+            outputStream.close()
+            Log.d("DONEEE", "SUBSCRIBE: All information sent we are done")
+        }
+        networkCallbackSub.onLost(subNetwork)
+    }
+
+    fun shouldConnectToDevice(deviceIdentifier: String): Boolean {
         if (!wakeLock.isHeld) {
             wakeLock.acquire()
         }
@@ -156,128 +238,4 @@ class Subscriber(
             true
         }
     }
-
-    fun createNetwork(peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context) {
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire()
-        }
-        val connectivityManager = ConnectivityManagerHelper.getManager(context)
-
-        Log.d("1Wifi", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
-        val networkSpecifier = currentSubSession?.let {
-            WifiAwareNetworkSpecifier.Builder(it, peerHandle)
-                .setPskPassphrase("somePassword")
-                .build()
-        }
-        val myNetworkRequest = NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
-            .setNetworkSpecifier(networkSpecifier)
-            .build()
-        Log.d("NETWORKWIFI","SUBSCRIBER: All necessary wifiaware network things created now awaiting callback")
-        networkCallbackSub = object : ConnectivityManager.NetworkCallback() {
-            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-                Log.d("NETWORKWIFI","SUBSCRIBER: onCapabilitiesChanged")
-                Log.d("1Wifi", "SUBSCRIBE: Network capabilities changed for peer: $peerHandle")
-                val peerAwareInfo = networkCapabilities.transportInfo as WifiAwareNetworkInfo
-                val peerIpv6 = peerAwareInfo.peerIpv6Addr
-                val peerPort = peerAwareInfo.port
-
-                Log.d("1Wifi", "peerport is: $peerPort, aware info: $peerAwareInfo")
-
-                try {
-                    clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
-                    clientSocket.reuseAddress = true
-                    Log.d("1Wifi","SUBSCRIBER: TRYING TO CONNECT!!!!!!!!!!! to port $peerPort")
-                    clientSocket.connect(InetSocketAddress(peerIpv6, peerPort), 3000)
-                    Log.d("1Wifi","port for clientsocket: ${clientSocket.port}")
-                    handleDataExchange(peerHandle, clientSocket,connectivityManager)
-
-
-                } catch (e: Exception) {
-                    Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
-                    Log.e("1Wifi", "SUBSCRIBE: ERROR ${e.stackTrace}")
-                    //onLost(network)
-                }
-
-                //clientSocket?.close()
-            }
-
-            override fun onAvailable(network: Network) {
-                Log.d("NETWORKWIFI","SUBSCRIBER: onCapabilitiesChanged")
-                Log.d("1Wifi", "SUBSCRIBE: Network available for peer: $peerHandle")
-                subNetwork = network
-            }
-
-            override fun onLost(network: Network) {
-                Log.d("NETWORKWIFI","SUBSCRIBER: onLost")
-                Log.d("1Wifi", "SUBSCRIBE: Network lost for peer: $peerHandle")
-                Log.d("1Wifi", "SUBSCRIBE: SUBSCRIBE CONNECTION LOST")
-
-
-                currentSubSession?.close()
-                currentSubSession = null
-                closeClientSocket()
-
-                connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
-                Log.e("1Wifi", "SUBSCRIBE: EVERYTHING IN SUBSCRIBER CLOSED AND WE ARE NOW RESETTING THE SUBSCRIBER ")
-                subscribeToWifiAwareSessions()
-
-            }
-        }
-        // Request the network and handle connection in the callback as shown above.
-        connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackSub)
-    }
-
-    private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket,connectivityManager : ConnectivityManager) {
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire()
-        }
-        Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
-        client.insertSingleMockedReading("Client")
-        val state = client.state
-
-        socket.getOutputStream().use { outputStream ->
-
-            val size = state.size
-            outputStream.write(ByteBuffer.allocate(4).putInt(size).array())
-
-            // Now write the actual protobuf message bytes
-            try{
-                outputStream.write(state)
-                outputStream.flush()
-                socket.shutdownOutput()
-                //outputStream.close()
-            }catch (e: Exception){
-                Log.e("1Wifi", "SUBSCRIBE: ERROR HERE!!!!!!!!!!!")
-            }
-            outputStream.close()
-
-            Log.d("1Wifi", "SUBSCRIBE: All information sent we are done")
-
-        }
-
-        Log.d("DONEEE", "subscriberDone = true")
-        val onLostMessage = "onLost".toByteArray(Charsets.UTF_8)
-        Log.e("1Wifi", "SUBSCRIBER: NOW SEND ONLOST MESSAGE TO PUBLISHER")
-        currentSubSession?.sendMessage(peerHandle,0,onLostMessage)
-        networkCallbackSub.onLost(subNetwork)
-        //subscriberDone = true
-        //connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
-
-
-    }
-
-    fun closeClientSocket() {
-        try {
-            clientSocket?.close()
-        } catch (e: IOException) {
-            Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
-        }
-    }
-
-    fun getCurrent(): DiscoverySession? {
-        return currentSubSession
-    }
-
-
 }
