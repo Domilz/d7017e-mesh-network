@@ -10,7 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8b580310-508d-4972-9d18-e658d2fa7595" name="Changes" comment="Close #111">
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/epiroc/wifiaware/PublisherTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/epiroc/wifiaware/PublisherTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -130,7 +130,7 @@
       <recent name="com.epiroc.wifiaware.transport" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.PublisherTest">
+  <component name="RunManager" selected="Gradle.SubscriberTest">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App">
       <module name="Wifi-Aware-Transport.app.main" />
       <option name="DEPLOY" value="true" />
@@ -266,6 +266,52 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
+    <configuration name="SubscriberTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":app:testDebugUnitTest" />
+            <option value="--tests" />
+            <option value="&quot;com.epiroc.wifiaware.SubscriberTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="SubscriberTest.shouldConnectToDevice_Success" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":app:testDebugUnitTest" />
+            <option value="--tests" />
+            <option value="&quot;com.epiroc.wifiaware.SubscriberTest.shouldConnectToDevice_Success&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -294,6 +340,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.SubscriberTest" />
+        <item itemvalue="Gradle.SubscriberTest.shouldConnectToDevice_Success" />
         <item itemvalue="Gradle.PublisherTest" />
         <item itemvalue="Gradle.PublisherTest.testPublishUsingWifiAware_Success" />
         <item itemvalue="Gradle.PublisherTest.testPublishUsingWifiAware_NoPermission" />
@@ -488,11 +536,6 @@
           <line>103</line>
           <option name="timeStamp" value="462" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>70</line>
-          <option name="timeStamp" value="490" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
@@ -506,6 +549,8 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Wifi_Aware_Transport$PublisherTest_testPublishUsingWifiAware_Success.ic" NAME="PublisherTest.testPublishUsingWifiAware_Success Coverage Results" MODIFIED="1700045978814" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
-    <SUITE FILE_PATH="coverage/Wifi_Aware_Transport$PublisherTest.ic" NAME="PublisherTest Coverage Results" MODIFIED="1700048019314" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/Wifi_Aware_Transport$SubscriberTest.ic" NAME="SubscriberTest Coverage Results" MODIFIED="1700133302210" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/Wifi_Aware_Transport$PublisherTest.ic" NAME="PublisherTest Coverage Results" MODIFIED="1700049178863" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/Wifi_Aware_Transport$SubscriberTest_shouldConnectToDevice_Success.ic" NAME="SubscriberTest.shouldConnectToDevice_Success Coverage Results" MODIFIED="1700133179774" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>

@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import com.epiroc.wifiaware.transport.network.PublisherNetwork
 import com.epiroc.wifiaware.transport.network.SubscriberNetwork
+import com.epiroc.wifiaware.transport.utility.DeviceConnection
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
@@ -29,14 +30,15 @@ class Subscriber(
     nanSession: WifiAwareSession,
     network: SubscriberNetwork,
     srvcName: String,
-    uuid: String
+    uuid: String,
+    var subscribeConfig: SubscribeConfig? = null
 ) {
 
     private val serviceUUID = uuid
     private val serviceName = srvcName
     private val context = ctx
     private val network = network
-    private val utility: WifiAwareUtility = WifiAwareUtility
+    public val utility: WifiAwareUtility = WifiAwareUtility
 
     private var wifiAwareSession = nanSession
     private lateinit var currentSubSession: DiscoverySession
@@ -47,12 +49,7 @@ class Subscriber(
         val handler = Handler(Looper.getMainLooper()) // Use the main looper.
         Log.d("1Wifi","SUBSCRIBE: subscribeToWifiAwareSessions called")
 
-        if (wifiAwareSession == null) {
-            Log.d("1Wifi","SUBSCRIBE: Wifi Aware session is not available")
-            return
-        }
-
-        val subscribeConfig = SubscribeConfig.Builder()
+        val subscribeConfig = subscribeConfig ?: SubscribeConfig.Builder()
             .setServiceName(serviceName)
             .build()
 
