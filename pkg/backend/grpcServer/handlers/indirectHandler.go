@@ -61,7 +61,7 @@ func (indirectHanddler *IndirectHandler) FillOutAndSendForm(reading *pb.Reading)
 	newVendorProps := &structs.VendorProperties{}
 
 	newOperands := &structs.Operands{
-		Uuid:             "", //Change later.
+		Uuid:             reading.TagId, //Change later.
 		RpId:             reading.RpId,
 		Name:             "", //Change later.
 		Description:      "", //Change later.
