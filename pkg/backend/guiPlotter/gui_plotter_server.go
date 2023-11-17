@@ -19,7 +19,7 @@ var upgrader = websocket.Upgrader{
 type GUIPlotter struct {
 	clients     map[*WebSocketClient]bool
 	clientsLock sync.Mutex
-	initData    *[]Data
+	initData    Data
 	dataLock    sync.Mutex
 }
 type WebSocketClient struct {
@@ -55,8 +55,10 @@ var (
 	guiPlotter *GUIPlotter
 )
 
-func StartGUIPlotter(data Data) *GUIPlotter {
+func SetupGUIPlotter(data Data) *GUIPlotter {
 	guiP := &GUIPlotter{}
+	//data.Tags = getTagsForStartup()
+	guiP.initData = data
 	guiP.clients = make(map[*WebSocketClient]bool)
 	guiPlotter = guiP
 	fs := http.FileServer(http.Dir("pkg/backend/guiPlotter/static"))
@@ -112,8 +114,9 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Establishing connection")
 				// Handle the initial data request here
 				// data := Data{Beacons: getBeaconsForStartup(), Tags: getTagsForStartup()}
+				guiPlotter.dataLock.Lock()
 				data := guiPlotter.initData
-
+				guiPlotter.dataLock.Unlock()
 				// Marshal the initial data to JSON and send it to the client
 				jsonData, _ := json.Marshal(data)
 				if err := conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
@@ -136,6 +139,9 @@ func SendTagUpdate(tagId string, rpId string, accuracy int, date string, reading
 		Date:        date,
 		ReadingType: readingType,
 		Position:    pos}
+	guiPlotter.dataLock.Lock()
+	guiPlotter.initData.Tags = append(guiPlotter.initData.Tags, *tag)
+	guiPlotter.dataLock.Unlock()
 	tags := []Tag{*tag}
 	data := Data{Beacons: []Beacon{}, Tags: tags}
 	bytes, _ := json.Marshal(data)
@@ -144,7 +150,7 @@ func SendTagUpdate(tagId string, rpId string, accuracy int, date string, reading
 
 }
 func SendBeaconUpdate(rpId string, x int, y int, z int) {
-	//Not currently used, look over when updating beacon is requierd
+	//Not currently used, look over when updating beacon is requierd, follow the flow SendTagUpdate.
 	pos := Pos{x, y, z}
 	beacon := &Beacon{
 		MessageType: "beaconMessage",

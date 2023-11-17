@@ -16,6 +16,7 @@ import (
 
 var (
 	serverAddress = flag.String("serverAddress", "83.233.46.128:50051", "the address to the server for client connection")
+	//serverAddress = flag.String("serverAddress", "localhost:50051", "the address to the server for client connection")
 )
 
 func SendToBackend(state *pb.State) {

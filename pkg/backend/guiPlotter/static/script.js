@@ -483,6 +483,7 @@ function animate() {
 
 
 function setupWebSockets() {
+    //const socket = new WebSocket("ws://localhost:4242/websocket");
     const socket = new WebSocket("ws://83.233.46.128:4242/websocket");
     socket.onopen = (event) => {
         // WebSocket connection is open
