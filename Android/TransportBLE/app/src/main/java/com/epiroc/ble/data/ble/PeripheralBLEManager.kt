@@ -179,6 +179,7 @@ class PeripheralBLEManager @Inject constructor(
         bluetoothDevices = HashSet()
 
         advertiser.startAdvertising(advertiseSettings, advertiseData, advertiseCallback)
+        /*
         val cccd = BluetoothGattDescriptor(
             UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"),
             BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
@@ -190,7 +191,9 @@ class PeripheralBLEManager @Inject constructor(
 
         characteristic.setValue(counter.toString())
         service.addCharacteristic(characteristic)
+         */
         gattServer = bluetoothManager.openGattServer(context, gattServerCallback)
+
         gattServer?.addService(service)
 
         Log.d("PeripheralManagar", "Started advertising")
