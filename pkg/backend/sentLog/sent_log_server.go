@@ -17,6 +17,7 @@ type SentLogServer struct {
 	SentLogDatabaseHandler *SentLogDatabaseHandler
 	HTMLFormatPath         string
 	GuiPlotter             *guiPlotter.GUIPlotter
+	referencePointCache    *ReferencePointCache
 }
 
 type SentLogCollection struct {
@@ -28,9 +29,12 @@ type FormInterface interface {
 
 func StartSentLogServer(dbPath string, htmlFormatPath string) *SentLogServer {
 
+	guiPlotterData := sentLogServer.setupGuiPlotterData()
+
 	sLogServer := &SentLogServer{
 		SentLogDatabaseHandler: InitSentLogDatabase(dbPath),
 		HTMLFormatPath:         htmlFormatPath,
+		GuiPlotter:             guiPlotterData,
 	}
 
 	sentLogServer = sLogServer
@@ -84,17 +88,37 @@ func (sentLogServer *SentLogServer) SaveReferencePointForm(form structs.Referenc
 		}
 	}
 }
-func setupGuiPlotterData() *guiPlotter.GUIPlotter {
-	d := guiPlotter.Data{Beacons: *prepInitialBeaconDataForGuiPlotter(), Tags: *prepInitialTagDataForGuiPlotter()}
+func (sentLogServer *SentLogServer) setupGuiPlotterData() *guiPlotter.GUIPlotter {
+	d := guiPlotter.Data{Beacons: *sentLogServer.prepInitialBeaconDataForGuiPlotter(), Tags: *sentLogServer.prepInitialTagDataForGuiPlotter()}
 	gp := guiPlotter.StartGUIPlotter(d)
 	return gp
 
 }
 
-func prepInitialTagDataForGuiPlotter() *[]guiPlotter.Tag {
+func (sentLogServer *SentLogServer) prepInitialTagDataForGuiPlotter() *[]guiPlotter.Tag {
 	return nil
 }
 
-func prepInitialBeaconDataForGuiPlotter() *[]guiPlotter.Beacon {
-	return nil
+func (sentLogServer *SentLogServer) prepInitialBeaconDataForGuiPlotter() *[]guiPlotter.Beacon {
+	beaconData := []guiPlotter.Beacon{}
+
+	beaconID, positions := sentLogServer.referencePointCache.GetAllReferencePoints()
+
+	for i := 0; i < len(beaconID); i++ {
+		pos := guiPlotter.Pos{
+			X: int(positions[i].X),
+			Y: int(positions[i].Y),
+			Z: int(positions[i].Z),
+		}
+
+		beacon := guiPlotter.Beacon{
+			MessageType: "beaconMessage",
+			RpId:        beaconID[i],
+			Position:    pos,
+		}
+
+		beaconData = append(beaconData, beacon)
+	}
+
+	return &beaconData
 }

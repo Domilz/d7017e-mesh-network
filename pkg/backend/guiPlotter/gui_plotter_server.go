@@ -111,7 +111,8 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 			if request == "getInitialData" {
 				log.Printf("Establishing connection")
 				// Handle the initial data request here
-				data := Data{Beacons: getBeaconsForStartup(), Tags: getTagsForStartup()}
+				// data := Data{Beacons: getBeaconsForStartup(), Tags: getTagsForStartup()}
+				data := guiPlotter.initData
 
 				// Marshal the initial data to JSON and send it to the client
 				jsonData, _ := json.Marshal(data)
@@ -235,9 +236,4 @@ func getTagsForStartup() []Tag {
 	list = append(list, *tag3)
 
 	return list
-}
-
-func (guiPlotter *GUIPlotter) getTagDataFromSentLog() []Tag {
-	//guiPlotter.sentLog.G
-	return nil
 }
