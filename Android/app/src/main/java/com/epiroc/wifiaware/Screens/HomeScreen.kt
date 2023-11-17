@@ -59,15 +59,15 @@ fun ServiceAwareContent(service: WifiAwareService) {
                 val bleIntent = Intent(context, BLEService::class.java)
                 isServiceRunning = if (!isServiceRunning) {
                     // Start the service
-                    // startForegroundService(context, nanIntent)
-                    startForegroundService(context, bleIntent)
+                    startForegroundService(context, nanIntent)
+                    // startForegroundService(context, bleIntent)
 
                     //ContextCompat.startForegroundService(context, bleIntent)
                     true
                 } else {
                     // Stop the service
-                    // context.stopService(nanIntent)
-                    context.stopService(bleIntent)
+                    context.stopService(nanIntent)
+                    // context.stopService(bleIntent)
                     false
                 }
             },
