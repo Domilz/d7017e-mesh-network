@@ -22,7 +22,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -43,6 +45,10 @@ class BLEService : Service() {
     private var gatt: BluetoothGatt? = null
     private val context : Context = this
 
+    private val scanningInterval = 10000L // 10 seconds
+    private val idlePeriod = 5000L // 5 seconds
+    private val handler = Handler(Looper.getMainLooper())
+
     private val scanFilter = ScanFilter.Builder()
         .setServiceUuid(ParcelUuid(UUID.fromString(SERVICE_UUID)))
         .build()
@@ -58,16 +64,14 @@ class BLEService : Service() {
             if (device != null) {
 
                 Log.d("BLEService", "Device is: ${result.device} and rssi is ${result.rssi}")
-                result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
-
-                /*if (result.scanRecord?.serviceUuids?.any { it == ParcelUuid(UUID.fromString(SERVICE_UUID)) } == true) {
-                }
-
-                 */
-
-                // Find one and then stop for now? Should come up with an algorithm for how often to scan for same ble device.
-                bluetoothLeScanner?.stopScan(this)
+                // result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
             }
+        }
+
+        // Maybe use instead?
+        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
+            Log.d("BLEService","Batch result: ${results.toString()}")
+            // Handle the results here.
         }
 
         override fun onScanFailed(errorCode: Int) {
@@ -177,6 +181,23 @@ class BLEService : Service() {
         notificationManager.createNotificationChannel(channel)
     }
 
+    private fun startScanning() {
+        // Start scanning
+        bluetoothLeScanner?.startScan(listOf(scanFilter), scanSettings, scanCallback)
+
+        Log.d("BLEService", "BLE scanner has started.")
+
+        handler.postDelayed({ stopScanning() }, scanningInterval)
+    }
+
+    private fun stopScanning() {
+        bluetoothLeScanner?.stopScan(scanCallback)
+
+        Log.d("BLEService", "BLE scanner has stopped.")
+
+        handler.postDelayed({ startScanning() }, idlePeriod)
+    }
+
     override fun onStartCommand(intent: android.content.Intent?, flags: Int, startId: Int): Int {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
@@ -184,10 +205,7 @@ class BLEService : Service() {
             Log.e("BLEService", "Location permission not granted")
             stopSelf()
         } else {
-            // Start scanning
-            bluetoothLeScanner?.startScan(listOf(scanFilter), scanSettings, scanCallback)
-
-            Log.d("BLEService", "BLE scanner has started.")
+            startScanning()
         }
         return START_STICKY
     }
