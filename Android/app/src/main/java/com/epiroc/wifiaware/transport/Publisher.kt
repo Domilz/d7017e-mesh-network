@@ -77,22 +77,26 @@ class Publisher(
                         Log.d("1Wifi", "PUBLISH: Publish started")
                         currentPubSession = session
                     }
-                    override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                        Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
-                        CoroutineScope(Dispatchers.IO).launch {
-                            createNetwork(peerHandle, context)
-                        }
-                        Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
 
-                        Timer().schedule(object : TimerTask() {
-                            override fun run() {
-                                currentPubSession?.sendMessage(
-                                    peerHandle,
-                                    0, // Message type (0 for unsolicited)
-                                    serviceUUID.toByteArray(Charsets.UTF_8)
-                                )
+                    override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
+
+                        if (shouldConnectToDevice(String(message))) {
+                            Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
+                            CoroutineScope(Dispatchers.IO).launch {
+                                createNetwork(peerHandle, context)
                             }
-                        }, 2000) // Delay in milliseconds*/
+                            Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
+
+                            Timer().schedule(object : TimerTask() {
+                                override fun run() {
+                                    currentPubSession?.sendMessage(
+                                        peerHandle,
+                                        0, // Message type (0 for unsolicited),
+                                        "".toByteArray()
+                                    )
+                                }
+                            }, 0) // Delay in milliseconds*/
+                        }
                     }
                 }, handler)
             }
@@ -192,7 +196,26 @@ class Publisher(
         connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }
 
-    fun getCurrent(): DiscoverySession? {
-        return currentPubSession
+    fun shouldConnectToDevice(deviceIdentifier: String): Boolean {
+        val currentTime = System.currentTimeMillis()
+        val fiveMinutesInMillis: Long = 5 * 60 * 1000
+        val deviceConnection = utility.findDevice(deviceIdentifier)
+
+        return if (deviceConnection != null) {
+            val timeSinceLastConnection = currentTime - deviceConnection.timestamp
+            if (timeSinceLastConnection < fiveMinutesInMillis) {
+                Log.d("1Wifi", "Publisher: Device [$deviceIdentifier] was connected ${timeSinceLastConnection / 1000} seconds ago. Not connecting again.")
+                false
+            }; false
+        } else {
+            utility.add(
+                utility.createDeviceConnection(
+                    deviceIdentifier,
+                    System.currentTimeMillis()
+                )
+            )
+            Log.d("1Wifi", "SUBSCRIBE: Device [$deviceIdentifier] is not in the list. Adding it and allowing connection.")
+            true
+        }
     }
 }

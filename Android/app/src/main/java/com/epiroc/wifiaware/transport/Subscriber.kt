@@ -89,7 +89,7 @@ class Subscriber(
                             currentSubSession?.sendMessage(
                                 peerHandle,
                                 0, // Message type (0 for unsolicited)
-                                serviceUUID.toByteArray(Charsets.UTF_8)
+                                serviceUUID.toByteArray(Charsets.UTF_8),
                             )
                         }
                     }, 0) // Delay in milliseconds
@@ -100,16 +100,9 @@ class Subscriber(
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 Log.d("1Wifi", "SUBSCRIBE: Message received from peer: $peerHandle")
-                if(shouldConnectToDevice(serviceUUID)) {
-                    utility.add(
-                        utility.createDeviceConnection(
-                            serviceUUID,
-                            System.currentTimeMillis()
-                        )
-                    )
-                    CoroutineScope(Dispatchers.IO).launch {
-                        createNetwork(peerHandle,wifiAwareSession,context)
-                    }
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    createNetwork(peerHandle,wifiAwareSession,context)
                 }
             }
         }
