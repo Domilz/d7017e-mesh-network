@@ -2,6 +2,7 @@ package com.epiroc.wifiaware.transport.utility
 
 import android.content.Context
 import android.util.Log
+import com.epiroc.wifiaware.lib.Config
 import java.io.DataOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -46,7 +47,7 @@ object WifiAwareUtility {
     }
 
     fun sendPostRequest(data : ByteArray) {
-        val url = URL("http://83.233.46.128:4242/debuglog")
+        val url = URL(Config.getConfigData()?.getString("ip_backend"))
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
@@ -74,18 +75,20 @@ object WifiAwareUtility {
     fun getTryCount(): Int {
         return tryCount
     }
-    fun saveToFile(context: Context, information: ByteArray){
-        val file = File(context.filesDir, "MyState.txt")
-        writeByteArrayToFile(information,file.path,file)
 
+    fun setTryCount(count : Int) {
+        tryCount = count
     }
-    private fun writeByteArrayToFile(byteArray: ByteArray, filePath: String,file: File) {
+    fun saveToFile(context: Context, information: ByteArray){
+        val file = File(context.filesDir, Config.getConfigData()?.getString("local_storage_file_name"))
+        writeByteArrayToFile(information,file.path,file)
+    }
+    private fun writeByteArrayToFile(byteArray: ByteArray, filePath: String, file: File) {
         try {
             FileOutputStream(filePath).use { fileOutputStream ->
                 fileOutputStream.write(byteArray)
                 Log.d("1Wifi", byteArray.toString())
             }
-
             println("Successfully wrote byte array to file: $filePath")
         } catch (e: Exception) {
             e.printStackTrace()
@@ -94,8 +97,5 @@ object WifiAwareUtility {
     }
 
 }
-
-
-
 
 data class DeviceConnection(val deviceIdentifier: String, val timestamp: Long)

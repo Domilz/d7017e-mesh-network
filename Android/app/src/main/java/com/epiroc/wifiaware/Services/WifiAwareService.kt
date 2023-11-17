@@ -12,7 +12,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
-import android.net.Uri
 import android.net.wifi.aware.AttachCallback
 import android.net.wifi.aware.IdentityChangedListener
 import android.net.wifi.aware.WifiAwareManager
@@ -24,7 +23,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
-import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
@@ -38,16 +36,16 @@ import androidx.work.WorkManager
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.lib.Client
+import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.Publisher
 import com.epiroc.wifiaware.transport.Subscriber
-import com.epiroc.wifiaware.transport.network.PublisherNetwork
-import com.epiroc.wifiaware.transport.network.SubscriberNetwork
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import com.epiroc.wifiaware.workers.NetworkWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
@@ -107,7 +105,6 @@ class WifiAwareService : Service() {
         createNotification()
         startForeground(1, notification)
 
-        val context = this
         startNetworkWorker()
         wifiAwareState()
         acquireWifiAwareSession()
@@ -115,7 +112,7 @@ class WifiAwareService : Service() {
         val cleanUpHandler = Handler(Looper.getMainLooper())
         val cleanUpRunnable = object: Runnable {
             override fun run() {
-                checkBatteryOptimizations(context)
+
                 if (::subscriber.isInitialized) {
                     if(utility.isNotEmpty()) {
                         var didremove = utility.removeIf()
@@ -128,21 +125,24 @@ class WifiAwareService : Service() {
                                 "1Wifi",
                                 "It removed? : $didremove YES"
                             )
-                            //wifiAwareSession?.close()
                         }
                     } else {
+                        utility.incrementTryCount()
                         Log.e("1Wifi", "recentlyConnectedDevices: ${utility.count()}")
                     }
                 } else {
                     Log.e("1Wifi", "subscriber: not init")
                 }
-                utility.incrementTryCount()
-                if(utility.getTryCount() <= 10)
-                    cleanUpHandler.postDelayed(this, 1000)
-                else if (utility.getTryCount() >= 25)
-                    wifiAwareSession?.close()
-                else
-                    cleanUpHandler.postDelayed(this, 10000)
+                Log.d("1Wifi","tryCount: ${utility.getTryCount()}")
+                if (utility.getTryCount() == 10) {
+                   /* publisher.getCurrent()?.close()
+                    subscriber.getCurrent()?.close()
+                    publisher.publishUsingWifiAware()
+                    subscriber.subscribeToWifiAwareSessions()*/
+                    utility.setTryCount(0)
+                }
+                cleanUpHandler.postDelayed(this, 1000)
+
             }
         }
         cleanUpHandler.post(cleanUpRunnable)
@@ -152,10 +152,9 @@ class WifiAwareService : Service() {
     override fun onDestroy() {
         Log.d("1Wifi","Service destroyed")
         super.onDestroy()
-        if (wakeLock.isHeld) {
+        if (::wakeLock.isInitialized && wakeLock.isHeld) {
             wakeLock.release();
         }
-        publisher.closeServerSocket()
         serviceScope.cancel()
     }
 
@@ -228,22 +227,20 @@ class WifiAwareService : Service() {
                     var c = Client.setupClient(serviceUUID)!!
                     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                     override fun run() {
-                        val serviceName = "epiroc_mesh"
+                        val serviceName = Config.getConfigData()?.getString("service_name")
                         // Initialize the publisher and subscriber
                         publisher = Publisher(
-                            wakeLock = wakeLock,
                             ctx = applicationContext,
                             nanSession = wifiAwareSession!!,
-                            network = PublisherNetwork(c,wakeLock),
+                            client = c,
                             srvcName = serviceName,
                             uuid = serviceUUID
                         )
                         subscriber = Subscriber(
-                            wakeLock = wakeLock,
                             ctx = applicationContext,
                             nanSession = session,
-                            network = SubscriberNetwork(c,wakeLock),
-                            srvcName = serviceName,
+                            client = c,
+                            srvcName = serviceName!!,
                             uuid = serviceUUID
                         )
                         CoroutineScope(Dispatchers.IO).launch {
@@ -329,23 +326,5 @@ class WifiAwareService : Service() {
         // Enqueue the work
         WorkManager.getInstance(this).enqueue(networkWorkRequest)
     }
-    fun checkBatteryOptimizations(context: Context) {
-        val packageName = context.packageName
-        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
-        if (pm != null) {
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                Log.d("BatteryOptimization", "App is not on the whitelist. Asking user to disable battery optimization.")
-                // App is not on the whitelist, show dialog to ask user to disable battery optimization
-                val intent = Intent()
-                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                intent.data = Uri.parse("package:$packageName")
-                context.startActivity(intent)
-            } else {
-                Log.d("BatteryOptimization", "App is already on the whitelist.")
-            }
-        } else {
-            Log.e("BatteryOptimization", "PowerManager is null.")
-        }
-    }
 }

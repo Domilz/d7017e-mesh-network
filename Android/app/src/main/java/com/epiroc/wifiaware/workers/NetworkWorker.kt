@@ -3,6 +3,7 @@ package com.epiroc.wifiaware.workers
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import java.io.File
 
@@ -13,7 +14,7 @@ class NetworkWorker(appContext: Context, workerParams: WorkerParameters) :
     private val context = appContext
     override fun doWork(): Result {
         return try {
-            val file = File(context.filesDir, "MyState.txt")
+            val file = File(context.filesDir, Config.getConfigData()?.getString("local_storage_file_name"))
 
             if (file.exists() && file.length() > 0) { // Check if file is not empty
                 utility.sendPostRequest(file.readBytes())
@@ -28,7 +29,5 @@ class NetworkWorker(appContext: Context, workerParams: WorkerParameters) :
             Result.retry()
         }
     }
-
-
 }
 
