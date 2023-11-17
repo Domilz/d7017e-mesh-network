@@ -85,8 +85,16 @@ func (sentLogServer *SentLogServer) SaveReferencePointForm(form structs.Referenc
 	}
 }
 func setupGuiPlotterData() *guiPlotter.GUIPlotter {
-	d := guiPlotter.Data{}
+	d := guiPlotter.Data{Beacons: *prepInitialBeaconDataForGuiPlotter(), Tags: *prepInitialTagDataForGuiPlotter()}
 	gp := guiPlotter.StartGUIPlotter(d)
 	return gp
 
+}
+
+func prepInitialTagDataForGuiPlotter() *[]guiPlotter.Tag {
+	return nil
+}
+
+func prepInitialBeaconDataForGuiPlotter() *[]guiPlotter.Beacon {
+	return nil
 }
