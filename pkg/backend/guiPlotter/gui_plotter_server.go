@@ -19,6 +19,8 @@ var upgrader = websocket.Upgrader{
 type GUIPlotter struct {
 	clients     map[*WebSocketClient]bool
 	clientsLock sync.Mutex
+	initData    *[]Data
+	dataLock    sync.Mutex
 }
 type WebSocketClient struct {
 	conn *websocket.Conn
@@ -44,7 +46,7 @@ type Pos struct {
 	Z int `json:"z"`
 }
 
-type SetupData struct {
+type Data struct {
 	Beacons []Beacon `json:"beacons"`
 	Tags    []Tag    `json:"tags"`
 }
@@ -53,7 +55,7 @@ var (
 	guiPlotter *GUIPlotter
 )
 
-func StartGUIPlotter() *GUIPlotter {
+func StartGUIPlotter(data Data) *GUIPlotter {
 	guiP := &GUIPlotter{}
 	guiP.clients = make(map[*WebSocketClient]bool)
 	guiPlotter = guiP
@@ -109,7 +111,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 			if request == "getInitialData" {
 				log.Printf("Establishing connection")
 				// Handle the initial data request here
-				data := SetupData{Beacons: getBeaconsForStartup(), Tags: getTagsForStartup()}
+				data := Data{Beacons: getBeaconsForStartup(), Tags: getTagsForStartup()}
 
 				// Marshal the initial data to JSON and send it to the client
 				jsonData, _ := json.Marshal(data)
@@ -134,14 +136,14 @@ func SendTagUpdate(tagId string, rpId string, accuracy int, date string, reading
 		ReadingType: readingType,
 		Position:    pos}
 	tags := []Tag{*tag}
-	data := SetupData{Beacons: []Beacon{}, Tags: tags}
+	data := Data{Beacons: []Beacon{}, Tags: tags}
 	bytes, _ := json.Marshal(data)
 	fmt.Println("updating with tag")
 	sendToClients(bytes)
 
 }
 func SendBeaconUpdate(rpId string, x int, y int, z int) {
-
+	//Not currently used, look over when updating beacon is requierd
 	pos := Pos{x, y, z}
 	beacon := &Beacon{
 		MessageType: "beaconMessage",
@@ -233,4 +235,9 @@ func getTagsForStartup() []Tag {
 	list = append(list, *tag3)
 
 	return list
+}
+
+func (guiPlotter *GUIPlotter) getTagDataFromSentLog() []Tag {
+	//guiPlotter.sentLog.G
+	return nil
 }

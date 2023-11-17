@@ -28,7 +28,10 @@ type FormInterface interface {
 
 func StartSentLogServer(dbPath string, htmlFormatPath string) *SentLogServer {
 
-	sLogServer := &SentLogServer{InitSentLogDatabase(dbPath), htmlFormatPath, guiPlotter.StartGUIPlotter()}
+	sLogServer := &SentLogServer{
+		SentLogDatabaseHandler: InitSentLogDatabase(dbPath),
+		HTMLFormatPath:         htmlFormatPath,
+	}
 
 	sentLogServer = sLogServer
 	http.HandleFunc("/sentlog", SentLog)
@@ -58,7 +61,6 @@ func (sentLogServer *SentLogServer) SaveRssiForm(form structs.RssiForm) {
 
 	} else {
 
-		//SendTagUpdate(tagId string, rpId string, accuracy int, date string, readingType string, x int, y int, z int)
 		jsonString := string(jsonData)
 		fmt.Println("before send")
 		sentLogServer.SentLogDatabaseHandler.saveToDB("RssiForm", len(form.Readings), jsonString)
@@ -81,4 +83,10 @@ func (sentLogServer *SentLogServer) SaveReferencePointForm(form structs.Referenc
 			guiPlotter.SendTagUpdate(form.Operands[i].Uuid, form.Operands[i].RpId, 0, "someTime", "indirectReading", int(form.Operands[i].Location.X), int(form.Operands[i].Location.Y), int(form.Operands[i].Location.Z))
 		}
 	}
+}
+func setupGuiPlotterData() *guiPlotter.GUIPlotter {
+	d := guiPlotter.Data{}
+	gp := guiPlotter.StartGUIPlotter(d)
+	return gp
+
 }
