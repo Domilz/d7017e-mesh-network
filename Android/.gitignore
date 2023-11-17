@@ -13,5 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-
-
+Android/app/src/main/res/raw/config.json

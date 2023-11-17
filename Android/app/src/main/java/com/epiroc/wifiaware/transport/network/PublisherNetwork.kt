@@ -1,5 +1,6 @@
-package com.epiroc.wifiaware.transport.network
 
+package com.epiroc.wifiaware.transport.network
+/*
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -29,7 +30,7 @@ class PublisherNetwork(client : Client, wakelock : WakeLock) {
     private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
     private var clientSocket: Socket? = null
     private val messagesReceived: MutableList<String> = mutableListOf()
-    private val utility: WifiAwareUtility = WifiAwareUtility
+
     private lateinit var context : Context
     fun createNetwork(currentPubSession : DiscoverySession, peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context){
         if (!wakeLock.isHeld) {
@@ -97,7 +98,7 @@ class PublisherNetwork(client : Client, wakelock : WakeLock) {
 
                 closeServerSocket()
                 Log.e("1Wifi", "PUBLISH: EVERYTHING IN PUBLISH IS NOW CLOSED")
-                wifiAwareSession?.close()
+
 
             }
         }
@@ -157,4 +158,4 @@ class PublisherNetwork(client : Client, wakelock : WakeLock) {
             Log.e("1Wifi", "PUBLISH: Error closing the server socket", e)
         }
     }
-}
+}*/

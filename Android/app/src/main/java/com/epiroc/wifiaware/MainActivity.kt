@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat
 import com.epiroc.wifiaware.Screens.ServiceAwareContent
 import com.epiroc.wifiaware.Screens.permissionsToRequest
 import com.epiroc.wifiaware.Services.WifiAwareService
+import com.epiroc.wifiaware.lib.Config
 
 
 class MainActivity : ComponentActivity() {
@@ -41,6 +42,8 @@ class MainActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Config.loadConfig(this)
+
         window.navigationBarColor = Color.Black.toArgb()
         window.statusBarColor = Color.Black.toArgb()
 

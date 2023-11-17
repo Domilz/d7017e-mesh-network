@@ -8,23 +8,19 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.aware.*
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.os.PowerManager
-import android.os.PowerManager.WakeLock
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ComponentActivity
-import com.epiroc.wifiaware.Screens.permissionsToRequest
-import com.epiroc.wifiaware.transport.network.PublisherNetwork
+import com.epiroc.wifiaware.lib.Config
+import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import tag.Client
+import java.io.DataInputStream
+import java.io.EOFException
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
@@ -32,33 +28,30 @@ import java.util.Timer
 import java.util.TimerTask
 
 class Publisher(
-    wakeLock : WakeLock,
     ctx: Context,
     nanSession: WifiAwareSession,
-    network: PublisherNetwork,
-    srvcName: String,
+    client: Client,
+    srvcName: String?,
     uuid: String
 ) {
-    private var serviceUUID = uuid
-    private val wakeLock = wakeLock
     private var context = ctx
-    private var network = network
-    private lateinit var currentPubSession: DiscoverySession
-
+    private var currentPubSession: DiscoverySession? = null
+    private val utility: WifiAwareUtility = WifiAwareUtility
     private val serviceName = srvcName
     private val wifiAwareSession = nanSession
+    private var currentNetwork : Network? = null
 
-
+    private var client = client
+    private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
+    private var clientSocket: Socket? = null
+    private val messagesReceived: MutableList<String> = mutableListOf()
 
     fun publishUsingWifiAware() {
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire()
-        }
         Log.d("1Wifi", "PUBLISH: Attempting to start publishUsingWifiAware.")
         if (wifiAwareSession != null) {
             Log.d("1Wifi", "PUBLISH: ServiceName is set to $serviceName.")
             val config = PublishConfig.Builder()
-                .setServiceName(serviceName)
+                .setServiceName(serviceName!!)
                 .build()
             val handler = Handler(Looper.getMainLooper())
             if (ActivityCompat.checkSelfPermission(
@@ -70,35 +63,35 @@ class Publisher(
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 Log.d("1Wifi","PUBLISH: NO PREM FOR PUB")
-
             } else {
                 Log.d("1Wifi","PUBLISH: WE HAVE PREM TO PUBLISH")
                 // Permissions are granted, proceed with publishing.
                 wifiAwareSession!!.publish(config, object : DiscoverySessionCallback() {
+
                     override fun onPublishStarted(session: PublishDiscoverySession) {
                         Log.d("1Wifi", "PUBLISH: Publish started")
                         currentPubSession = session
                     }
-                    override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                        Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
-                        //connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                        CoroutineScope(Dispatchers.IO).launch {
-                            network.createNetwork(currentPubSession, peerHandle, wifiAwareSession, context)
-                        }
-                        //publishMessageLiveData.value = "PUBLISH: MessageReceived from $peerHandle message: ${message.decodeToString()}"
-                        // Respond to the sender (Device A) if needed.
-                        //val byteArrayToSend = "tag_id:\"PUBLISH\" readings:{tag_id:\"20\"  device_id:\"21\"  rssi:69  ts:{seconds:1696500095  nanos:85552100}}"
-                        Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
 
-                        Timer().schedule(object : TimerTask() {
-                            override fun run() {
-                                currentPubSession?.sendMessage(
-                                    peerHandle,
-                                    0, // Message type (0 for unsolicited)
-                                    serviceUUID.toByteArray(Charsets.UTF_8)
-                                )
+                    override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
+
+                        if (shouldConnectToDevice(String(message))) {
+                            Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
+                            CoroutineScope(Dispatchers.IO).launch {
+                                createNetwork(peerHandle, context)
                             }
-                        }, 2000) // Delay in milliseconds*/
+                            Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
+
+                            Timer().schedule(object : TimerTask() {
+                                override fun run() {
+                                    currentPubSession?.sendMessage(
+                                        peerHandle,
+                                        0, // Message type (0 for unsolicited),
+                                        "".toByteArray()
+                                    )
+                                }
+                            }, 0) // Delay in milliseconds*/
+                        }
                     }
                 }, handler)
             }
@@ -106,8 +99,102 @@ class Publisher(
             Log.d("1Wifi", "PUBLISH: Wifi Aware session is not available.")
         }
     }
+    fun createNetwork(peerHandle : PeerHandle, context : Context){
+        this.context = context
+        var connectivityManager = ConnectivityManagerHelper.getManager(context)
 
-    fun closeServerSocket() {
-       network.closeServerSocket()
+        val serverSocket = ServerSocket(0)
+        val port = serverSocket.localPort
+
+        var networkSpecifier = WifiAwareNetworkSpecifier.Builder(currentPubSession!!, peerHandle)
+            .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
+            .setPort(port)
+            .build()
+        var myNetworkRequest = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
+            .setNetworkSpecifier(networkSpecifier)
+            .build()
+
+        Log.d("NETWORKWIFI","PUBLISH: All necessary wifiaware network things created now awaiting callback on port $port and this is port from local ${serverSocket!!.localPort}")
+        networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                currentNetwork = network
+                try {
+                    Log.d("NETWORKWIFI","PUBLISH: Trying to accept socket connections")
+                    clientSocket = serverSocket?.accept()
+                } catch (e: Exception) {
+                    Log.d("NETWORKWIFI","PUBLISH: Connection failed to establish. ${e.message} stack: ${Log.getStackTraceString(e)}")
+                    serverSocket?.close()
+                    return
+                }
+                Log.d("NETWORKWIFI","PUBLISH: DET GICK BRA")
+                handleClient(clientSocket, connectivityManager)
+            }
+
+            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                Log.d("NETWORKWIFI","PUBLISH: onCapabilitiesChanged")
+            }
+
+            override fun onLost(network: Network) {
+                Log.d("1Wifi", "PUBLISH: Connection lost: $network")
+                connectivityManager.unregisterNetworkCallback(networkCallbackPub)
+            }
+        }
+        connectivityManager.requestNetwork(myNetworkRequest, networkCallbackPub);
+    }
+
+    private fun handleClient(clientSocket: Socket?,connectivityManager : ConnectivityManager ) {
+        Log.d("1Wifi", "PUBLISH: handleClient started.")
+        client.insertSingleMockedReading("publish")
+
+        clientSocket!!.getInputStream().use { inputStream ->
+            val dataInputStream = DataInputStream(inputStream)
+            try {
+                val size = dataInputStream.readInt()
+                if (size > 0) {
+                    val messageBytes = ByteArray(size)
+                    dataInputStream.readFully(messageBytes)
+                    try{
+                        client.insert(messageBytes)
+                    }catch (e: Exception){
+                        Log.d("1Wifi", "Error in inserting in handleClient" + e.message.toString())
+                    }
+                    Log.d("INFOFROMCLIENT", "Received protobuf message: ${client.getReadableOfSingleState(messageBytes)}")
+                } else {
+                    Log.d("INFOFROMCLIENT", "End of stream reached or the connection")
+                }
+            } catch (e: EOFException) {
+                Log.d("INFOFROMCLIENT", "End of stream reached or the connection was closed.")
+            } catch (e: IOException) {
+                Log.e("INFOFROMCLIENT", "I/O exception: ${e.message}")
+            }
+        }
+        Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.getReadableOfSingleState(client.state)}")
+
+        utility.saveToFile(context,client.state)
+        connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
+    }
+
+    fun shouldConnectToDevice(deviceIdentifier: String): Boolean {
+        val currentTime = System.currentTimeMillis()
+        val fiveMinutesInMillis: Long = 5 * 60 * 1000
+        val deviceConnection = utility.findDevice(deviceIdentifier)
+
+        return if (deviceConnection != null) {
+            val timeSinceLastConnection = currentTime - deviceConnection.timestamp
+            if (timeSinceLastConnection < fiveMinutesInMillis) {
+                Log.d("1Wifi", "Publisher: Device [$deviceIdentifier] was connected ${timeSinceLastConnection / 1000} seconds ago. Not connecting again.")
+                false
+            }; false
+        } else {
+            utility.add(
+                utility.createDeviceConnection(
+                    deviceIdentifier,
+                    System.currentTimeMillis()
+                )
+            )
+            Log.d("1Wifi", "SUBSCRIBE: Device [$deviceIdentifier] is not in the list. Adding it and allowing connection.")
+            true
+        }
     }
 }

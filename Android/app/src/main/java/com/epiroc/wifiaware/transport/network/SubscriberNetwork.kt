@@ -1,4 +1,5 @@
 package com.epiroc.wifiaware.transport.network
+/*
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -66,7 +67,7 @@ class SubscriberNetwork (client : Client, wakelock : WakeLock) {
                 } catch (e: Exception) {
                     Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
                     clientSocket.close()
-                    wifiAwareSession!!.close()
+                    //wifiAwareSession!!.close()
                 }
 
                 clientSocket?.close()
@@ -86,9 +87,9 @@ class SubscriberNetwork (client : Client, wakelock : WakeLock) {
 
                 // Close the SubscribeDiscoverySession
                 currentSubSession?.close()
+                currentSubSession = null
                 closeClientSocket()
-                //currentSubSession = null
-                wifiAwareSession?.close()
+
             }
         }
         // Request the network and handle connection in the callback as shown above.
@@ -135,4 +136,4 @@ class SubscriberNetwork (client : Client, wakelock : WakeLock) {
         }
     }
 
-}
+}*/

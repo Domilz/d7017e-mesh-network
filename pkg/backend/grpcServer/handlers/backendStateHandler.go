@@ -11,19 +11,21 @@ import (
 )
 
 type BackendStateHandler struct {
-	TagId           string
-	readingsMap     map[string]*pb.Reading
-	mutex           sync.RWMutex
-	directHandler   *DirectHandler
-	indirectHandler *IndirectHandler
+	TagId                string
+	readingsMap          map[string]*pb.Reading
+	mutex                sync.RWMutex
+	directHandler        *DirectHandler
+	indirectHandler      *IndirectHandler
+	stateDatabaseHandler *StateDatabaseHandler
 }
 
-func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer) {
+func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer, sDatabaseHandler *StateDatabaseHandler) {
 	stateHandler.lock()
 	stateHandler.directHandler = InitDirectHandler(sLogServer)
 	stateHandler.indirectHandler = InitIndirectHandler(sLogServer) //When implemented
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
+	stateHandler.stateDatabaseHandler = sDatabaseHandler
 	stateHandler.unLock()
 }
 
@@ -42,7 +44,7 @@ func (stateHandler *BackendStateHandler) GetReading(id string) *pb.Reading {
 	return r
 }
 
-func (stateHandler *BackendStateHandler) GetState() ([]byte, error) {
+func (stateHandler *BackendStateHandler) GetState() *pb.State {
 
 	stateHandler.lock()
 	s := pb.State{TagId: stateHandler.TagId}
@@ -50,13 +52,8 @@ func (stateHandler *BackendStateHandler) GetState() ([]byte, error) {
 		s.Readings = append(s.Readings, reading)
 	}
 
-	serializedState, err := SerializeState(&s)
-	if err != nil {
-		return nil, err
-	}
-
 	stateHandler.unLock()
-	return serializedState, nil
+	return &s
 }
 
 func SerializeState(state *pb.State) ([]byte, error) {
@@ -92,7 +89,7 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 	value, keyExist := stateHandler.readingsMap[reading.TagId]
 
 	if !keyExist || findLatestTimestamp(value, reading) {
-
+		stateHandler.stateDatabaseHandler.Save(reading)
 		stateHandler.readingsMap[reading.TagId] = reading
 		if reading.IsDirect == 0 {
 			println("Recieved indirect reading for tag: ", reading.TagId)
@@ -112,4 +109,17 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 
 func findLatestTimestamp(reading *pb.Reading, otherReading *pb.Reading) bool {
 	return reading.Ts.Seconds <= otherReading.Ts.Seconds
+}
+func (stateHandler *BackendStateHandler) insertOne(reading *pb.Reading) {
+	stateHandler.lock()
+	stateHandler.readingsMap[reading.TagId] = reading
+	stateHandler.unLock()
+
+}
+func (stateHandler *BackendStateHandler) InsertDataFromDB(readings []pb.Reading) {
+
+	for i := 0; i < len(readings); i++ {
+		stateHandler.insertOne(&readings[i])
+	}
+
 }
