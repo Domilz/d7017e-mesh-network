@@ -11,10 +11,10 @@ import android.net.wifi.aware.*
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.os.PowerManager.WakeLock
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import kotlinx.coroutines.CoroutineScope
@@ -28,33 +28,24 @@ import java.util.Timer
 import java.util.TimerTask
 
 class Subscriber(
-    wakeLock : WakeLock,
     ctx: Context,
     nanSession: WifiAwareSession,
     client: Client,
     srvcName: String,
     uuid: String
 ) {
-
     private val serviceUUID = uuid
-    private val wakeLock = wakeLock
     private val serviceName = srvcName
     private val context = ctx
     private val client = client
-    private val utility: WifiAwareUtility = WifiAwareUtility
 
     private var wifiAwareSession = nanSession
     private var currentSubSession: DiscoverySession? = null
 
     private lateinit var networkCallbackSub: ConnectivityManager.NetworkCallback
-    private lateinit var  subNetwork : Network
-    private lateinit var clientSocket: Socket
-
+    private lateinit var  currentNetwork : Network
 
     fun subscribeToWifiAwareSessions() {
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire()
-        }
         val handler = Handler(Looper.getMainLooper()) // Use the main looper.
         Log.d("1Wifi","SUBSCRIBE: subscribeToWifiAwareSessions called")
 
@@ -69,7 +60,7 @@ class Subscriber(
 
         var discoverySessionCallback = object : DiscoverySessionCallback() {
             override fun onSubscribeStarted(session: SubscribeDiscoverySession) {
-                Log.d("1Wifi", "SUBSCRIBE: Subscription started.")
+                Log.d("1Wifi", "SUBSCRIBE: Subscribe started.")
                 currentSubSession = session
             }
 
@@ -82,8 +73,7 @@ class Subscriber(
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
 
                 if (peerHandle != null)   {
-                    Log.d("1Wifi", "SUBSCRIBE: We Connected to $peerHandle In the sub")
-                    Log.d("1Wifi", "SUBSCRIBE: we are sending a message now")
+                    Log.d("1Wifi", "SUBSCRIBE: We Connected to $peerHandle In the sub, sending message...")
                     Timer().schedule(object : TimerTask() {
                         override fun run() {
                             currentSubSession?.sendMessage(
@@ -107,7 +97,6 @@ class Subscriber(
             }
         }
 
-        // Subscribe to WiFi Aware sessions.
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -122,15 +111,12 @@ class Subscriber(
     }
 
     fun createNetwork(peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context) {
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire()
-        }
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
 
         Log.d("1Wifi", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
         val networkSpecifier = currentSubSession?.let {
             WifiAwareNetworkSpecifier.Builder(it, peerHandle)
-                .setPskPassphrase("somePassword")
+                .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
                 .build()
         }
         val myNetworkRequest = NetworkRequest.Builder()
@@ -151,22 +137,20 @@ class Subscriber(
                 Log.d("1Wifi", "peerport is: $peerPort, aware info: $peerAwareInfo")
 
                 try {
-                    clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
+                    var clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
                     clientSocket.reuseAddress = true
-                    Log.d("1Wifi","SUBSCRIBER: TRYING TO CONNECT!!!!!!!!!!! to port $peerPort")
+                    Log.d("1Wifi","SUBSCRIBER: TRYING TO CONNECT! to port $peerPort")
                     clientSocket.connect(InetSocketAddress(peerIpv6, peerPort))
-                    Log.d("1Wifi","port for clientsocket: ${clientSocket.port}")
                     handleDataExchange(peerHandle, clientSocket,connectivityManager)
                     clientSocket.close()
                 } catch (e: Exception) {
                     Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
-                    Log.e("1Wifi", "SUBSCRIBE: ERROR ${e.stackTrace}")
                 }
             }
 
             override fun onAvailable(network: Network) {
                 Log.d("1Wifi", "SUBSCRIBE: Network available for peer: $peerHandle")
-                subNetwork = network
+                currentNetwork = network
             }
 
             override fun onLost(network: Network) {
@@ -177,14 +161,10 @@ class Subscriber(
                 Log.d("1Wifi", "SUBSCRIBE: Network lost for peer: $peerHandle, subscriber restarted")
             }
         }
-        // Request the network and handle connection in the callback as shown above.
         connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackSub)
     }
 
     private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket,connectivityManager : ConnectivityManager) {
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire()
-        }
         Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
         client.insertSingleMockedReading("Client")
         val state = client.state
@@ -192,43 +172,16 @@ class Subscriber(
         socket.getOutputStream().use { outputStream ->
             val size = state.size
             outputStream.write(ByteBuffer.allocate(4).putInt(size).array())
-
-            // Now write the actual protobuf message bytes
-            try{
+            try{    // Write the protobuf message bytes
                 outputStream.write(state)
                 outputStream.flush()
                 socket.shutdownOutput()
             }catch (e: Exception){
-                Log.e("1Wifi", "SUBSCRIBE: ERROR HERE!!!!!!!!!!!")
+                Log.e("1Wifi", "SUBSCRIBE: Error in handleDataExchange")
             }
             outputStream.close()
             Log.d("DONEEE", "SUBSCRIBE: All information sent we are done")
         }
-        networkCallbackSub.onLost(subNetwork)
-    }
-
-    fun shouldConnectToDevice(deviceIdentifier: String): Boolean {
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire()
-        }
-        val currentTime = System.currentTimeMillis()
-        val fiveMinutesInMillis: Long = 5 * 60 * 1000
-        val deviceConnection = utility.findDevice(deviceIdentifier)
-
-        return if (deviceConnection != null) {
-            val timeSinceLastConnection = currentTime - deviceConnection.timestamp
-            if (timeSinceLastConnection < fiveMinutesInMillis) {
-                Log.d("1Wifi", "SUBSCRIBE: Device [$deviceIdentifier] was connected ${timeSinceLastConnection / 1000} seconds ago. Not connecting again.")
-
-                false
-            } else {
-                Log.d("1Wifi", "SUBSCRIBE: Device [$deviceIdentifier] was connected more than 5 minutes ago. Updating timestamp and reconnecting.")
-                utility.remove(deviceConnection)
-                true
-            }
-        } else {
-            Log.d("1Wifi", "SUBSCRIBE: Device [$deviceIdentifier] is not in the list. Adding it and allowing connection.")
-            true
-        }
+        networkCallbackSub.onLost(currentNetwork)
     }
 }

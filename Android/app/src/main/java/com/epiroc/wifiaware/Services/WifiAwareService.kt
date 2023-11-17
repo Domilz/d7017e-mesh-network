@@ -230,7 +230,6 @@ class WifiAwareService : Service() {
                         val serviceName = Config.getConfigData()?.getString("service_name")
                         // Initialize the publisher and subscriber
                         publisher = Publisher(
-                            wakeLock = wakeLock,
                             ctx = applicationContext,
                             nanSession = wifiAwareSession!!,
                             client = c,
@@ -238,7 +237,6 @@ class WifiAwareService : Service() {
                             uuid = serviceUUID
                         )
                         subscriber = Subscriber(
-                            wakeLock = wakeLock,
                             ctx = applicationContext,
                             nanSession = session,
                             client = c,
