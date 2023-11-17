@@ -9,13 +9,13 @@ import (
 
 type IndirectHandler struct {
 	sentLog *sentLog.SentLogServer
-	rpCache *ReferencePointCache
+	rpCache *sentLog.ReferencePointCache
 }
 
 func InitIndirectHandler(sLog *sentLog.SentLogServer) *IndirectHandler {
 	indirectHandler := &IndirectHandler{}
 	indirectHandler.sentLog = sLog
-	rpCache := InitReferencePointCache()
+	rpCache := sentLog.InitReferencePointCache()
 	rpCache.PopulateWithMockedData()
 	indirectHandler.rpCache = rpCache
 
@@ -61,7 +61,7 @@ func (indirectHanddler *IndirectHandler) FillOutAndSendForm(reading *pb.Reading)
 	newVendorProps := &structs.VendorProperties{}
 
 	newOperands := &structs.Operands{
-		Uuid:             "", //Change later.
+		Uuid:             reading.TagId, //Change later.
 		RpId:             reading.RpId,
 		Name:             "", //Change later.
 		Description:      "", //Change later.

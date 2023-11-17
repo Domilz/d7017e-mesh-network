@@ -1,4 +1,4 @@
-package handlers
+package sentLog
 
 import (
 	"errors"
@@ -36,6 +36,18 @@ func (rpCache *ReferencePointCache) GetXYZ(rp_id string) (*structs.XYZ, error) {
 	}
 
 	return nil, errors.New("No such reference point id.")
+}
+func (rpCache *ReferencePointCache) getAllReferencePoints() ([]string, []structs.XYZ) {
+	rpCache.mutex.Lock()
+	sArr := []string{}
+	positions := []structs.XYZ{}
+	for rpId, pos := range rpCache.cache {
+		sArr = append(sArr, rpId)
+		positions = append(positions, *pos)
+
+	}
+	rpCache.mutex.Unlock()
+	return sArr, positions
 }
 
 func (rpCache *ReferencePointCache) PopulateWithMockedData() {

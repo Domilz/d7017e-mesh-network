@@ -17,6 +17,7 @@ func Main() {
 	client := GetClient()
 	client.SetupClient("MainClient")
 	client.InsertSingleMockedReading("MainTest")
+	client.SendStateToServer()
 	// Test whatever here
 }
 
@@ -50,13 +51,13 @@ func (client *Client) Insert(serialized []byte) error {
 func (client *Client) InsertSingleMockedReading(tagId string) {
 	reading := &pb.Reading{
 		TagId: tagId,
-		RpId:  "TestRpId",
+		RpId:  "aa:aa:aa:aa:aa:aa",
 		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 			Nanos:   timestamppb.Now().Nanos,
 		},
-		IsDirect: 1,
+		IsDirect: 0,
 	}
 	client.stateHandler.InsertSingleReading(reading)
 }
