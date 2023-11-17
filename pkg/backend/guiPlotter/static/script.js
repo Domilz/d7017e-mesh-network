@@ -493,6 +493,9 @@ function setupWebSockets() {
 
 
         socket.onmessage = (ev) => {
+
+            const data = JSON.parse(ev.data);
+            // Process the initial data here
             var beacons = data.beacons;
             if (beacons != undefined) {
                 for (var i = 0; i < beacons.length; i++) {
