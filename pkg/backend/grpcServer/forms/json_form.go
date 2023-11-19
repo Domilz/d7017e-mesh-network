@@ -20,6 +20,7 @@ type XYZForm struct {
 	Tag_id      string        `json:"tag_id"`
 	Chain_delay []Chain_delay `json:"chain_delay"`
 }
+
 type Time struct {
 	Seconds int `json:"seconds"`
 	Nanos   int `json:"nanos"`

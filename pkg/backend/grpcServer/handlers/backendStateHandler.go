@@ -22,7 +22,9 @@ type BackendStateHandler struct {
 func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer, sDatabaseHandler *StateDatabaseHandler) {
 	stateHandler.lock()
 	stateHandler.directHandler = InitDirectHandler(sLogServer)
-	stateHandler.indirectHandler = InitIndirectHandler(sLogServer) //When implemented
+	stateHandler.indirectHandler = InitIndirectHandler(sLogServer)
+	sLogServer.SetReferencePointChache(stateHandler.indirectHandler.rpCache)
+	sLogServer.StartGUIPlotter()
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
 	stateHandler.stateDatabaseHandler = sDatabaseHandler

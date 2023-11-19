@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 
 	structs "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/forms"
 	guiPlotter "github.com/Domilz/d7017e-mesh-network/pkg/backend/guiPlotter"
@@ -29,12 +30,9 @@ type FormInterface interface {
 
 func StartSentLogServer(dbPath string, htmlFormatPath string) *SentLogServer {
 
-	guiPlotterData := sentLogServer.setupGuiPlotterData()
-
 	sLogServer := &SentLogServer{
 		SentLogDatabaseHandler: InitSentLogDatabase(dbPath),
 		HTMLFormatPath:         htmlFormatPath,
-		GuiPlotter:             guiPlotterData,
 	}
 
 	sentLogServer = sLogServer
@@ -88,15 +86,72 @@ func (sentLogServer *SentLogServer) SaveReferencePointForm(form structs.Referenc
 		}
 	}
 }
-func (sentLogServer *SentLogServer) setupGuiPlotterData() *guiPlotter.GUIPlotter {
-	d := guiPlotter.Data{Beacons: *sentLogServer.prepInitialBeaconDataForGuiPlotter(), Tags: *sentLogServer.prepInitialTagDataForGuiPlotter()}
-	gp := guiPlotter.StartGUIPlotter(d)
-	return gp
 
+func (sentLogServer *SentLogServer) SetReferencePointChache(rpChache *ReferencePointCache) {
+	sentLogServer.referencePointCache = rpChache
+}
+
+// SetReferencePointChache needs be be called before StartGUIPlotter
+func (sentLogServer *SentLogServer) StartGUIPlotter() {
+	d := guiPlotter.Data{
+		Beacons: *sentLogServer.prepInitialBeaconDataForGuiPlotter(),
+		Tags:    *sentLogServer.prepInitialTagDataForGuiPlotter()}
+
+	gp := guiPlotter.SetupGUIPlotter(d)
+	sentLogServer.GuiPlotter = gp
 }
 
 func (sentLogServer *SentLogServer) prepInitialTagDataForGuiPlotter() *[]guiPlotter.Tag {
-	return nil
+	tagData := []guiPlotter.Tag{}
+	sentLogData := sentLogServer.SentLogDatabaseHandler.GetSentLog()
+	for _, data := range sentLogData {
+
+		if data.FormType == "RssiForm" {
+			formStruct := &structs.RssiForm{}
+			err := json.Unmarshal([]byte(data.JsonString), &formStruct)
+			if err != nil {
+				log.Println("Error at prepInitialTagDataForGuiPlotter, error: ", err)
+			}
+
+			for _, reading := range formStruct.Readings {
+				pos := guiPlotter.Pos{X: 0, Y: 0, Z: 0}
+
+				time := strconv.Itoa(reading.Chain_delay[0].Received.Seconds)
+
+				tag := guiPlotter.Tag{
+					MessageType: "tagMessage",
+					TagId:       reading.Tag_id,
+					RpId:        reading.Rp_id,
+					Accuracy:    reading.Rssi,
+					Date:        time,
+					ReadingType: "directReading",
+					Position:    pos}
+				tagData = append(tagData, tag)
+
+			}
+		}
+		if data.FormType == "XYZForm" {
+			formStruct := structs.XYZForm{}
+			err := json.Unmarshal([]byte(data.JsonString), &formStruct)
+			if err != nil {
+				log.Println("Error at prepInitialTagDataForGuiPlotter, error: ", err)
+			}
+			time := strconv.Itoa(formStruct.Chain_delay[0].Received.Seconds)
+			pos := guiPlotter.Pos{X: int(formStruct.X), Y: int(formStruct.Y), Z: int(formStruct.Z)}
+			tag := guiPlotter.Tag{
+				MessageType: "tagMessage",
+				TagId:       formStruct.Tag_id,
+				RpId:        "",
+				Accuracy:    formStruct.Accuracy,
+				Date:        time,
+				ReadingType: "indirectReading",
+				Position:    pos}
+			tagData = append(tagData, tag)
+
+		}
+	}
+
+	return &tagData
 }
 
 func (sentLogServer *SentLogServer) prepInitialBeaconDataForGuiPlotter() *[]guiPlotter.Beacon {

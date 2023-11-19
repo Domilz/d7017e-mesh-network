@@ -51,13 +51,13 @@ func (client *Client) Insert(serialized []byte) error {
 func (client *Client) InsertSingleMockedReading(tagId string) {
 	reading := &pb.Reading{
 		TagId: tagId,
-		RpId:  "aa:aa:aa:aa:aa:aa",
+		RpId:  "yy:yy:yy:yy:yy:yy",
 		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 			Nanos:   timestamppb.Now().Nanos,
 		},
-		IsDirect: 0,
+		IsDirect: 1,
 	}
 	client.stateHandler.InsertSingleReading(reading)
 }
