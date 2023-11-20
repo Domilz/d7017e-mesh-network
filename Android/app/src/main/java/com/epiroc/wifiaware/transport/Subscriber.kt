@@ -34,6 +34,7 @@ class Subscriber(
     srvcName: String,
     uuid: ByteArray
 ) {
+    private lateinit var clientSocket: Socket
     private val serviceUUID = uuid
     private val serviceName = srvcName
     private val context = ctx
@@ -69,6 +70,7 @@ class Subscriber(
                 serviceSpecificInfo: ByteArray?,
                 matchFilter: MutableList<ByteArray>?
             ) {
+
                 Log.d("1Wifi", "SUBSCRIBE: Service discovered from peer: $peerHandle")
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
 
@@ -83,6 +85,7 @@ class Subscriber(
                             )
                         }
                     }, 0) // Delay in milliseconds
+
                 }else{
                     Log.e("1Wifi", "SUBSCRIBE: Peerhandle is null")
                 }
@@ -137,12 +140,17 @@ class Subscriber(
                 Log.d("1Wifi", "peerport is: $peerPort, aware info: $peerAwareInfo")
 
                 try {
-                    var clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
-                    clientSocket.reuseAddress = true
+                    clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
+                    //clientSocket.reuseAddress = true
                     Log.d("1Wifi","SUBSCRIBER: TRYING TO CONNECT! to port $peerPort")
                     clientSocket.connect(InetSocketAddress(peerIpv6, peerPort))
+
+
                     handleDataExchange(peerHandle, clientSocket,connectivityManager)
-                    clientSocket.close()
+                        //clientSocket.close()
+
+                    //clientSocket.close()
+
                 } catch (e: Exception) {
                     Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
                 }
@@ -154,10 +162,11 @@ class Subscriber(
             }
 
             override fun onLost(network: Network) {
-                currentSubSession?.close()
-                currentSubSession = null
+               // currentSubSession?.close()
+                //currentSubSession = null
+               // clientSocket?.close()
                 connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
-                subscribeToWifiAwareSessions()
+               // subscribeToWifiAwareSessions()
                 Log.d("1Wifi", "SUBSCRIBE: Network lost for peer: $peerHandle, subscriber restarted")
             }
         }
@@ -182,6 +191,7 @@ class Subscriber(
             outputStream.close()
             Log.d("DONEEE", "SUBSCRIBE: All information sent we are done")
         }
+        clientSocket?.close()
         networkCallbackSub.onLost(currentNetwork)
     }
 }

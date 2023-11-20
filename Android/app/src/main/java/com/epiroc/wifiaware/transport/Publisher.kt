@@ -79,7 +79,6 @@ class Publisher(
                             CoroutineScope(Dispatchers.IO).launch {
                                 createNetwork(peerHandle, context)
                             }
-                            Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
 
                             Timer().schedule(object : TimerTask() {
                                 override fun run() {
@@ -88,8 +87,9 @@ class Publisher(
                                         0, // Message type (0 for unsolicited),
                                         "".toByteArray()
                                     )
+                                    Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
                                 }
-                            }, 0) // Delay in milliseconds*/
+                            }, 10) // Delay in milliseconds*/
                         }
                     }
                 }, handler)
@@ -103,7 +103,10 @@ class Publisher(
         var connectivityManager = ConnectivityManagerHelper.getManager(context)
 
         val serverSocket = ServerSocket(0)
+        serverSocket.soTimeout = 5000
         val port = serverSocket.localPort
+
+        Log.d("1Wifi", "PUBLISHER: We have set new socket ports etc $port")
 
         var networkSpecifier = WifiAwareNetworkSpecifier.Builder(currentPubSession!!, peerHandle)
             .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
@@ -124,10 +127,13 @@ class Publisher(
                 } catch (e: Exception) {
                     Log.d("NETWORKWIFI","PUBLISH: Connection failed to establish. ${e.message} stack: ${Log.getStackTraceString(e)}")
                     serverSocket?.close()
+                    connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
                     return
                 }
                 Log.d("NETWORKWIFI","PUBLISH: DET GICK BRA")
-                handleClient(clientSocket, connectivityManager)
+                CoroutineScope(Dispatchers.IO).launch {
+                    handleClient(clientSocket, connectivityManager)
+                }
             }
 
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
@@ -136,7 +142,7 @@ class Publisher(
 
             override fun onLost(network: Network) {
                 Log.d("1Wifi", "PUBLISH: Connection lost: $network")
-                connectivityManager.unregisterNetworkCallback(networkCallbackPub)
+                //connectivityManager.unregisterNetworkCallback(networkCallbackPub)
             }
         }
         connectivityManager.requestNetwork(myNetworkRequest, networkCallbackPub);
@@ -171,6 +177,7 @@ class Publisher(
         Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.getReadableOfSingleState(client.state)}")
 
         utility.saveToFile(context,client.state)
+        Log.d("1Wifi", "PUBLISH: UnregisterNetworkCallback")
         connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }
 
