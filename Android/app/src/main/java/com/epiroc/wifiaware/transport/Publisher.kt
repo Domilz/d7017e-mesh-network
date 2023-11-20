@@ -32,7 +32,6 @@ class Publisher(
     nanSession: WifiAwareSession,
     client: Client,
     srvcName: String?,
-    uuid: String
 ) {
     private var context = ctx
     private var currentPubSession: DiscoverySession? = null

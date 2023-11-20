@@ -54,6 +54,7 @@ fun ServiceAwareContent(service: WifiAwareService) {
                     true
                 } else {
                     // Stop the service
+                    service.onDestroy()
                     context.stopService(nanIntent)
                     //context.stopService(bleIntent)
                     false
