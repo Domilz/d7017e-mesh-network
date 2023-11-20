@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -72,9 +73,9 @@ func SetupGUIPlotter(data Data) *GUIPlotter {
 	http.HandleFunc("/websocket", WebSocketHandler)
 
 	// Start the web server
-	port := ":4242"
-	println("Server is running on port", port)
-	go http.ListenAndServe(port, nil)
+	SERVER_PORT := os.Getenv("SERVER_PORT")
+	println("Server is running on port: ", SERVER_PORT)
+	go http.ListenAndServe(SERVER_PORT, nil)
 	return guiP
 
 }

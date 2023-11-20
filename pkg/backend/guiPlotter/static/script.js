@@ -1,6 +1,9 @@
 // Import the Three.js library (make sure you have it in your project folder)
 import { OrbitControls } from "https://unpkg.com/three@0.112/examples/jsm/controls/OrbitControls.js";
 
+// Process environment variables
+require("dotenv").config()
+
 let socket;
 // Initialize Three.js scene
 const scene = new THREE.Scene();
@@ -483,8 +486,9 @@ function animate() {
 
 
 function setupWebSockets() {
-    //const socket = new WebSocket("ws://localhost:4242/websocket");
-    const socket = new WebSocket("ws://83.233.46.128:4242/websocket");
+    const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
+    const SERVER_PORT = process.env.SERVER_PORT;
+    const socket = new WebSocket("ws://"+SERVER_ADDRESS+":"+SERVER_PORT+"/websocket");
     socket.onopen = (event) => {
         // WebSocket connection is open
         console.log("WebSocket connection opened.");
