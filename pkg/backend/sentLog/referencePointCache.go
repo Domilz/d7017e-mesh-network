@@ -35,7 +35,7 @@ func (rpCache *ReferencePointCache) GetXYZ(rp_id string) (*structs.XYZ, error) {
 		return position, nil
 	}
 
-	return nil, errors.New("no such reference point id.")
+	return nil, errors.New("no such reference point id")
 }
 func (rpCache *ReferencePointCache) GetAllReferencePoints() ([]string, []structs.XYZ) {
 	rpCache.mutex.Lock()
