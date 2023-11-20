@@ -51,47 +51,33 @@ func (rpCache *ReferencePointCache) GetAllReferencePoints() ([]string, []structs
 }
 
 func (rpCache *ReferencePointCache) PopulateWithMockedData() {
-	/*
-		for i := 1; i < 27; i++ {
 
-			c := rune(i + 96)
-			x := string(c) + string(c)
-			key := x + ":" + x + ":" + x + ":" + x + ":" + x + ":" + x
-			pos := &structs.XYZ{
-				X: (float32(i)),
-				Y: (float32(i)),
-				Z: (float32(i)),
-			}
-			rpCache.AddReferencePointAndPosition(key, pos)
-
-		}
-	*/
-	rpCache.createBeacon("aa:aa:aa:aa:aa:aa", -1, -4, 2)
-	rpCache.createBeacon("bb:bb:bb:bb:bb:bb", 4, 0, -1)
-	rpCache.createBeacon("cc:cc:cc:cc:cc:cc", 4, 2, -2)
-	rpCache.createBeacon("dd:dd:dd:dd:dd:dd", -2, 4, -3)
-	rpCache.createBeacon("ee:ee:ee:ee:ee:ee", 2, 1, 3)
-	rpCache.createBeacon("ff:ff:ff:ff:ff:ff", 2, -2, 1)
-	rpCache.createBeacon("gg:gg:gg:gg:gg:gg", -4, -2, 1)
-	rpCache.createBeacon("hh:hh:hh:hh:hh:hh", -2, 0, 2)
-	rpCache.createBeacon("ii:ii:ii:ii:ii:ii", -3, -4, -4)
-	rpCache.createBeacon("jj:jj:jj:jj:jj:jj", 3, -2, 0)
-	rpCache.createBeacon("kk:kk:kk:kk:kk:kk", -4, 1, 3)
-	rpCache.createBeacon("ll:ll:ll:ll:ll:ll", 0, -1, 3)
-	rpCache.createBeacon("mm:mm:mm:mm:mm:mm", -4, 0, -1)
-	rpCache.createBeacon("nn:nn:nn:nn:nn:nn", 3, -3, -2)
-	rpCache.createBeacon("oo:oo:oo:oo:oo:oo", 2, -1, 3)
-	rpCache.createBeacon("pp:pp:pp:pp:pp:pp", 0, 2, 0)
-	rpCache.createBeacon("qq:qq:qq:qq:qq:qq", -1, 2, 1)
-	rpCache.createBeacon("rr:rr:rr:rr:rr:rr", 4, 0, -4)
-	rpCache.createBeacon("ss:ss:ss:ss:ss:ss", -2, -1, 0)
-	rpCache.createBeacon("tt:tt:tt:tt:tt:tt", 2, 1, 1)
-	rpCache.createBeacon("uu:uu:uu:uu:uu:uu", 1, 4, 0)
-	rpCache.createBeacon("vv:vv:vv:vv:vv:vv", -4, 1, -2)
-	rpCache.createBeacon("ww:ww:ww:ww:ww:ww", -4, 1, -1)
-	rpCache.createBeacon("xx:xx:xx:xx:xx:xx", 0, 2, 2)
-	rpCache.createBeacon("yy:yy:yy:yy:yy:yy", -3, 2, 4)
-	rpCache.createBeacon("zz:zz:zz:zz:zz:zz", -1, -1, -4)
+	rpCache.createBeacon("rpId1", -1, -4, 2)
+	rpCache.createBeacon("rpId2", 4, 0, -1)
+	rpCache.createBeacon("rpId3", 4, 2, -2)
+	rpCache.createBeacon("rpId4", -2, 4, -3)
+	rpCache.createBeacon("rpId5", 2, 1, 3)
+	rpCache.createBeacon("rpId6", 2, -2, 1)
+	rpCache.createBeacon("rpId7", -4, -2, 1)
+	rpCache.createBeacon("rpId8", -2, 0, 2)
+	rpCache.createBeacon("rpId9", -3, -4, -4)
+	rpCache.createBeacon("rpId10", 3, -2, 0)
+	rpCache.createBeacon("rpId11", -4, 1, 3)
+	rpCache.createBeacon("rpId12", 0, -1, 3)
+	rpCache.createBeacon("rpId13", -4, 0, -1)
+	rpCache.createBeacon("rpId14", 3, -3, -2)
+	rpCache.createBeacon("rpId15", 2, -1, 3)
+	rpCache.createBeacon("rpId16", 0, 2, 0)
+	rpCache.createBeacon("rpId17", -1, 2, 1)
+	rpCache.createBeacon("rpId18", 4, 0, -4)
+	rpCache.createBeacon("rpId19", -2, -1, 0)
+	rpCache.createBeacon("rpId20", 2, 1, 1)
+	rpCache.createBeacon("rpId21", 1, 4, 0)
+	rpCache.createBeacon("rpId22", -4, 1, -2)
+	rpCache.createBeacon("rpId23", -4, 1, -1)
+	rpCache.createBeacon("rpId24", 0, 2, 2)
+	rpCache.createBeacon("rpId25", -3, 2, 4)
+	rpCache.createBeacon("rpId26", -1, -1, -4)
 
 }
 func (rpCache *ReferencePointCache) createBeacon(name string, x int, y int, z int) {
