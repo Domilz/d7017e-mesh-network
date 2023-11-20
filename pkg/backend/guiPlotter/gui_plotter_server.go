@@ -31,7 +31,7 @@ type Tag struct {
 	TagId       string `json:"tagId"`
 	RpId        string `json:"rpId"`
 	Accuracy    int    `json:"accuracy"`
-	Date        string `json:"date"`
+	Date        int    `json:"date"`
 	ReadingType string `json:"readingType"`
 	Position    Pos    `json:"position"`
 }
@@ -135,7 +135,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SendTagUpdate(tagId string, rpId string, accuracy int, date string, readingType string, x int, y int, z int) {
+func SendTagUpdate(tagId string, rpId string, accuracy int, date int, readingType string, x int, y int, z int) {
 
 	pos := Pos{x, y, z}
 	tag := &Tag{
@@ -180,3 +180,4 @@ func sendToClients(bytes []byte) {
 	}
 
 }
+
