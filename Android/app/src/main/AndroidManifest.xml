@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
@@ -52,7 +53,14 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".Services.BLEService"
+            android:name=".Services.BlePeripheralService"
+            android:foregroundServiceType="dataSync|location"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+
+        <service
+            android:name=".Services.BleScanningService"
             android:foregroundServiceType="dataSync|location"
             android:enabled="true"
             android:exported="false">

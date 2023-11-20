@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.epiroc.wifiaware"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.epiroc.wifiaware"
@@ -72,4 +72,10 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    //Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.3")
+
+    //Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.29.1-alpha")
 }
