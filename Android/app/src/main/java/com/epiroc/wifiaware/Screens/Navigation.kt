@@ -1,0 +1,30 @@
+package com.epiroc.wifiaware.Screens
+
+import android.content.ServiceConnection
+import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.epiroc.wifiaware.Screen
+
+@Composable
+fun Navigation(
+    wifiAwareConnection: ServiceConnection,
+) {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = Screen.HomeScreen.route){
+        composable(Screen.HomeScreen.route){
+            HomeScreen(navController = navController)
+        }
+
+        composable(Screen.TransportServiceScreen.route){
+            TransportServiceScreen(navController = navController, connection = wifiAwareConnection)
+        }
+
+        composable(Screen.BlePeripheralScreen.route) {
+            PeripheralScreen(navController = navController)
+        }
+
+    }
+}
