@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 
 	structs "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/forms"
 	guiPlotter "github.com/Domilz/d7017e-mesh-network/pkg/backend/guiPlotter"
@@ -68,22 +67,22 @@ func (sentLogServer *SentLogServer) SaveRssiForm(form structs.RssiForm) {
 		sentLogServer.SentLogDatabaseHandler.saveToDB("RssiForm", len(form.Readings), jsonString)
 		for i := 0; i < len(form.Readings); i++ {
 			fmt.Println("sending")
-			guiPlotter.SendTagUpdate(form.Readings[i].Tag_id, form.Readings[i].Rp_id, 0, "someTime", "directReading", 0, 0, 0)
+			guiPlotter.SendTagUpdate(form.Readings[i].Tag_id, form.Readings[i].Rp_id, form.Readings[i].Rssi, form.Readings[i].Chain_delay[0].Sent.Seconds, "directReading", 0, 0, 0)
 		}
 	}
 
 }
 
-func (sentLogServer *SentLogServer) SaveReferencePointForm(form structs.ReferencePointForm) {
+func (sentLogServer *SentLogServer) SaveXYZForm(form structs.XYZForm) error {
 	jsonData, err := json.Marshal(form)
 	if err != nil {
-		log.Printf("SentLogServer encountered a during json marshal at SaveReferencePointForm")
+		log.Printf("SentLogServer encountered a during json marshal at SaveXYZForm")
+		return err
 	} else {
 		jsonString := string(jsonData)
-		sentLogServer.SentLogDatabaseHandler.saveToDB("ReferencePointForm", len(form.Operands), jsonString)
-		for i := 0; i < len(form.Operands); i++ {
-			guiPlotter.SendTagUpdate(form.Operands[i].Uuid, form.Operands[i].RpId, 0, "someTime", "indirectReading", int(form.Operands[i].Location.X), int(form.Operands[i].Location.Y), int(form.Operands[i].Location.Z))
-		}
+		sentLogServer.SentLogDatabaseHandler.saveToDB("XYZForm", len(form.Chain_delay), jsonString)
+		guiPlotter.SendTagUpdate(form.Tag_id, "", 0, form.Chain_delay[0].Sent.Seconds, "indirectReading", int(form.X), int(form.Y), int(form.Z))
+		return nil
 	}
 }
 
@@ -116,14 +115,12 @@ func (sentLogServer *SentLogServer) prepInitialTagDataForGuiPlotter() *[]guiPlot
 			for _, reading := range formStruct.Readings {
 				pos := guiPlotter.Pos{X: 0, Y: 0, Z: 0}
 
-				time := strconv.Itoa(reading.Chain_delay[0].Received.Seconds)
-
 				tag := guiPlotter.Tag{
 					MessageType: "tagMessage",
 					TagId:       reading.Tag_id,
 					RpId:        reading.Rp_id,
 					Accuracy:    reading.Rssi,
-					Date:        time,
+					Date:        reading.Chain_delay[0].Received.Seconds,
 					ReadingType: "directReading",
 					Position:    pos}
 				tagData = append(tagData, tag)
@@ -136,14 +133,14 @@ func (sentLogServer *SentLogServer) prepInitialTagDataForGuiPlotter() *[]guiPlot
 			if err != nil {
 				log.Println("Error at prepInitialTagDataForGuiPlotter, error: ", err)
 			}
-			time := strconv.Itoa(formStruct.Chain_delay[0].Received.Seconds)
+
 			pos := guiPlotter.Pos{X: int(formStruct.X), Y: int(formStruct.Y), Z: int(formStruct.Z)}
 			tag := guiPlotter.Tag{
 				MessageType: "tagMessage",
 				TagId:       formStruct.Tag_id,
 				RpId:        "",
 				Accuracy:    formStruct.Accuracy,
-				Date:        time,
+				Date:        formStruct.Chain_delay[0].Received.Seconds,
 				ReadingType: "indirectReading",
 				Position:    pos}
 			tagData = append(tagData, tag)
