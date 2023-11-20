@@ -30,7 +30,7 @@ type Tag struct {
 	TagId       string `json:"tagId"`
 	RpId        string `json:"rpId"`
 	Accuracy    int    `json:"accuracy"`
-	Date        string `json:"date"`
+	Date        int    `json:"date"`
 	ReadingType string `json:"readingType"`
 	Position    Pos    `json:"position"`
 }
@@ -128,7 +128,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SendTagUpdate(tagId string, rpId string, accuracy int, date string, readingType string, x int, y int, z int) {
+func SendTagUpdate(tagId string, rpId string, accuracy int, date int, readingType string, x int, y int, z int) {
 
 	pos := Pos{x, y, z}
 	tag := &Tag{
@@ -216,7 +216,7 @@ func getTagsForStartup() []Tag {
 		TagId:       "aa",
 		RpId:        "rpId1",
 		Accuracy:    5,
-		Date:        "someDate",
+		Date:        12,
 		ReadingType: "indirectReading",
 		Position:    pos1}
 	list = append(list, *tag1)
@@ -226,7 +226,7 @@ func getTagsForStartup() []Tag {
 		TagId:       "bb",
 		RpId:        "rpId2",
 		Accuracy:    5,
-		Date:        "someDate",
+		Date:        13,
 		ReadingType: "indirectReading",
 		Position:    pos2}
 	list = append(list, *tag2)
@@ -236,7 +236,7 @@ func getTagsForStartup() []Tag {
 		TagId:       "cc",
 		RpId:        "rpId3",
 		Accuracy:    5,
-		Date:        "someDate",
+		Date:        14,
 		ReadingType: "directReading",
 		Position:    pos3}
 	list = append(list, *tag3)

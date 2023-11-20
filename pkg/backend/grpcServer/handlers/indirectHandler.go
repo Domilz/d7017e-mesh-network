@@ -23,84 +23,51 @@ func InitIndirectHandler(sLog *sentLog.SentLogServer) *IndirectHandler {
 }
 
 func (indirectHanddler *IndirectHandler) FillOutAndSendForm(reading *pb.Reading) {
-	createTime := &structs.Time{
+	sentTime := &structs.Time{
 		Seconds: int(timestamppb.Now().Seconds), //Change later.
 		Nanos:   int(timestamppb.Now().Nanos),   //Change later.
 	}
 
-	updateTime := &structs.Time{
+	receivedTime := &structs.Time{
 		Seconds: int(timestamppb.Now().Seconds), //Change later.
 		Nanos:   int(timestamppb.Now().Nanos),   //Change later.
 	}
 
-	timestampTime := &structs.Time{
-		Seconds: int(timestamppb.Now().Seconds),
-		Nanos:   int(timestamppb.Now().Nanos),
+	newChainDelayStruct := &structs.Chain_delay{
+		Name:     "tagbackend",
+		Sent:     *sentTime,
+		Received: *receivedTime,
 	}
 
-	newLocation := indirectHanddler.estimatePosition(reading.RpId)
+	newLocation, acc := indirectHanddler.estimatePosition(reading.RpId, reading.Rssi)
 
-	newErr := &structs.Error{ //Change later.
-		Code:    0,
-		Message: "",
+	xyzForm := &structs.XYZForm{
+		X:           float32(newLocation.X),
+		Y:           float32(newLocation.Y),
+		Z:           float32(newLocation.Z),
+		Accuracy:    int(acc),
+		Tag_id:      reading.TagId,
+		Chain_delay: []structs.Chain_delay{*newChainDelayStruct},
 	}
 
-	newWifiProps := &structs.WifiProperties{
-		Online:         true,     //Change later.
-		LocationStatus: "Normal", //Change later.
-		IP:             "192.168.0.1",
-	}
-
-	newBleProps := &structs.BLEProperties{
-		Active:            true, //Change later.
-		BatteryPercentage: 100,  //Change later.
-	}
-
-	newLtePops := &structs.LteProperties{}
-
-	newVendorProps := &structs.VendorProperties{}
-
-	newOperands := &structs.Operands{
-		Uuid:             reading.TagId, //Change later.
-		RpId:             reading.RpId,
-		Name:             "", //Change later.
-		Description:      "", //Change later.
-		CreateTime:       *createTime,
-		UpdateTime:       *updateTime,
-		Location:         *newLocation,
-		Type:             "", //Change later.
-		WifiProperties:   *newWifiProps,
-		BLEProperties:    *newBleProps,
-		LteProperties:    *newLtePops,
-		Vendor:           "", //Change later.
-		VendorProperties: *newVendorProps,
-	}
-
-	newReferencePointForm := &structs.ReferencePointForm{
-		Timestamp:     *timestampTime,
-		CorrelationId: "",     //Change later.
-		Operation:     "POST", //Change later.
-		Operands:      []structs.Operands{*newOperands},
-		Error:         *newErr,
-	}
-
-	indirectHanddler.sendFormToCentral(newReferencePointForm)
+	indirectHanddler.sendFormToCentral(xyzForm)
 }
 
 // Should send to api but don't have access so sending to log.
-func (indirectHandler *IndirectHandler) sendFormToCentral(rpForm *structs.ReferencePointForm) {
-	indirectHandler.sentLog.SaveReferencePointForm(*rpForm)
+func (indirectHandler *IndirectHandler) sendFormToCentral(xyzForm *structs.XYZForm) {
+	indirectHandler.sentLog.SaveXYZForm(*xyzForm)
 }
 
 // This is a naive approach. The algorithm estimates the position of the indirect tag based on the last seen reference point.
 // TODO: Improve
-func (indirect *IndirectHandler) estimatePosition(rpId string) *structs.XYZ {
+func (indirect *IndirectHandler) estimatePosition(rpId string, rssi int32) (*structs.XYZ, int) {
 
 	beaconPosition, err := indirect.rpCache.GetXYZ(rpId)
 
 	if err != nil {
-		return &structs.XYZ{}
+		return &structs.XYZ{}, 0
 	}
+	accuracy := 5 //
 
-	return beaconPosition
+	return beaconPosition, accuracy
 }
