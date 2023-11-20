@@ -1,7 +1,10 @@
-// Import the Three.js library (make sure you have it in your project folder)
+
 import { OrbitControls } from "https://unpkg.com/three@0.112/examples/jsm/controls/OrbitControls.js";
 
+
 let socket;
+
+
 // Initialize Three.js scene
 const scene = new THREE.Scene();
 
@@ -479,12 +482,17 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+async function fetchConfig() {
+    const response = await fetch('/config');
+    return await response.json();
+  }
 
 
 
-function setupWebSockets() {
-    //const socket = new WebSocket("ws://localhost:4242/websocket");
-    const socket = new WebSocket("ws://83.233.46.128:4242/websocket");
+  async function setupWebSockets() {
+    const config = await fetchConfig();
+    const socket = new WebSocket(config.websocketUrl);
+
     socket.onopen = (event) => {
         // WebSocket connection is open
         console.log("WebSocket connection opened.");
@@ -519,10 +527,7 @@ function setupWebSockets() {
 
     socket.onclose = (event) => {
         console.log("WebSocket connection closed");
-        /*
-        console.log("WebSocket connection closed. Attempting to reconnect...");
-        setTimeout(setupWebSockets, 1000); // Reconnect after a delay (e.g., 1 second)
-        */
+
     };
 
 }

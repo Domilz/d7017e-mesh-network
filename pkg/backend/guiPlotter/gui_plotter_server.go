@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -51,13 +52,16 @@ type Data struct {
 	Tags    []Tag    `json:"tags"`
 }
 
+type Config struct {
+	WebSocketURL string `json:"websocket_url"`
+}
+
 var (
 	guiPlotter *GUIPlotter
 )
 
 func SetupGUIPlotter(data Data) *GUIPlotter {
 	guiP := &GUIPlotter{}
-	//data.Tags = getTagsForStartup()
 	guiP.initData = data
 	guiP.clients = make(map[*WebSocketClient]bool)
 	guiPlotter = guiP
@@ -68,13 +72,17 @@ func SetupGUIPlotter(data Data) *GUIPlotter {
 	http.HandleFunc("/plot", func(w http.ResponseWriter, r *http.Request) {
 		tmpl.Execute(w, nil) // Pass nil as data
 	})
-	fmt.Println("before sock")
+	SERVER_ADDRESS := os.Getenv("SERVER_ADDRESS")
+	SERVER_PORT := os.Getenv("SERVER_PORT")
 	http.HandleFunc("/websocket", WebSocketHandler)
+	http.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
 
+		json.NewEncoder(w).Encode(map[string]string{"websocketUrl": "ws://" + SERVER_ADDRESS + ":" + SERVER_PORT + "/websocket"})
+	})
 	// Start the web server
-	port := ":4242"
-	println("Server is running on port", port)
-	go http.ListenAndServe(port, nil)
+
+	println("Server is running on port: ", SERVER_PORT)
+	go http.ListenAndServe(SERVER_PORT, nil)
 	return guiP
 
 }
@@ -113,7 +121,6 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 			if request == "getInitialData" {
 				log.Printf("Establishing connection")
 				// Handle the initial data request here
-				// data := Data{Beacons: getBeaconsForStartup(), Tags: getTagsForStartup()}
 				guiPlotter.dataLock.Lock()
 				data := guiPlotter.initData
 				guiPlotter.dataLock.Unlock()
@@ -174,72 +181,3 @@ func sendToClients(bytes []byte) {
 
 }
 
-func getBeaconsForStartup() []Beacon {
-	list := []Beacon{}
-	pos1 := Pos{0, -1, -2}
-	beacon1 := &Beacon{
-		RpId:     "rpId1",
-		Position: pos1,
-	}
-	list = append(list, *beacon1)
-	pos2 := Pos{-3, -2, 2}
-	beacon2 := &Beacon{
-		RpId:     "rpId2",
-		Position: pos2,
-	}
-	list = append(list, *beacon2)
-	pos3 := Pos{2, -1, 2}
-	beacon3 := &Beacon{
-		RpId:     "rpId3",
-		Position: pos3,
-	}
-	list = append(list, *beacon3)
-	pos4 := Pos{0, -1, 0}
-	beacon4 := &Beacon{
-		RpId:     "rpId4",
-		Position: pos4,
-	}
-	list = append(list, *beacon4)
-	pos5 := Pos{5, -6, 2}
-	beacon5 := &Beacon{
-		RpId:     "rpId5",
-		Position: pos5,
-	}
-	list = append(list, *beacon5)
-	return list
-}
-func getTagsForStartup() []Tag {
-	list := []Tag{}
-	pos1 := Pos{0, -1, -2}
-	tag1 := &Tag{
-		MessageType: "tagMessage",
-		TagId:       "aa",
-		RpId:        "rpId1",
-		Accuracy:    5,
-		Date:        12,
-		ReadingType: "indirectReading",
-		Position:    pos1}
-	list = append(list, *tag1)
-	pos2 := Pos{-3, -2, 2}
-	tag2 := &Tag{
-		MessageType: "tagMessage",
-		TagId:       "bb",
-		RpId:        "rpId2",
-		Accuracy:    5,
-		Date:        13,
-		ReadingType: "indirectReading",
-		Position:    pos2}
-	list = append(list, *tag2)
-	pos3 := Pos{10, 10, 10}
-	tag3 := &Tag{
-		MessageType: "tagMessage",
-		TagId:       "cc",
-		RpId:        "rpId3",
-		Accuracy:    5,
-		Date:        14,
-		ReadingType: "directReading",
-		Position:    pos3}
-	list = append(list, *tag3)
-
-	return list
-}

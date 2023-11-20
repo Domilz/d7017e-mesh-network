@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -34,7 +35,8 @@ func StartDebugLogServer(dbPath string, htmlFormatPath string) {
 
 	http.HandleFunc("/debuglog", PostLog)
 	log.Println("Starting debugLog server")
-	go http.ListenAndServe(":4242", nil)
+	SERVER_PORT := os.Getenv("SERVER_PORT")
+	go http.ListenAndServe(":"+SERVER_PORT, nil)
 
 }
 

@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/handlers"
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
@@ -31,7 +32,8 @@ func StartStateLogServer(backendStateHandler *handlers.BackendStateHandler, html
 	http.HandleFunc("/statelog", StateLog)
 	log.Printf("Starting state server")
 
-	go http.ListenAndServe(":4242", nil)
+	SERVER_PORT := os.Getenv("SERVER_PORT")
+	go http.ListenAndServe(":"+SERVER_PORT, nil)
 	return stateLogServer
 }
 
