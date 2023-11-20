@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	structs "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/forms"
 	guiPlotter "github.com/Domilz/d7017e-mesh-network/pkg/backend/guiPlotter"
@@ -37,7 +38,8 @@ func StartSentLogServer(dbPath string, htmlFormatPath string) *SentLogServer {
 	sentLogServer = sLogServer
 	http.HandleFunc("/sentlog", SentLog)
 	log.Printf("Starting sentLog server")
-	go http.ListenAndServe(":4242", nil)
+	SERVER_PORT := os.Getenv("SERVER_PORT")
+	go http.ListenAndServe(":"+SERVER_PORT, nil)
 	return sentLogServer
 }
 

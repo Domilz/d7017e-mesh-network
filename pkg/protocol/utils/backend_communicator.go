@@ -82,12 +82,11 @@ func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*p
 		return nil, err
 	} else if err == nil {
 		if response != nil {
-			//utils.PrintFormattedState(response)
 			fmt.Println("server response: ", response.TagId)
-
 		}
 
 	}
+
 	return nil, err
 }
 

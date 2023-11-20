@@ -23,9 +23,11 @@ type GUIPlotter struct {
 	initData    Data
 	dataLock    sync.Mutex
 }
+
 type WebSocketClient struct {
 	conn *websocket.Conn
 }
+
 type Tag struct {
 	MessageType string `json:"messageType"`
 	TagId       string `json:"tagId"`
@@ -41,6 +43,7 @@ type Beacon struct {
 	RpId        string `json:"rpId"`
 	Position    Pos    `json:"position"`
 }
+
 type Pos struct {
 	X int `json:"x"`
 	Y int `json:"y"`
@@ -86,6 +89,7 @@ func SetupGUIPlotter(data Data) *GUIPlotter {
 	return guiP
 
 }
+
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -156,8 +160,9 @@ func SendTagUpdate(tagId string, rpId string, accuracy int, date int, readingTyp
 	sendToClients(bytes)
 
 }
+
 func SendBeaconUpdate(rpId string, x int, y int, z int) {
-	//Not currently used, look over when updating beacon is requierd, follow the flow SendTagUpdate.
+	//Not currently used, look over when updating beacon is required, follow the flow SendTagUpdate.
 	pos := Pos{x, y, z}
 	beacon := &Beacon{
 		MessageType: "beaconMessage",
@@ -180,4 +185,3 @@ func sendToClients(bytes []byte) {
 	}
 
 }
-
