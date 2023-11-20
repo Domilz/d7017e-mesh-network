@@ -13,12 +13,12 @@ type RssiForm struct {
 }
 
 type XYZForm struct {
-	X           float32       `json:"x"`
-	Y           float32       `json:"y"`
-	Z           float32       `json:"z"`
-	Accuracy    int           `json:"accuracy"`
-	Tag_id      string        `json:"tag_id"`
-	Chain_delay []Chain_delay `json:"chain_delay"`
+	X           float32      `json:"x"`
+	Y           float32      `json:"y"`
+	Z           float32      `json:"z"`
+	Accuracy    int          `json:"accuracy"`
+	Tag_id      string       `json:"tag_id"`
+	Chain_delay []ChainDelay `json:"chain_delay"`
 }
 
 type Time struct {
@@ -71,14 +71,14 @@ type Error struct {
 }
 
 type Reading struct {
-	Rp_id       string        `json:"rp_id"`
-	Rssi        int           `json:"rssi"`
-	Tag_id      string        `json:"tag_id"`
-	Type        string        `json:"BLE"`
-	Chain_delay []Chain_delay `json:"chain_delay"`
+	Rp_id       string       `json:"rp_id"`
+	Rssi        int          `json:"rssi"`
+	Tag_id      string       `json:"tag_id"`
+	Type        string       `json:"BLE"`
+	Chain_delay []ChainDelay `json:"chain_delay"`
 }
 
-type Chain_delay struct {
+type ChainDelay struct {
 	Name     string `json:"tagbackend"`
 	Sent     Time   `json:"sent"`
 	Received Time   `json:"received"`

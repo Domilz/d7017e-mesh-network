@@ -33,7 +33,7 @@ func (indirectHanddler *IndirectHandler) FillOutAndSendForm(reading *pb.Reading)
 		Nanos:   int(timestamppb.Now().Nanos),   //Change later.
 	}
 
-	newChainDelayStruct := &structs.Chain_delay{
+	newChainDelayStruct := &structs.ChainDelay{
 		Name:     "tagbackend",
 		Sent:     *sentTime,
 		Received: *receivedTime,
@@ -47,7 +47,7 @@ func (indirectHanddler *IndirectHandler) FillOutAndSendForm(reading *pb.Reading)
 		Z:           float32(newLocation.Z),
 		Accuracy:    int(acc),
 		Tag_id:      reading.TagId,
-		Chain_delay: []structs.Chain_delay{*newChainDelayStruct},
+		Chain_delay: []structs.ChainDelay{*newChainDelayStruct},
 	}
 
 	indirectHanddler.sendFormToCentral(xyzForm)

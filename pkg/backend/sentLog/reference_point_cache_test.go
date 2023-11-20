@@ -124,7 +124,7 @@ func TestGetXYZError(t *testing.T) {
 
 	_, err := rpCache.GetXYZ("rp")
 
-	assert.Equal(t, "No such reference point id.", err.Error())
+	assert.Equal(t, "no such reference point id", err.Error())
 }
 
 func TestPopulateWithMockedData(t *testing.T) {

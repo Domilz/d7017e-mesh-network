@@ -6,7 +6,7 @@ import (
 	"log"
 
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
-	_ "github.com/mattn/go-sqlite3" // Import SQLite methods.
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type StateDatabaseHandler struct {
@@ -66,7 +66,6 @@ func (stateDatabaseHandler *StateDatabaseHandler) LoadFromDB() []pb.Reading {
 	readings := []pb.Reading{}
 
 	var rows *sql.Rows
-	//var err error
 	rows, _ = stateDatabaseHandler.database.Query("SELECT * FROM Readings")
 	defer rows.Close()
 
@@ -79,8 +78,6 @@ func (stateDatabaseHandler *StateDatabaseHandler) LoadFromDB() []pb.Reading {
 		if err != nil {
 			log.Printf("Encountered during at StateDatabaseHandler when querying the StateDatabase for data: %v", err)
 			panic(err.Error())
-		} else {
-
 		}
 		err = json.Unmarshal([]byte(readingJsonString), &reading)
 
@@ -92,6 +89,7 @@ func (stateDatabaseHandler *StateDatabaseHandler) LoadFromDB() []pb.Reading {
 		readings = append(readings, reading)
 
 	}
+
 	log.Printf("StateDatabaseHandler loaded %v readings from DB, loaded readings: %v", len(readings), readings)
 	return readings
 }

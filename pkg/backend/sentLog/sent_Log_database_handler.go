@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3" // Import SQLite methods.
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type SentLogDatabaseHandler struct {
@@ -54,7 +54,6 @@ func (debugLogDatabaseHandler *SentLogDatabaseHandler) GetSentLog() []SentLogDat
 	data := []SentLogData{}
 
 	var rows *sql.Rows
-	//var err error
 	rows, _ = debugLogDatabaseHandler.database.Query("SELECT * FROM SentLog")
 	defer rows.Close()
 
@@ -68,12 +67,12 @@ func (debugLogDatabaseHandler *SentLogDatabaseHandler) GetSentLog() []SentLogDat
 		if err != nil {
 			log.Printf("Encountered during at SentLogDatabaseHandler when querying the SentLogDatabase for data: %v", err)
 			panic(err.Error())
-		} else {
-
 		}
+
 		data = append(data, SentLogData{recivedDate, formType, size, jsonString})
 
 	}
+
 	return data
 
 }
