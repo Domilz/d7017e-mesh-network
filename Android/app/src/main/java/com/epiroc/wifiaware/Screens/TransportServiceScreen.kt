@@ -56,12 +56,14 @@ fun TransportServiceScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    lateinit var nanIntent : Intent
+
     DisposableEffect(
         key1 = lifecycleOwner,
         effect = {
             Log.d("Wifiaware", "DisposableEffect")
             val observer = LifecycleEventObserver{_,event ->
-                if(event == Lifecycle.Event.ON_START){
+                if(event == Lifecycle.Event.ON_START && !permissionState.allPermissionsGranted){
                     Log.d("Wifiaware", "Request Permissions")
                     permissionState.launchMultiplePermissionRequest()
                 }
@@ -79,6 +81,7 @@ fun TransportServiceScreen(
         Log.d("Wifiaware", "Launched Effect")
         if (permissionState.allPermissionsGranted) {
             Intent(context, WifiAwareService::class.java).also { intent ->
+                nanIntent = intent
                 context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
             }
         }
@@ -95,7 +98,6 @@ fun TransportServiceScreen(
         ) {
             Button(
                 onClick = {
-                    val nanIntent = Intent(context, WifiAwareService::class.java)
                     isWifiServiceRunning = if (!isWifiServiceRunning) {
                         // Start the service
                         ContextCompat.startForegroundService(context, nanIntent)

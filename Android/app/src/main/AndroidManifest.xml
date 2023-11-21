@@ -29,9 +29,9 @@
          information, don't include the "maxSdkVersion"
          attribute. -->
     <!-- android:maxSdkVersion="32" /> -->
-
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
     <application
+        android:name=".MainApplication"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

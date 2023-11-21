@@ -58,7 +58,7 @@ fun PeripheralScreen(
             Log.d("PeripheralScreen", "DisposableEffect")
 
             val observer = LifecycleEventObserver{_,event ->
-                if(event == Lifecycle.Event.ON_START){
+                if(event == Lifecycle.Event.ON_START && !permissionState.allPermissionsGranted){
                     permissionState.launchMultiplePermissionRequest()
                 }
             }
@@ -88,7 +88,7 @@ fun PeripheralScreen(
         ) {
             Button(onClick = {
                 beacon1 = if (!beacon1) {
-                    rpID = "aa:aa:aa:aa:aa:aa"
+                    rpID = "rpId1"
                     beacon2 = false
                     true
                 } else {
@@ -104,14 +104,14 @@ fun PeripheralScreen(
                     .padding(8.dp)
             ) {
                 Text(
-                    text = "aa:aa:aa:aa:aa:aa",
+                    text = "rpId1",
                     color = Color.White,
                     modifier = Modifier.padding(6.dp) // Add padding to content for more rounded edges
                 )
             }
             Button(onClick = {
                 beacon2 = if (!beacon2) {
-                    rpID = "bb:bb:bb:bb:bb:bb"
+                    rpID = "rpId2"
                     beacon1 = false
                     true
                 } else {
@@ -127,7 +127,7 @@ fun PeripheralScreen(
                     .padding(8.dp)
             ) {
                 Text(
-                    text = "bb:bb:bb:bb:bb:bb",
+                    text = "rpId2",
                     color = Color.White,
                     modifier = Modifier.padding(6.dp) // Add padding to content for more rounded edges
                 )

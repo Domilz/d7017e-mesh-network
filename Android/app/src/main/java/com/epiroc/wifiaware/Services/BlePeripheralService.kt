@@ -7,6 +7,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
@@ -27,17 +29,25 @@ import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.Screens.permissions.PermissionUtils
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
+import javax.inject.Inject
 
 
 @SuppressLint("MissingPermission")
+@AndroidEntryPoint
 class BlePeripheralService : Service() {
     private val binder = LocalBinder()
 
-    private val SERVICE_UUID = UUID.fromString("0000181a-0000-1000-8000-00805f9b34fb")
+    private val SERVICE_UUID = UUID.fromString("527af0f6-83af-11ee-b962-0242ac120002")
 
-    private var bluetoothManager: BluetoothManager? = null
-    private var advertiser: BluetoothLeAdvertiser? = null
+    @Inject
+    lateinit var bluetoothManager: BluetoothManager
+    val advertiser by lazy {
+        bluetoothManager.adapter.bluetoothLeAdvertiser
+    }
+
     private var gattServer: BluetoothGattServer? = null
 
 
@@ -61,18 +71,21 @@ class BlePeripheralService : Service() {
     private val advertiseCallback = object : AdvertiseCallback() {
         override fun onStartSuccess(settingsInEffect: AdvertiseSettings?) {
             super.onStartSuccess(settingsInEffect)
+            Log.d("PeripheralService", "Started successfully")
             // Advertising started successfully
         }
 
 
         override fun onStartFailure(errorCode: Int) {
             super.onStartFailure(errorCode)
+            Log.d("PeripheralService", "Starting failed $errorCode")
             // Advertising failed
         }
 
     }
 
     private val gattServerCallback = object : BluetoothGattServerCallback() {
+
     }
 
 
@@ -103,10 +116,6 @@ class BlePeripheralService : Service() {
         startForeground(1, notification)
 
 
-        // Get BluetoothManager and advertiser
-        bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        advertiser = bluetoothManager?.adapter?.bluetoothLeAdvertiser
-
         // Check if BLE is supported
         if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Log.e("PeripheralService", "BLE not supported")
@@ -119,12 +128,10 @@ class BlePeripheralService : Service() {
     private fun startAdvertising() {
         Log.d("PeripheralService", "Start advertising")
 
-        advertiser?.startAdvertising(advertiseSettings, advertiseData, advertiseCallback)
+        advertiser.startAdvertising(advertiseSettings, advertiseData, advertiseCallback)
 
-        gattServer = bluetoothManager?.openGattServer(this, gattServerCallback)
+        gattServer = bluetoothManager.openGattServer(this, gattServerCallback)
         gattServer?.addService(service)
-
-
     }
 
     private fun stopAdvertising() {
@@ -167,24 +174,19 @@ class BlePeripheralService : Service() {
 
 
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.d("PeripheralService", "onStartCommand")
 
-        val data = intent!!.getStringExtra("rpID")
+        val data = intent.getStringExtra("rpID")
 
         if (data != null) {
-            var isNameChanged = BluetoothAdapter.getDefaultAdapter().setName(data)
-        }
-
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.blePeripheralPermission
-            // TODO: Consider calling ActivityCompat#requestPermissions here to request the missing permissions
-            Log.e("PeripheralService", "Location permission not granted")
-            stopSelf()
+            Log.d("PeripheralService", "Beacon name: $data")
+            BluetoothAdapter.getDefaultAdapter().setName(data)
         } else {
-            startAdvertising()
+            Log.d("PeripheralService", "Beacon name: BEACON TEST 1")
+            BluetoothAdapter.getDefaultAdapter().setName("RPDefault")
         }
+        startAdvertising()
         return START_STICKY
     }
 

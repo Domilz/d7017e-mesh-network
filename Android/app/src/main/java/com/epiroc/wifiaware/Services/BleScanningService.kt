@@ -31,16 +31,24 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
+import javax.inject.Inject
 
 
 @SuppressLint("MissingPermission")
+@AndroidEntryPoint
 class BleScanningService : Service() {
+    // Dagger hilt objects
+    @Inject
+    lateinit var bluetoothAdapter: BluetoothAdapter
+    private val bluetoothLeScanner by lazy {
+        bluetoothAdapter.bluetoothLeScanner
+    }
+
     private val SERVICE_UUID = "527af0f6-83af-11ee-b962-0242ac120002"
 
     private val binder = LocalBinder()
-    private var bluetoothAdapter: BluetoothAdapter? = null
-    private var bluetoothLeScanner: BluetoothLeScanner? = null
     private var gatt: BluetoothGatt? = null
 
     private val scanningInterval = 10000L // 10 seconds
@@ -52,16 +60,16 @@ class BleScanningService : Service() {
         .build()
 
     private val scanSettings = ScanSettings.Builder()
-        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
         .build()
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            val device = result?.device
+            val device = result.device
 
             if (device != null) {
 
-                Log.d("BLEService", "Device is: ${result.device} and rssi is ${result.rssi}")
+                Log.d("BLEService", "Device is: ${device.name} and rssi is ${result.rssi}")
                 // result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
             }
         }
@@ -133,11 +141,6 @@ class BleScanningService : Service() {
         createNotification()
         startForeground(1, notification)
 
-
-        // Get BluetoothManager and BluetoothAdapter
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothAdapter = bluetoothManager.adapter
-        bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
         // Check if BLE is supported
         if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Log.e("BLEService", "BLE not supported")
@@ -181,36 +184,30 @@ class BleScanningService : Service() {
 
     private fun startScanning() {
         // Start scanning
-        bluetoothLeScanner?.startScan(listOf(scanFilter), scanSettings, scanCallback)
+        bluetoothLeScanner.startScan(listOf(scanFilter), scanSettings, scanCallback)
 
         Log.d("BLEService", "BLE scanner has started.")
 
-        handler.postDelayed({ stopScanning() }, scanningInterval)
+        //handler.postDelayed({ stopScanning() }, scanningInterval)
     }
 
     private fun stopScanning() {
-        bluetoothLeScanner?.stopScan(scanCallback)
+        bluetoothLeScanner.stopScan(scanCallback)
 
         Log.d("BLEService", "BLE scanner has stopped.")
 
-        handler.postDelayed({ startScanning() }, idlePeriod)
+        //handler.postDelayed({ startScanning() }, idlePeriod)
     }
 
-    override fun onStartCommand(intent: android.content.Intent?, flags: Int, startId: Int): Int {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling ActivityCompat#requestPermissions here to request the missing permissions
-            Log.e("BLEService", "Location permission not granted")
-            stopSelf()
-        } else {
-            startScanning()
-        }
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startScanning()
         return START_STICKY
     }
 
     override fun onDestroy() {
         Log.d("BLEService", "onDestroy invoked")
-        bluetoothLeScanner?.stopScan(scanCallback)
+        bluetoothLeScanner.stopScan(scanCallback)
+        //handler.removeCallbacksAndMessages(null)
         super.onDestroy()
     }
 

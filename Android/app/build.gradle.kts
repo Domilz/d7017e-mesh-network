@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id ("kotlin-kapt")
+    id ("com.google.dagger.hilt.android")
 }
 
 android {
@@ -33,8 +35,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
+    /*kotlinOptions {
         jvmTarget = "1.8"
+    }
+     */
+    kotlin {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
+        }
     }
     buildFeatures {
         compose = true
@@ -78,4 +86,11 @@ dependencies {
 
     //Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.29.1-alpha")
+
+    //DI
+    implementation("com.google.dagger:dagger:2.28.3")
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-compiler:2.44")
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 }
