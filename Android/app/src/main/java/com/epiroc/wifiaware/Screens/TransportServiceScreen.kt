@@ -81,7 +81,6 @@ fun TransportServiceScreen(
         Log.d("Wifiaware", "Launched Effect")
         if (permissionState.allPermissionsGranted) {
             Intent(context, WifiAwareService::class.java).also { intent ->
-                nanIntent = intent
                 context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
             }
         }
@@ -100,6 +99,7 @@ fun TransportServiceScreen(
                 onClick = {
                     isWifiServiceRunning = if (!isWifiServiceRunning) {
                         // Start the service
+                        nanIntent = Intent(context, WifiAwareService::class.java)
                         ContextCompat.startForegroundService(context, nanIntent)
                         checkBatteryOptimizations(context)
                         //ContextCompat.startForegroundService(context, bleIntent)

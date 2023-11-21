@@ -27,10 +27,12 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.ParcelUuid
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
+import com.epiroc.wifiaware.lib.Client
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
 import javax.inject.Inject
@@ -49,7 +51,6 @@ class BleScanningService : Service() {
     private val SERVICE_UUID = "527af0f6-83af-11ee-b962-0242ac120002"
 
     private val binder = LocalBinder()
-    private var gatt: BluetoothGatt? = null
 
     private val scanningInterval = 10000L // 10 seconds
     private val idlePeriod = 5000L // 5 seconds
@@ -68,15 +69,31 @@ class BleScanningService : Service() {
             val device = result.device
 
             if (device != null) {
-
-                Log.d("BLEService", "Device is: ${device.name} and rssi is ${result.rssi}")
+                val deviceName = result.device.name
+                val rssi = result.rssi
+                Log.d("BLEService", "Device is: ${deviceName} and rssi is ${rssi}")
+                if (rssi != 127 && deviceName != null) {
+                    Client.updateReadingOfSelf(deviceName, rssi)
+                }
                 // result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
             }
         }
 
         // Maybe use instead?
-        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-            Log.d("BLEService","Batch result: ${results.toString()}")
+        override fun onBatchScanResults(results: MutableList<ScanResult>) {
+            if (results.size > 0) {
+                Log.d("BLEService", "New Batch:")
+                for (result in results) {
+                    handler.postDelayed({
+                        val deviceName = result.device.name
+                        val rssi = result.rssi
+                        Log.d("BLEService","From batch: $deviceName: with rssi: $rssi")
+                        if (rssi != 127 && deviceName != null) {
+                            Client.updateReadingOfSelf(deviceName, rssi)
+                        }
+                    }, 20)
+                }
+            }
             // Handle the results here.
         }
 
@@ -89,22 +106,19 @@ class BleScanningService : Service() {
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                if (newState == BluetoothGatt.STATE_CONNECTED) {
-                    this@BleScanningService.gatt = gatt
-                } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
-                    gatt.close()
+                when (newState) {
+                    BluetoothGatt.STATE_CONNECTED -> {
+                        val success = gatt.readRemoteRssi()
+                        if (success == true) {
+                            Log.d("BleService", "Requested RSSI reading")
+                        } else {
+                            Log.e("BleService", "Failed to request RSSI reading")
+                        }
+                    }
                 }
             } else {
                 gatt.close()
             }
-        }
-
-        @SuppressLint("MissingPermission")
-        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-            gatt.readRemoteRssi()
-            /*with(gatt) {
-                gatt.requestMtu(517)
-            }*/
         }
 
         override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
@@ -112,7 +126,8 @@ class BleScanningService : Service() {
                 // RSSI value is available in the 'rssi' variable
                 Log.d("BLEService", "RSSI: $rssi")
             } else {
-                // Handle failure to read RSSI
+                Log.e("BLEService", "Failed to read RSSI")
+
             }
         }
     }

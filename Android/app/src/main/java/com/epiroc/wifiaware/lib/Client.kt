@@ -1,5 +1,6 @@
 package com.epiroc.wifiaware.lib
 
+import android.util.Log
 import tag.Client
 import tag.Tag
 
@@ -20,6 +21,15 @@ object Client {
             client.insertSingleMockedReading(s)
         } else {
             throw IllegalStateException("Client not initialized. Call setupClient() first.")
+        }
+    }
+
+    fun updateReadingOfSelf(rpId : String, rssi : Int) {
+        if (::client.isInitialized) {
+            client.updateReadingofSelf(rpId, rssi)
+            Log.d("TagClient", "updatedReadingOfSelf succeeded")
+        } else {
+            Log.e("TagClient", "updateReadingOfSelf failed: client not initialized")
         }
     }
 }
