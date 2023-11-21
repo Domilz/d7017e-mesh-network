@@ -231,39 +231,36 @@ class WifiAwareService : Service() {
             override fun onAttached(session: WifiAwareSession) {
                 wifiAwareSession = session
 
-                Timer().schedule(object : TimerTask() {
-                    var c = Client.setupClient(byteArray.toString())!!
-                    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-                    override fun run() {
-                        val serviceName = Config.getConfigData()?.getString("service_name")
-                        // Initialize the publisher and subscriber
-                        publisher = Publisher(
-                            ctx = applicationContext,
-                            nanSession = wifiAwareSession!!,
-                            client = c,
-                            srvcName = serviceName
-                        )
-                        subscriber = Subscriber(
-                            ctx = applicationContext,
-                            nanSession = session,
-                            client = c,
-                            srvcName = serviceName!!,
-                            uuid = byteArray
-                        )
-                        CoroutineScope(Dispatchers.IO).launch {
-                            publisher.publishUsingWifiAware()
-                        }
+                var c = Client.setupClient(byteArray.toString())!!
 
-                        CoroutineScope(Dispatchers.IO).launch {
-                            subscriber.subscribeToWifiAwareSessions()
-                        }
+                val serviceName = Config.getConfigData()?.getString("service_name")
+                // Initialize the publisher and subscriber
+                publisher = Publisher(
+                    ctx = applicationContext,
+                    nanSession = wifiAwareSession!!,
+                    client = c,
+                    srvcName = serviceName
+                )
+                subscriber = Subscriber(
+                    ctx = applicationContext,
+                    nanSession = session,
+                    client = c,
+                    srvcName = serviceName!!,
+                    uuid = byteArray
+                )
+                CoroutineScope(Dispatchers.IO).launch {
+                    publisher.publishUsingWifiAware()
+                }
 
-
-                    }
-                }, 1000) // Delay in milliseconds
+                CoroutineScope(Dispatchers.IO).launch {
+                    subscriber.subscribeToWifiAwareSessions()
+                }
             }
 
+
+
             override fun onAttachFailed() {
+
                 super.onAttachFailed()
                 wifiAwareSession = null
                 Timer().schedule(object : TimerTask() {
@@ -274,10 +271,10 @@ class WifiAwareService : Service() {
                 }, 1000) // Delay in milliseconds
             }
 
-            override fun onAwareSessionTerminated() {
-                super.onAwareSessionTerminated()
-                wifiAwareSession = null
-            }
+            //override fun onAwareSessionTerminated() {
+            //    super.onAwareSessionTerminated()
+            //    wifiAwareSession = null
+            //}
         }
 
         val identityChangedListener = object : IdentityChangedListener() {
@@ -289,9 +286,6 @@ class WifiAwareService : Service() {
             if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.NEARBY_WIFI_DEVICES
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 return "Permissions not granted."

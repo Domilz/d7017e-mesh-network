@@ -56,9 +56,6 @@ class Publisher(
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.NEARBY_WIFI_DEVICES
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 Log.d("1Wifi","PUBLISH: NO PREM FOR PUB")
@@ -78,18 +75,21 @@ class Publisher(
                             Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
                             CoroutineScope(Dispatchers.IO).launch {
                                 createNetwork(peerHandle, context)
+                                Log.d("1Wifi", "PUBLISH: PLEASE TELL ME THIS WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                Timer().schedule(object : TimerTask() {
+                                    override fun run() {
+                                        currentPubSession?.sendMessage(
+                                            peerHandle,
+                                            0, // Message type (0 for unsolicited),
+                                            "".toByteArray()
+                                        )
+                                    }
+                                }, 100) // Delay in milliseconds*/
+
+                                Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
                             }
 
-                            Timer().schedule(object : TimerTask() {
-                                override fun run() {
-                                    currentPubSession?.sendMessage(
-                                        peerHandle,
-                                        0, // Message type (0 for unsolicited),
-                                        "".toByteArray()
-                                    )
-                                    Log.d("1Wifi", "PUBLISH: sending message now via publisher to $peerHandle")
-                                }
-                            }, 10) // Delay in milliseconds*/
+
                         }
                     }
                 }, handler)
@@ -160,6 +160,7 @@ class Publisher(
                     val messageBytes = ByteArray(size)
                     dataInputStream.readFully(messageBytes)
                     try{
+                        Log.d("1Wifi", "MESSAGE: $messageBytes")
                         client.insert(messageBytes)
                     }catch (e: Exception){
                         Log.d("1Wifi", "Error in inserting in handleClient" + e.message.toString())

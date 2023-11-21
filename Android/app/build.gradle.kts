@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId = "com.epiroc.wifiaware"
         minSdk = 29
-        targetSdk = 33
+        targetSdk = 31
         versionCode = 1
         versionName = "1.0"
 
