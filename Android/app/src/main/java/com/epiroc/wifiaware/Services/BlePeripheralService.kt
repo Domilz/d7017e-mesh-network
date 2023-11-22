@@ -29,21 +29,24 @@ import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.Screens.permissions.PermissionUtils
+import com.epiroc.wifiaware.lib.Client
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import javax.inject.Inject
 
-
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
-class BlePeripheralService : Service() {
+class BlePeripheralService () : Service() {
     private val binder = LocalBinder()
 
     private val SERVICE_UUID = UUID.fromString("527af0f6-83af-11ee-b962-0242ac120002")
 
     @Inject
-    lateinit var bluetoothManager: BluetoothManager
+    lateinit var client: Client
+    @Inject
+    lateinit var bluetoothManager : BluetoothManager
+
     val advertiser by lazy {
         bluetoothManager.adapter.bluetoothLeAdvertiser
     }

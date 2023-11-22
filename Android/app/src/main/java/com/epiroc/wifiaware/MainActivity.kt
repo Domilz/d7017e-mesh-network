@@ -17,11 +17,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.epiroc.wifiaware.Screens.Navigation
 import com.epiroc.wifiaware.Services.WifiAwareService
+import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.ui.theme.WifiAwareTransportTheme
-
-
+import dagger.hilt.android.AndroidEntryPoint
+import java.util.Random
+import javax.inject.Inject
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var client : Client
+    private lateinit var byteArray: ByteArray
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Config.loadConfig(this)
@@ -45,6 +51,14 @@ class MainActivity : ComponentActivity() {
         }
 
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val random = Random()
+        byteArray = ByteArray(16) // 16 bytes for a UUID
+        random.nextBytes(byteArray)
+        client.setupClient(byteArray.toString())
     }
 
     override fun onDestroy() {

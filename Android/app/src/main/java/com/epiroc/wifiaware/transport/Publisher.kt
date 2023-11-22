@@ -12,13 +12,13 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import tag.Client
 import java.io.DataInputStream
 import java.io.EOFException
 import java.io.IOException
@@ -26,13 +26,17 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.util.Timer
 import java.util.TimerTask
+import javax.inject.Inject
 
-class Publisher(
+class Publisher (
     ctx: Context,
     nanSession: WifiAwareSession,
-    client: Client,
     srvcName: String?,
 ) {
+
+    @Inject
+    lateinit var client: Client
+
     private var context = ctx
     private var currentPubSession: DiscoverySession? = null
     private val utility: WifiAwareUtility = WifiAwareUtility
@@ -40,7 +44,6 @@ class Publisher(
     private val wifiAwareSession = nanSession
     private var currentNetwork : Network? = null
 
-    private var client = client
     private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
     private var clientSocket: Socket? = null
     private val messagesReceived: MutableList<String> = mutableListOf()
@@ -144,6 +147,7 @@ class Publisher(
 
     private fun handleClient(clientSocket: Socket?,connectivityManager : ConnectivityManager ) {
         Log.d("1Wifi", "PUBLISH: handleClient started.")
+
         client.insertSingleMockedReading("publish")
 
         clientSocket!!.getInputStream().use { inputStream ->
@@ -154,11 +158,11 @@ class Publisher(
                     val messageBytes = ByteArray(size)
                     dataInputStream.readFully(messageBytes)
                     try{
-                        client.insert(messageBytes)
+                        client.tagClient.insert(messageBytes)
                     }catch (e: Exception){
                         Log.d("1Wifi", "Error in inserting in handleClient" + e.message.toString())
                     }
-                    Log.d("INFOFROMCLIENT", "Received protobuf message: ${client.getReadableOfSingleState(messageBytes)}")
+                    Log.d("INFOFROMCLIENT", "Received protobuf message: ${client.tagClient.getReadableOfSingleState(messageBytes)}")
                 } else {
                     Log.d("INFOFROMCLIENT", "End of stream reached or the connection")
                 }
@@ -168,9 +172,9 @@ class Publisher(
                 Log.e("INFOFROMCLIENT", "I/O exception: ${e.message}")
             }
         }
-        Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.getReadableOfSingleState(client.state)}")
+        Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.tagClient.getReadableOfSingleState(client.tagClient.state)}")
 
-        utility.saveToFile(context,client.state)
+        utility.saveToFile(context,client.tagClient.state)
         connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }
 

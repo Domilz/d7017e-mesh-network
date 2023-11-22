@@ -14,30 +14,31 @@ import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import tag.Client
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.util.Timer
 import java.util.TimerTask
+import javax.inject.Inject
 
-class Subscriber(
+class Subscriber (
     ctx: Context,
     nanSession: WifiAwareSession,
-    client: Client,
     srvcName: String,
-    uuid: ByteArray
 ) {
-    private val serviceUUID = uuid
+    @Inject
+    lateinit var client: Client
+
+    private val serviceUUID = client.getClientName().toByteArray()
     private val serviceName = srvcName
     private val context = ctx
-    private val client = client
 
     private var wifiAwareSession = nanSession
     private var currentSubSession: DiscoverySession? = null
@@ -167,7 +168,7 @@ class Subscriber(
     private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket,connectivityManager : ConnectivityManager) {
         Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
         client.insertSingleMockedReading("Client")
-        val state = client.state
+        val state = client.tagClient.state
 
         socket.getOutputStream().use { outputStream ->
             val size = state.size

@@ -2,29 +2,37 @@ package com.epiroc.wifiaware.di
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import com.epiroc.wifiaware.lib.Client
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.internal.managers.ApplicationComponentManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(ServiceComponent::class)
+@InstallIn(SingletonComponent::class)
 object AppModule {
 
     @Provides
-    @ServiceScoped
+    @Singleton
     fun provideBluetoothManager(@ApplicationContext context: Context) : BluetoothManager {
         return context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     }
 
     @Provides
-    @ServiceScoped
+    @Singleton
     fun provideBluetoothAdapter(@ApplicationContext context: Context) : BluetoothAdapter {
         val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         return manager.adapter
+    }
+
+    @Provides
+    @Singleton
+    fun provideClient() : Client {
+        return Client()
     }
 }

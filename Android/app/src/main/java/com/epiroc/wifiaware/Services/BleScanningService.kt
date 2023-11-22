@@ -26,6 +26,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.ParcelUuid
+import android.os.PowerManager
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
@@ -37,13 +38,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
 import javax.inject.Inject
 
-
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
-class BleScanningService : Service() {
+class BleScanningService (): Service() {
     // Dagger hilt objects
     @Inject
-    lateinit var bluetoothAdapter: BluetoothAdapter
+    lateinit var client: Client
+    @Inject
+    lateinit var bluetoothAdapter : BluetoothAdapter
     private val bluetoothLeScanner by lazy {
         bluetoothAdapter.bluetoothLeScanner
     }
@@ -55,6 +57,8 @@ class BleScanningService : Service() {
     private val scanningInterval = 10000L // 10 seconds
     private val idlePeriod = 5000L // 5 seconds
     private val handler = Handler(Looper.getMainLooper())
+    private lateinit var wakeLock: PowerManager.WakeLock
+
 
     private val scanFilter = ScanFilter.Builder()
         .setServiceUuid(ParcelUuid(UUID.fromString(SERVICE_UUID)))
@@ -62,19 +66,24 @@ class BleScanningService : Service() {
 
     private val scanSettings = ScanSettings.Builder()
         .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+        .setLegacy(false)
         .build()
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device
 
-            if (device != null) {
-                val deviceName = result.device.name
+            if (device.address == "F2:43:4B:13:A3:15") {
+
+                val deviceName = result.device.address
                 val rssi = result.rssi
                 Log.d("BLEService", "Device is: ${deviceName} and rssi is ${rssi}")
                 if (rssi != 127 && deviceName != null) {
-                    Client.updateReadingOfSelf(deviceName, rssi)
+                    client.updateReadingOfSelf(deviceName, rssi)
                 }
+
+                // 2023-11-22 13:46:59.069 12715-12715 BLEService              com.epiroc.wifiaware                 D  ScanResult{device=F2:43:4B:13:A3:15, scanRecord=ScanRecord [mAdvertiseFlags=6, mServiceUuids=[0000feaa-0000-1000-8000-00805f9b34fb], mServiceSolicitationUuids=[], mManufacturerSpecificData={}, mServiceData={0000feaa-0000-1000-8000-00805f9b34fb=[0, -9, 73, 78, 122, -114, -66, 21, 60, -72, 19, 121, 0, 0, 0, 3, 16, -40, 0, 0]}, mTxPowerLevel=-2147483648, mDeviceName=null, mTransportDiscoveryData=null], rssi=127, timestampNanos=371324353004, eventType=16, primaryPhy=1, secondaryPhy=0, advertisingSid=255, txPower=127, periodicAdvertisingInterval=0}
+                // 2023-11-22 13:47:08.104 12715-12715 BLEService              com.epiroc.wifiaware                 D  ScanResult{device=F2:43:4B:13:A3:15, scanRecord=ScanRecord [mAdvertiseFlags=6, mServiceUuids=[0000feaa-0000-1000-8000-00805f9b34fb], mServiceSolicitationUuids=[], mManufacturerSpecificData={}, mServiceData={0000feaa-0000-1000-8000-00805f9b34fb=[0, -9, 73, 78, 122, -114, -66, 21, 60, -72, 19, 121, 0, 0, 0, 3, 16, -40, 0, 0]}, mTxPowerLevel=-2147483648, mDeviceName=null, mTransportDiscoveryData=null], rssi=-47, timestampNanos=380329916281, eventType=16, primaryPhy=1, secondaryPhy=0, advertisingSid=255, txPower=127, periodicAdvertisingInterval=0}
                 // result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
             }
         }
@@ -89,7 +98,7 @@ class BleScanningService : Service() {
                         val rssi = result.rssi
                         Log.d("BLEService","From batch: $deviceName: with rssi: $rssi")
                         if (rssi != 127 && deviceName != null) {
-                            Client.updateReadingOfSelf(deviceName, rssi)
+                            client.updateReadingOfSelf(deviceName, rssi)
                         }
                     }, 20)
                 }
@@ -134,6 +143,8 @@ class BleScanningService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        acquireWakeLock()
 
         val intent = Intent(this, MainActivity::class.java).apply {
             flags
@@ -199,8 +210,8 @@ class BleScanningService : Service() {
 
     private fun startScanning() {
         // Start scanning
-        bluetoothLeScanner.startScan(listOf(scanFilter), scanSettings, scanCallback)
-
+        //bluetoothLeScanner.startScan(listOf(scanFilter), scanSettings, scanCallback)
+        bluetoothLeScanner.startScan(null, scanSettings, scanCallback)
         Log.d("BLEService", "BLE scanner has started.")
 
         //handler.postDelayed({ stopScanning() }, scanningInterval)
@@ -222,6 +233,7 @@ class BleScanningService : Service() {
     override fun onDestroy() {
         Log.d("BLEService", "onDestroy invoked")
         bluetoothLeScanner.stopScan(scanCallback)
+        releaseWakeLock()
         //handler.removeCallbacksAndMessages(null)
         super.onDestroy()
     }
@@ -232,5 +244,24 @@ class BleScanningService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? {
         return binder
+    }
+
+    private fun acquireWakeLock() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "BleScanningService::WakeLock"
+        )
+
+        if (!wakeLock.isHeld) {
+            Log.d("BleService", "Acquiring Wake Lock")
+            wakeLock.acquire()
+        }
+    }
+
+    private fun releaseWakeLock() {
+        if (wakeLock.isHeld) {
+            wakeLock.release()
+        }
     }
 }

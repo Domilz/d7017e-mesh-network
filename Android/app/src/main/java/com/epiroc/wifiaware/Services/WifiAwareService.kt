@@ -64,7 +64,6 @@ class WifiAwareService : Service() {
     private var wifiAwareSession: WifiAwareSession? = null
     private var wifiAwareManager: WifiAwareManager? = null
 
-    private lateinit var byteArray: ByteArray
     private lateinit var publisher: Publisher
     private lateinit var subscriber: Subscriber
 
@@ -75,9 +74,6 @@ class WifiAwareService : Service() {
         // Initialize WifiAwareManager and WifiAwareSession
         wifiAwareManager = getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager
 
-        val random = Random()
-        byteArray = ByteArray(16) // 16 bytes for a UUID
-        random.nextBytes(byteArray)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -232,7 +228,6 @@ class WifiAwareService : Service() {
                 wifiAwareSession = session
 
                 Timer().schedule(object : TimerTask() {
-                    var c = Client.setupClient(byteArray.toString())!!
                     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                     override fun run() {
                         val serviceName = Config.getConfigData()?.getString("service_name")
@@ -240,15 +235,12 @@ class WifiAwareService : Service() {
                         publisher = Publisher(
                             ctx = applicationContext,
                             nanSession = wifiAwareSession!!,
-                            client = c,
                             srvcName = serviceName
                         )
                         subscriber = Subscriber(
                             ctx = applicationContext,
                             nanSession = session,
-                            client = c,
                             srvcName = serviceName!!,
-                            uuid = byteArray
                         )
                         CoroutineScope(Dispatchers.IO).launch {
                             publisher.publishUsingWifiAware()
