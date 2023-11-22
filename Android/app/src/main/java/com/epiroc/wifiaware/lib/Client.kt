@@ -10,6 +10,7 @@ class Client @Inject constructor() {
     private lateinit var clientName : String
 
     fun setupClient(name: String) {
+        Log.d("Client", "SetupClient")
         clientName = name
         if (!::tagClient.isInitialized) {
             tagClient = Tag.getClient().apply {

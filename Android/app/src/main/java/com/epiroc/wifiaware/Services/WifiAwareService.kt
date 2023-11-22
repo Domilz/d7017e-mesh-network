@@ -41,6 +41,7 @@ import com.epiroc.wifiaware.transport.Publisher
 import com.epiroc.wifiaware.transport.Subscriber
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import com.epiroc.wifiaware.workers.NetworkWorker
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -50,8 +51,10 @@ import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class WifiAwareService : Service() {
     private lateinit var cleanUpRunnable: Runnable
     private lateinit var cleanUpHandler: Handler
@@ -66,6 +69,8 @@ class WifiAwareService : Service() {
 
     private lateinit var publisher: Publisher
     private lateinit var subscriber: Subscriber
+    @Inject
+    lateinit var client: Client
 
     private lateinit var wakeLock: WakeLock
 
@@ -235,11 +240,13 @@ class WifiAwareService : Service() {
                         publisher = Publisher(
                             ctx = applicationContext,
                             nanSession = wifiAwareSession!!,
+                            client,
                             srvcName = serviceName
                         )
                         subscriber = Subscriber(
                             ctx = applicationContext,
                             nanSession = session,
+                            client,
                             srvcName = serviceName!!,
                         )
                         CoroutineScope(Dispatchers.IO).launch {

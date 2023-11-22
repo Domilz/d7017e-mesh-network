@@ -18,6 +18,7 @@ import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,10 +32,9 @@ import javax.inject.Inject
 class Subscriber (
     ctx: Context,
     nanSession: WifiAwareSession,
+    private val client: Client,
     srvcName: String,
 ) {
-    @Inject
-    lateinit var client: Client
 
     private val serviceUUID = client.getClientName().toByteArray()
     private val serviceName = srvcName

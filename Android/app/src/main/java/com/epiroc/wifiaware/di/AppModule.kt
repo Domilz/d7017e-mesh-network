@@ -2,6 +2,7 @@ package com.epiroc.wifiaware.di
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.util.Log
 import com.epiroc.wifiaware.lib.Client
 import dagger.Module
 import dagger.Provides
@@ -33,6 +34,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideClient() : Client {
+        Log.d("ClientInjection", "Tag Client provided")
         return Client()
     }
 }
