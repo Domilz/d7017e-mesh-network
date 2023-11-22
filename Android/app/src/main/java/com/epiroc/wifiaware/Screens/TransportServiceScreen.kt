@@ -1,8 +1,10 @@
 package com.epiroc.wifiaware.Screens
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.IBinder
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,21 +44,21 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 @Composable
 fun TransportServiceScreen(
     navController: NavController,
-    connection: ServiceConnection
 ) {
-
     val permissionState = rememberMultiplePermissionsState(permissions = PermissionUtils.servicePermission)
 
-    // Here we bind to WifiAwareService
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     var isWifiServiceRunning by remember { mutableStateOf(false) }
     var isBLEServiceRunning by remember { mutableStateOf(false) }
 
 
-    val lifecycleOwner = LocalLifecycleOwner.current
+    var service by remember { mutableStateOf<WifiAwareService?>(null) }
+    var connection by remember { mutableStateOf<ServiceConnection?>(null) }
+    var nanIntent by remember { mutableStateOf<Intent?>(null) }
 
-    lateinit var nanIntent : Intent
+
 
     DisposableEffect(
         key1 = lifecycleOwner,
@@ -80,8 +82,22 @@ fun TransportServiceScreen(
     LaunchedEffect(key1 = permissionState.allPermissionsGranted) {
         Log.d("Wifiaware", "Launched Effect")
         if (permissionState.allPermissionsGranted) {
-            Intent(context, WifiAwareService::class.java).also { intent ->
-                context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            Log.d("Wifiaware", "Create intent")
+
+            connection = object : ServiceConnection {
+                override fun onServiceConnected(name: ComponentName?, serviceBinder: IBinder?) {
+                    Log.d("Wifiaware", "onServiceConnected")
+                    service = (serviceBinder as? WifiAwareService.LocalBinder)?.getService()
+                }
+
+                override fun onServiceDisconnected(name: ComponentName?) {
+                    Log.d("Wifiaware", "onServiceDisconnected")
+                    service = null
+                }
+            }
+
+            nanIntent = Intent(context, WifiAwareService::class.java).also { intent ->
+                context.bindService(intent, connection!!, Context.BIND_AUTO_CREATE)
             }
         }
     }
@@ -97,17 +113,20 @@ fun TransportServiceScreen(
         ) {
             Button(
                 onClick = {
-                    isWifiServiceRunning = if (!isWifiServiceRunning) {
-                        // Start the service
-                        nanIntent = Intent(context, WifiAwareService::class.java)
-                        ContextCompat.startForegroundService(context, nanIntent)
-                        checkBatteryOptimizations(context)
-                        //ContextCompat.startForegroundService(context, bleIntent)
-                        true
-                    } else {
-                        // Stop the service
-                        context.stopService(nanIntent)
-                        false
+                    if (nanIntent != null) {
+                        isWifiServiceRunning = if (!isWifiServiceRunning) {
+                            // Start the service
+                            ContextCompat.startForegroundService(context, nanIntent!!)
+                            checkBatteryOptimizations(context)
+                            //ContextCompat.startForegroundService(context, bleIntent)
+                            true
+                        } else {
+                            // Stop the service
+                            Log.d("Wifiaware", "Stopping service")
+                            service?.onDestroy()
+                            context.stopService(nanIntent)
+                            false
+                        }
                     }
                 },
                 shape = CircleShape,

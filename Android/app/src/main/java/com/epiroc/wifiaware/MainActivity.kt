@@ -22,17 +22,6 @@ import com.epiroc.wifiaware.ui.theme.WifiAwareTransportTheme
 
 
 class MainActivity : ComponentActivity() {
-    private var service: WifiAwareService? = null
-
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, serviceBinder: IBinder?) {
-            service = (serviceBinder as? WifiAwareService.LocalBinder)?.getService()
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            service = null
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Config.loadConfig(this)
@@ -51,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
         setContent{
             WifiAwareTransportTheme {
-                Navigation(connection)
+                Navigation()
             }
         }
 
@@ -61,7 +50,6 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         Log.d("1Wifi","Service destroyed in main")
         super.onDestroy()
-        unbindService(connection)  // It's crucial to unbind the service when you're done using it.
     }
 }
 

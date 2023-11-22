@@ -8,7 +8,6 @@ import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun Navigation(
-    wifiAwareConnection: ServiceConnection,
 ) {
     val navController = rememberNavController()
 
@@ -18,7 +17,7 @@ fun Navigation(
         }
 
         composable(Screen.TransportServiceScreen.route){
-            TransportServiceScreen(navController = navController, connection = wifiAwareConnection)
+            TransportServiceScreen(navController = navController)
         }
 
         composable(Screen.BlePeripheralScreen.route) {
