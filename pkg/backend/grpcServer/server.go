@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
 
 	handler "github.com/Domilz/d7017e-mesh-network/pkg/backend/grpcServer/handlers"
 	sentLog "github.com/Domilz/d7017e-mesh-network/pkg/backend/sentLog"
@@ -16,8 +17,6 @@ import (
 )
 
 var (
-	//serverAddress       = flag.String("serverAddress", "127.0.0.1:50051", "the address to the server for client connection")
-	port                = flag.Int("port", 50051, "The server port")
 	backendStateHandler handler.BackendStateHandler
 )
 
@@ -67,7 +66,6 @@ func processClientRequest(srv pb.StatePropagation_PropagationServer) error {
 func handleClientRequest(request *pb.State, srv pb.StatePropagation_PropagationServer) error {
 
 	log.Printf("Recived state from client with tagId:  %v", request.TagId)
-	//utils.PrintFormattedState(request)
 	backendStateHandler.InsertMultipleReadings(request)
 	respState := &pb.State{TagId: "Received state"}
 	if err := srv.Send(respState); err != nil {
@@ -87,7 +85,8 @@ func StartGrpcServer(sentLogServer *sentLog.SentLogServer, stateDBPath string, s
 	backendStateHandler.InsertDataFromDB(storedReadings)
 	flag.Parse()
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	CLIENT_PORT := os.Getenv("CLIENT_PORT")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", CLIENT_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -95,7 +94,7 @@ func StartGrpcServer(sentLogServer *sentLog.SentLogServer, stateDBPath string, s
 	s := grpc.NewServer()
 	pb.RegisterStatePropagationServer(s, &server{})
 
-	log.Printf("grpcServer listening at port : %d", *port)
+	log.Printf("grpcServer listening at port : %s", CLIENT_PORT)
 
 	if err := s.Serve(listener); err != nil {
 		log.Fatalf("failed to build server: %v", err)

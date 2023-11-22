@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -29,12 +30,12 @@ type DebugLogCollection struct {
 func StartDebugLogServer(dbPath string, htmlFormatPath string) {
 
 	dbuggLogServer := &DebugLogServer{InitDebugLogDatabase(dbPath), htmlFormatPath}
-
 	debugLogServer = dbuggLogServer
 
 	http.HandleFunc("/debuglog", PostLog)
 	log.Println("Starting debugLog server")
-	go http.ListenAndServe(":4242", nil)
+	SERVER_PORT := os.Getenv("SERVER_PORT")
+	go http.ListenAndServe(":"+SERVER_PORT, nil)
 
 }
 
@@ -45,7 +46,6 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 		dates, data := debugLogServer.debugLogDatabaseHandler.GetDebugLog()
 
 		for i := 0; i < len(dates); i++ {
-
 			debugLogLine := DebugLogStruct{
 				Date: dates[i],
 				Data: data[i],
@@ -59,8 +59,9 @@ func PostLog(w http.ResponseWriter, req *http.Request) {
 	case "POST":
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-
+			log.Printf("error reading request body: %v", err)
 		}
+
 		req.Body.Close()
 		str := string(body[:])
 		b := stringToByteArr(str)

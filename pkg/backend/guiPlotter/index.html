@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Beacon and Tag Display</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <!-- Pass data to JavaScript -->
+</head>
+
+<body>
+
+    <div id="content">
+        <div id="plot-container">
+            <!-- 3D plot will be rendered here -->
+            <canvas id="plot"></canvas>
+        </div>
+        <div id="sidebar">
+            <!-- Tabs for Beacons and Tags -->
+            <div id="tabs">
+                <button id="beaconsTab">Beacons</button>
+                <button id="tagsTab">Tags</button>
+            </div>
+
+            <!-- Container for Beacons and Tags data -->
+            <div id="dataContainer">
+                <table class="tagsTable" id="tagsTable">
+                    <thead id="beaconsTableHead">
+                        <tr>
+                            <th>TagId</th>
+                            <th>RpId</th>
+                            <th>Accuracy</th>
+                            <th>Date</th>
+                            <th>Reading Type</th>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Z</th>
+
+                            <th>Show</th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="tagsTableBody">
+
+                    </tbody>
+
+                </table>
+                <table class="beaconsTable" id="beaconsTable">
+                    <thead id="tagTableHead">
+                        <tr>
+                            <th>RpId</th>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Z</th>
+                            <th>Show</th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="beaconsTableBody">
+
+                    </tbody>
+
+                </table>
+                <!-- Data tables will be dynamically inserted here -->
+            </div>
+            <!-- Update Log Section (at the bottom of the sidebar) -->
+            <div id="updateLog">
+                <table class="updateLogTable" id="updateLogTable">
+                    <thead>
+                        <tr>
+                            <th>Update Log</th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody id="updateLogTableBody">
+
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/static/three.min.js"></script>
+    <script type="module" src="/static/script.js">
+    </script>
+</body>
+
+</html>

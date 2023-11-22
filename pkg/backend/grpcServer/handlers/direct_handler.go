@@ -22,7 +22,7 @@ func (directHandler *DirectHandler) FillOutAndSendForm(reading *pb.Reading) {
 		Nanos:   int(timestamppb.Now().Nanos),
 	}
 
-	newChainDelayStruct := &structs.Chain_delay{
+	newChainDelayStruct := &structs.ChainDelay{
 		Name:     "tagbackend",
 		Sent:     *timeForSentRecived,
 		Received: *timeForSentRecived,
@@ -33,7 +33,7 @@ func (directHandler *DirectHandler) FillOutAndSendForm(reading *pb.Reading) {
 		Rssi:        int(reading.Rssi),
 		Tag_id:      reading.TagId,
 		Type:        "BLE",
-		Chain_delay: []structs.Chain_delay{*newChainDelayStruct},
+		Chain_delay: []structs.ChainDelay{*newChainDelayStruct},
 	}
 
 	newRssiForm := &structs.RssiForm{

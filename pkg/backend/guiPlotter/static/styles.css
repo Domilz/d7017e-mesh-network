@@ -1,0 +1,82 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    color: #ffffff
+}
+
+#content {
+    display: flex;
+    height: 100%;
+}
+
+#plot-container {
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+#sidebar {
+    width: 600px;
+    min-width: 600px;
+    background-color: #292929;
+    overflow-y: auto;
+    position: relative;
+    /* Add position: relative; */
+}
+
+#tabs button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #ddd;
+    cursor: pointer;
+}
+
+thead {
+    background-color: #000000;
+    font-size: 18px;
+}
+tbody {
+    font-size: 14px;
+}
+
+
+
+
+
+#tabs button:hover {
+    background-color: #ccc;
+}
+
+
+
+
+
+#dataContainer {
+    padding: 10px;
+    width: 580px;
+    min-width: 580px;
+    height: 300px;
+    overflow-y: auto;
+}
+
+.beaconsTable {
+    display: none;
+    
+}
+
+#updateLog {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 300px;
+    /* Set a fixed height */
+    background-color: #292929;
+
+    border-top: 1px solid #ccc;
+    overflow-y: auto;
+    /* Add scrollbar if content exceeds 300px */
+}

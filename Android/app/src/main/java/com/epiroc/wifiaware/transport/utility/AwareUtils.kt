@@ -47,7 +47,7 @@ object WifiAwareUtility {
     }
 
     fun sendPostRequest(data : ByteArray) {
-        val url = URL(Config.getConfigData()?.getString("ip_backend"))
+        val url = URL(Config.getConfigData()?.getString("backend_ip"))
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")

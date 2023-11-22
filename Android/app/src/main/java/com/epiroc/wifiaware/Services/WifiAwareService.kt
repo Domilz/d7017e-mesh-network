@@ -46,12 +46,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
 
 
 class WifiAwareService : Service() {
+    private lateinit var cleanUpRunnable: Runnable
+    private lateinit var cleanUpHandler: Handler
     private val hasWifiAwareText: MutableState<String> = mutableStateOf("")
     private val utility: WifiAwareUtility = WifiAwareUtility
     private val serviceScope = CoroutineScope(Dispatchers.Main)
@@ -61,7 +64,7 @@ class WifiAwareService : Service() {
     private var wifiAwareSession: WifiAwareSession? = null
     private var wifiAwareManager: WifiAwareManager? = null
 
-    private lateinit var serviceUUID: String
+    private lateinit var byteArray: ByteArray
     private lateinit var publisher: Publisher
     private lateinit var subscriber: Subscriber
 
@@ -72,7 +75,9 @@ class WifiAwareService : Service() {
         // Initialize WifiAwareManager and WifiAwareSession
         wifiAwareManager = getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager
 
-         serviceUUID = UUID.randomUUID().toString()
+        val random = Random()
+        byteArray = ByteArray(16) // 16 bytes for a UUID
+        random.nextBytes(byteArray)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -109,8 +114,8 @@ class WifiAwareService : Service() {
         wifiAwareState()
         acquireWifiAwareSession()
 
-        val cleanUpHandler = Handler(Looper.getMainLooper())
-        val cleanUpRunnable = object: Runnable {
+        cleanUpHandler = Handler(Looper.getMainLooper())
+        cleanUpRunnable = object: Runnable {
             override fun run() {
 
                 if (::subscriber.isInitialized) {
@@ -150,12 +155,15 @@ class WifiAwareService : Service() {
     }
 
     override fun onDestroy() {
+        wifiAwareSession!!.close()
+
+        cleanUpHandler.removeCallbacks(cleanUpRunnable)
         Log.d("1Wifi","Service destroyed")
         super.onDestroy()
         if (::wakeLock.isInitialized && wakeLock.isHeld) {
             wakeLock.release();
         }
-        serviceScope.cancel()
+        //serviceScope.cancel()
     }
 
     companion object {
@@ -224,7 +232,7 @@ class WifiAwareService : Service() {
                 wifiAwareSession = session
 
                 Timer().schedule(object : TimerTask() {
-                    var c = Client.setupClient(serviceUUID)!!
+                    var c = Client.setupClient(byteArray.toString())!!
                     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                     override fun run() {
                         val serviceName = Config.getConfigData()?.getString("service_name")
@@ -233,15 +241,14 @@ class WifiAwareService : Service() {
                             ctx = applicationContext,
                             nanSession = wifiAwareSession!!,
                             client = c,
-                            srvcName = serviceName,
-                            uuid = serviceUUID
+                            srvcName = serviceName
                         )
                         subscriber = Subscriber(
                             ctx = applicationContext,
                             nanSession = session,
                             client = c,
                             srvcName = serviceName!!,
-                            uuid = serviceUUID
+                            uuid = byteArray
                         )
                         CoroutineScope(Dispatchers.IO).launch {
                             publisher.publishUsingWifiAware()
@@ -270,12 +277,6 @@ class WifiAwareService : Service() {
             override fun onAwareSessionTerminated() {
                 super.onAwareSessionTerminated()
                 wifiAwareSession = null
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        wifiAwareState()
-                        acquireWifiAwareSession()
-                    }
-                }, 1000) // Delay in milliseconds
             }
         }
 

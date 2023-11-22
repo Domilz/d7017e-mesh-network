@@ -6,16 +6,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"time"
 
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-)
-
-var (
-	serverAddress = flag.String("serverAddress", "83.233.46.128:50051", "the address to the server for client connection")
 )
 
 func SendToBackend(state *pb.State) {
@@ -60,7 +57,9 @@ func SendToBackend(state *pb.State) {
 }
 
 func connectToServer() (*grpc.ClientConn, error) {
-	conn, err := grpc.Dial(*serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	SERVER_ADDRESS := os.Getenv("SERVER_ADDRESS")
+	CLIENT_PORT := os.Getenv("CLIENT_PORT")
+	conn, err := grpc.Dial(SERVER_ADDRESS+":"+CLIENT_PORT, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	return conn, err
 }
 
@@ -83,12 +82,11 @@ func receiveAndProcessResponse(stream pb.StatePropagation_PropagationClient) (*p
 		return nil, err
 	} else if err == nil {
 		if response != nil {
-			//utils.PrintFormattedState(response)
 			fmt.Println("server response: ", response.TagId)
-
 		}
 
 	}
+
 	return nil, err
 }
 

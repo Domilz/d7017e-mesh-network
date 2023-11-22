@@ -32,7 +32,7 @@ class Subscriber(
     nanSession: WifiAwareSession,
     client: Client,
     srvcName: String,
-    uuid: String
+    uuid: ByteArray
 ) {
     private val serviceUUID = uuid
     private val serviceName = srvcName
@@ -79,7 +79,7 @@ class Subscriber(
                             currentSubSession?.sendMessage(
                                 peerHandle,
                                 0, // Message type (0 for unsolicited)
-                                serviceUUID.toByteArray(Charsets.UTF_8),
+                                serviceUUID,
                             )
                         }
                     }, 0) // Delay in milliseconds

@@ -22,7 +22,9 @@ type BackendStateHandler struct {
 func (stateHandler *BackendStateHandler) InitStateHandler(id string, sLogServer *sentLog.SentLogServer, sDatabaseHandler *StateDatabaseHandler) {
 	stateHandler.lock()
 	stateHandler.directHandler = InitDirectHandler(sLogServer)
-	stateHandler.indirectHandler = InitIndirectHandler(sLogServer) //When implemented
+	stateHandler.indirectHandler = InitIndirectHandler(sLogServer)
+	sLogServer.SetReferencePointChache(stateHandler.indirectHandler.rpCache)
+	sLogServer.StartGUIPlotter()
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
 	stateHandler.stateDatabaseHandler = sDatabaseHandler
@@ -110,12 +112,14 @@ func (stateHandler *BackendStateHandler) InsertSingleReading(reading *pb.Reading
 func findLatestTimestamp(reading *pb.Reading, otherReading *pb.Reading) bool {
 	return reading.Ts.Seconds <= otherReading.Ts.Seconds
 }
+
 func (stateHandler *BackendStateHandler) insertOne(reading *pb.Reading) {
 	stateHandler.lock()
 	stateHandler.readingsMap[reading.TagId] = reading
 	stateHandler.unLock()
 
 }
+
 func (stateHandler *BackendStateHandler) InsertDataFromDB(readings []pb.Reading) {
 
 	for i := 0; i < len(readings); i++ {
