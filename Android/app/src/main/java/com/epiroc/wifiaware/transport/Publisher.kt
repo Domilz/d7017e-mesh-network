@@ -24,6 +24,7 @@ import java.io.EOFException
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
+import java.net.SocketTimeoutException
 import java.util.Timer
 import java.util.TimerTask
 
@@ -41,7 +42,7 @@ class Publisher(
     private var currentNetwork : Network? = null
 
     private var client = client
-    private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
+    //private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
     private var clientSocket: Socket? = null
     private val messagesReceived: MutableList<String> = mutableListOf()
 
@@ -67,6 +68,7 @@ class Publisher(
                     override fun onPublishStarted(session: PublishDiscoverySession) {
                         Log.d("1Wifi", "PUBLISH: Publish started")
                         currentPubSession = session
+
                     }
 
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
@@ -118,30 +120,72 @@ class Publisher(
             .build()
 
         Log.d("NETWORKWIFI","PUBLISH: All necessary wifiaware network things created now awaiting callback on port $port and this is port from local ${serverSocket!!.localPort}")
-        networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
+        val networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 currentNetwork = network
-                try {
-                    Log.d("NETWORKWIFI","PUBLISH: Trying to accept socket connections")
-                    clientSocket = serverSocket?.accept()
-                } catch (e: Exception) {
-                    Log.d("NETWORKWIFI","PUBLISH: Connection failed to establish. ${e.message} stack: ${Log.getStackTraceString(e)}")
-                    serverSocket?.close()
-                    connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
-                    return
+
+                val maxRetries = 3
+                val retryDelayMillis = 5000L  // Delay between retries, e.g., 5000 milliseconds (5 seconds)
+                var retryCount = 0
+
+                while (retryCount < maxRetries) {
+                    try {
+                        Log.d("NETWORKWIFI", "PUBLISH: Trying to accept socket connections. Attempt: ${retryCount + 1}")
+
+                        if (clientSocket != null && !clientSocket!!.isClosed) {
+                            clientSocket!!.close()  // Close any existing client socket
+                        }
+                        clientSocket = serverSocket?.accept()  // Attempt to accept a connection
+
+                        Log.d("NETWORKWIFI", "PUBLISH: Connection successful")
+                        CoroutineScope(Dispatchers.IO).launch {
+                            handleClient(clientSocket, connectivityManager)
+                            serverSocket?.close()
+                        }
+                        break  // Break out of the loop if connection is successful
+                    } catch (e: SocketTimeoutException) {
+                        Log.d("NETWORKWIFI", "PUBLISH: Socket accept timed out. Retrying... (${retryCount + 1})")
+                    } catch (e: Exception) {
+                        Log.d("NETWORKWIFI", "PUBLISH: Connection failed to establish. ${e.message} stack: ${Log.getStackTraceString(e)}")
+                        // Consider whether to break or continue retrying depending on the exception type
+                        break
+                    }
+
+                    retryCount++
+                    Thread.sleep(retryDelayMillis)  // Delay before the next retry
                 }
-                Log.d("NETWORKWIFI","PUBLISH: DET GICK BRA")
-                CoroutineScope(Dispatchers.IO).launch {
-                    handleClient(clientSocket, connectivityManager)
+
+                if (retryCount >= maxRetries) {
+                    Log.d("NETWORKWIFI", "PUBLISH: Maximum retry attempts reached. Failed to establish connection.")
+                    serverSocket?.close()
+                    //connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
                 }
             }
 
+
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-                Log.d("NETWORKWIFI","PUBLISH: onCapabilitiesChanged")
+                Log.d("NETWORKWIFI", "PUBLISH: onCapabilitiesChanged")
+
+                // Check for specific network capabilities, if relevant to your publisher logic
+                if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                    Log.d("NETWORKWIFI", "Publisher: Network has internet capability.")
+                    // Handle any logic that requires the network to have internet access
+                }
+
+                // If your publisher also sends data and you want to adapt to bandwidth changes
+                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE)) {
+                    val linkUpstreamBandwidthKbps = networkCapabilities.linkUpstreamBandwidthKbps
+                    val linkDownstreamBandwidthKbps = networkCapabilities.linkDownstreamBandwidthKbps
+                    Log.d("NETWORKWIFI", "Publisher: Link Upstream Bandwidth: $linkUpstreamBandwidthKbps Kbps, Downstream: $linkDownstreamBandwidthKbps Kbps")
+                    // Adjust your data sending strategy based on available bandwidth
+                }
+
+                // Add any other relevant checks or logic specific to your application
             }
 
             override fun onLost(network: Network) {
                 Log.d("1Wifi", "PUBLISH: Connection lost: $network")
+                serverSocket?.close()
                 //connectivityManager.unregisterNetworkCallback(networkCallbackPub)
             }
         }
@@ -178,8 +222,8 @@ class Publisher(
         Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.getReadableOfSingleState(client.state)}")
 
         utility.saveToFile(context,client.state)
-        Log.d("1Wifi", "PUBLISH: UnregisterNetworkCallback")
-        connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
+        //Log.d("1Wifi", "PUBLISH: UnregisterNetworkCallback")
+        //connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }
 
     fun shouldConnectToDevice(deviceIdentifier: String): Boolean {

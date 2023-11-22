@@ -21,8 +21,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tag.Client
+import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.util.Timer
 import java.util.TimerTask
@@ -91,6 +93,16 @@ class Subscriber(
                 }
             }
 
+            override fun onMessageSendSucceeded(messageId: Int) {
+                super.onMessageSendSucceeded(messageId)
+                Log.e("1Wifi", "SUBSCRIBE: WOOOOHOOOOO onMessageSendSucceeded (this is good) $messageId")
+            }
+
+            override fun onMessageSendFailed(messageId: Int) {
+                super.onMessageSendFailed(messageId)
+                Log.e("1Wifi", "SUBSCRIBE: BUUUUUUUUUUU onMessageSendFailed (this is bad) $messageId")
+            }
+
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 Log.d("1Wifi", "SUBSCRIBE MSG_RECEIVED: Message received from peer: $peerHandle")
                 responseTimer?.cancel()
@@ -98,7 +110,7 @@ class Subscriber(
                 synchronized(peerHandleQueue) {
                     if (currentPeerHandle == peerHandle) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            createNetwork(peerHandle, wifiAwareSession, context)
+                            createNetwork(peerHandle, context)
                             currentPeerHandle = null
                             if (peerHandleQueue.isNotEmpty()) {
                                 processNextPeerHandle()
@@ -120,10 +132,10 @@ class Subscriber(
         wifiAwareSession!!.subscribe(subscribeConfig, discoverySessionCallback, handler)
     }
 
-    fun createNetwork(peerHandle : PeerHandle, wifiAwareSession : WifiAwareSession, context : Context) {
+    fun createNetwork(peerHandle : PeerHandle, context : Context) {
+        Log.d("1Wifi", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
 
-        Log.d("1Wifi", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
         val networkSpecifier = currentSubSession?.let {
             WifiAwareNetworkSpecifier.Builder(it, peerHandle)
                 .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
@@ -140,27 +152,56 @@ class Subscriber(
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
                 Log.d("NETWORKWIFI","SUBSCRIBER: onCapabilitiesChanged")
                 Log.d("1Wifi", "SUBSCRIBE: Network capabilities changed for peer: $peerHandle")
-                val peerAwareInfo = networkCapabilities.transportInfo as WifiAwareNetworkInfo
-                val peerIpv6 = peerAwareInfo.peerIpv6Addr
-                val peerPort = peerAwareInfo.port
+                super.onCapabilitiesChanged(network, networkCapabilities)
 
-                Log.d("1Wifi", "peerport is: $peerPort, aware info: $peerAwareInfo")
+                // Check for Wi-Fi Aware capability
+                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE)) {
+                    // Handle Wi-Fi Aware capabilities here
+                    Log.d("NetworkCallback", "Wi-Fi Aware capabilities changed.")
 
-                try {
-                    clientSocket = network.socketFactory.createSocket() // Don't pass the address and port here.
-                    //clientSocket.reuseAddress = true
-                    Log.d("1Wifi","SUBSCRIBER: TRYING TO CONNECT! to port $peerPort")
-                    clientSocket.connect(InetSocketAddress(peerIpv6, peerPort))
+                    // Example: Check for specific capabilities if needed
+                    if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                        // Network has internet capability
+                        Log.d("NetworkCallback", "Network has internet capability.")
+                    }
 
+                    val wifiAwareNetworkInfo = networkCapabilities.transportInfo as? WifiAwareNetworkInfo
+                    wifiAwareNetworkInfo?.let {
+                        val peerIpv6Addr = it.peerIpv6Addr
+                        val port = it.port
 
-                    handleDataExchange(peerHandle, clientSocket,connectivityManager)
-                    //alreadyConnected = false
-                        //clientSocket.close()
+                        var retryCount = 0
+                        val maxRetries = 3
+                        val retryDelayMillis = 5000L // 5 seconds delay between retries
 
-                    //clientSocket.close()
+                        while (retryCount < maxRetries) {
+                            try {
+                                clientSocket = network.socketFactory.createSocket()
+                                clientSocket.soTimeout = 5000 // Set socket timeout (10 seconds for example)
 
-                } catch (e: Exception) {
-                    Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
+                                Log.d("1Wifi","SUBSCRIBER: TRYING TO CONNECT! to port $port")
+                                clientSocket.connect(InetSocketAddress(peerIpv6Addr, port))
+
+                                handleDataExchange(peerHandle, clientSocket, connectivityManager)
+                                Log.d("1Wifi","SUBSCRIBER: seems like its done")
+                                break // Break the loop if connection is successful
+                            } catch (e: SocketTimeoutException) {
+                                Log.e("1Wifi", "SUBSCRIBE: Socket timeout occurred. Retrying... (${retryCount + 1})")
+                            } catch (e: IOException) {
+                                Log.e("1Wifi", "SUBSCRIBE: IO Exception occurred: ${e.message}. Retrying... (${retryCount + 1})")
+                            } catch (e: Exception) {
+                                Log.e("1Wifi", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
+                                break // Break on other types of exceptions
+                            }
+
+                            retryCount++
+                            Thread.sleep(retryDelayMillis) // Wait for some time before retrying
+                        }
+
+                        if (retryCount == maxRetries) {
+                            Log.e("1Wifi", "SUBSCRIBE: Maximum retry attempts reached. Connection failed.")
+                        }
+                    }
                 }
             }
 
@@ -181,27 +222,35 @@ class Subscriber(
         connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackSub)
     }
 
-    private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket,connectivityManager : ConnectivityManager) {
-        Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
-        client.insertSingleMockedReading("Client")
-        val state = client.state
+    private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket, connectivityManager: ConnectivityManager) {
+        try {
+            Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
+            client.insertSingleMockedReading("Client")
+            val state = client.state
 
-        socket.getOutputStream().use { outputStream ->
-            val size = state.size
-            outputStream.write(ByteBuffer.allocate(4).putInt(size).array())
-            try{    // Write the protobuf message bytes
+            socket.getOutputStream().use { outputStream ->
+                val size = state.size
+                outputStream.write(ByteBuffer.allocate(4).putInt(size).array())
                 outputStream.write(state)
                 outputStream.flush()
                 socket.shutdownOutput()
-            }catch (e: Exception){
-                Log.e("1Wifi", "SUBSCRIBE: Error in handleDataExchange")
             }
-            outputStream.close()
             Log.d("DONEEE", "SUBSCRIBE: All information sent we are done")
+        } catch (e: IOException) {
+            Log.e("1Wifi", "SUBSCRIBE: IOException in handleDataExchange: ${e.message}")
+        } catch (e: SecurityException) {
+            Log.e("1Wifi", "SUBSCRIBE: SecurityException in handleDataExchange: ${e.message}")
+        } catch (e: Exception) {
+            Log.e("1Wifi", "SUBSCRIBE: Error in handleDataExchange: ${e.message}")
+        } finally {
+            try {
+                clientSocket?.close()
+            } catch (e: IOException) {
+                Log.e("1Wifi", "SUBSCRIBE: Error closing socket: ${e.message}")
+            }
+            networkCallbackSub.onLost(currentNetwork)
+            processNextPeerHandle()
         }
-        clientSocket?.close()
-        networkCallbackSub.onLost(currentNetwork)
-        processNextPeerHandle()
     }
 
     private fun sendMessageToPublisher(peerHandle: PeerHandle) {

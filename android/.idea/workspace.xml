@@ -9,7 +9,8 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8b580310-508d-4972-9d18-e658d2fa7595" name="Changes" comment="Fix IP for backend">
+    <list default="true" id="8b580310-508d-4972-9d18-e658d2fa7595" name="Changes" comment="Added a peerhandle queue for the subscriber">
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -75,7 +76,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="hotfix_ip_backend" />
+        <entry key="$PROJECT_DIR$/.." value="transport_multiple_devices" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -342,7 +343,13 @@
       <option name="project" value="LOCAL" />
       <updated>1700475609925</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL−00022" summary="Added a peerhandle queue for the subscriber">
+      <created>1700573338121</created>
+      <option name="number" value="LOCAL−00022" />
+      <option name="presentableId" value="LOCAL−00022" />
+      <updated>1700573338122</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -378,7 +385,8 @@
     <MESSAGE value="Working on #137&#10;&#10;In progress, needs further testing." />
     <MESSAGE value="Minor improvements from Friday last week." />
     <MESSAGE value="Fix IP for backend" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix IP for backend" />
+    <MESSAGE value="Added a peerhandle queue for the subscriber" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a peerhandle queue for the subscriber" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -390,7 +398,7 @@
         </line-breakpoint>
         <line-breakpoint type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/MainActivity.kt</url>
-          <line>82</line>
+          <line>79</line>
           <option name="timeStamp" value="235" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
@@ -430,28 +438,33 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>101</line>
+          <line>103</line>
           <option name="timeStamp" value="471" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>180</line>
+          <line>225</line>
           <option name="timeStamp" value="472" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>147</line>
+          <line>191</line>
           <option name="timeStamp" value="473" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>108</line>
+          <line>110</line>
           <option name="timeStamp" value="475" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt</url>
-          <line>80</line>
-          <option name="timeStamp" value="476" />
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
+          <line>298</line>
+          <option name="timeStamp" value="479" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
+          <line>265</line>
+          <option name="timeStamp" value="483" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
