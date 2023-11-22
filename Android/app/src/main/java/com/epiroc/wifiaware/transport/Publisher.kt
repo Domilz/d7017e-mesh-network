@@ -68,7 +68,7 @@ class Publisher (
             } else {
                 Log.d("1Wifi","PUBLISH: WE HAVE PREM TO PUBLISH")
                 // Permissions are granted, proceed with publishing.
-                wifiAwareSession!!.publish(config, object : DiscoverySessionCallback() {
+                wifiAwareSession.publish(config, object : DiscoverySessionCallback() {
 
                     override fun onPublishStarted(session: PublishDiscoverySession) {
                         Log.d("1Wifi", "PUBLISH: Publish started")
@@ -162,7 +162,7 @@ class Publisher (
                     }catch (e: Exception){
                         Log.d("1Wifi", "Error in inserting in handleClient" + e.message.toString())
                     }
-                    Log.d("INFOFROMCLIENT", "Received protobuf message: ${client.tagClient.getReadableOfSingleState(messageBytes)}")
+                    Log.d("INFOFROMCLIENT", "Received protobuf message: ${client.tagClient.getReadableOfProvidedSerializedState(messageBytes)}")
                 } else {
                     Log.d("INFOFROMCLIENT", "End of stream reached or the connection")
                 }
@@ -172,9 +172,9 @@ class Publisher (
                 Log.e("INFOFROMCLIENT", "I/O exception: ${e.message}")
             }
         }
-        Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.tagClient.getReadableOfSingleState(client.tagClient.state)}")
+        Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.tagClient.getReadableOfProvidedSerializedState(client.tagClient.serializedState)}")
 
-        utility.saveToFile(context,client.tagClient.state)
+        utility.saveToFile(context,client.tagClient.serializedState)
         connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }
 

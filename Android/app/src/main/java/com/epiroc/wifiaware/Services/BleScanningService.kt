@@ -40,7 +40,7 @@ import javax.inject.Inject
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
-class BleScanningService (): Service() {
+class BleScanningService : Service() {
     // Dagger hilt objects
     @Inject
     lateinit var client: Client

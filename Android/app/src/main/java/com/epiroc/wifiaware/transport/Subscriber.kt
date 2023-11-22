@@ -168,7 +168,7 @@ class Subscriber (
     private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket,connectivityManager : ConnectivityManager) {
         Log.d("1Wifi", "SUBSCRIBE: Attempting to send information to: $peerHandle")
         client.insertSingleMockedReading("Client")
-        val state = client.tagClient.state
+        val state = client.tagClient.serializedState
 
         socket.getOutputStream().use { outputStream ->
             val size = state.size

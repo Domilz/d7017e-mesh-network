@@ -88,7 +88,6 @@ class BlePeripheralService () : Service() {
     }
 
     private val gattServerCallback = object : BluetoothGattServerCallback() {
-
     }
 
 
