@@ -40,6 +40,7 @@ class Subscriber(
     private val peerHandleQueue = ArrayDeque<PeerHandle>()
     private var currentPeerHandle: PeerHandle? = null
     private var responseTimer: Timer? = null
+    private var responseTimer2: Timer? = null
     private val RESPONSE_TIMEOUT = 10000L // 10 seconds for example
 
     private lateinit var clientSocket: Socket
@@ -82,11 +83,12 @@ class Subscriber(
                 super.onServiceDiscovered(peerHandle, serviceSpecificInfo, matchFilter)
 
                 if (peerHandle != null) {
-                    synchronized(peerHandleQueue) {
-                        peerHandleQueue.add(peerHandle)
-                        if (currentPeerHandle == null) {
-                            processNextPeerHandle()
-                        }
+
+                    peerHandleQueue.add(peerHandle)
+                    if (peerHandleQueue.size == 1 && currentPeerHandle == null) {
+                        Log.d("1Wifi", "NEWPHONE: we are starting for a new phone because peerHandleQueue.size == 1 && currentPeerHandle == null in onServiceDiscovered ${peerHandleQueue.size}")
+                        currentPeerHandle = peerHandle
+                        processNextPeerHandle()
                     }
                 } else {
                     Log.e("1Wifi", "SUBSCRIBE: PeerHandle is null")
@@ -95,11 +97,13 @@ class Subscriber(
 
             override fun onMessageSendSucceeded(messageId: Int) {
                 super.onMessageSendSucceeded(messageId)
+                //peerHandleQueue.removeFirstOrNull()
                 Log.e("1Wifi", "SUBSCRIBE: WOOOOHOOOOO onMessageSendSucceeded (this is good) $messageId")
             }
 
             override fun onMessageSendFailed(messageId: Int) {
                 super.onMessageSendFailed(messageId)
+
                 Log.e("1Wifi", "SUBSCRIBE: BUUUUUUUUUUU onMessageSendFailed (this is bad) $messageId")
             }
 
@@ -111,10 +115,6 @@ class Subscriber(
                     if (currentPeerHandle == peerHandle) {
                         CoroutineScope(Dispatchers.IO).launch {
                             createNetwork(peerHandle, context)
-                            currentPeerHandle = null
-                            if (peerHandleQueue.isNotEmpty()) {
-                                processNextPeerHandle()
-                            }
                         }
                     }
                 }
@@ -181,7 +181,6 @@ class Subscriber(
 
                                 Log.d("1Wifi","SUBSCRIBER: TRYING TO CONNECT! to port $port")
                                 clientSocket.connect(InetSocketAddress(peerIpv6Addr, port))
-
                                 handleDataExchange(peerHandle, clientSocket, connectivityManager)
                                 Log.d("1Wifi","SUBSCRIBER: seems like its done")
                                 break // Break the loop if connection is successful
@@ -220,6 +219,7 @@ class Subscriber(
             }
         }
         connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackSub)
+        startResponseTimer2(peerHandle)
     }
 
     private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket, connectivityManager: ConnectivityManager) {
@@ -245,10 +245,14 @@ class Subscriber(
         } finally {
             try {
                 clientSocket?.close()
+
             } catch (e: IOException) {
                 Log.e("1Wifi", "SUBSCRIBE: Error closing socket: ${e.message}")
             }
-            networkCallbackSub.onLost(currentNetwork)
+            // After data exchange, process the next peer
+            connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
+            currentPeerHandle = null
+            Log.d("1Wifi", "NEWPHONE: we are starting for a new phone because the information is already sent to the prev one in handleDataExchange ${peerHandleQueue.size}")
             processNextPeerHandle()
         }
     }
@@ -271,27 +275,52 @@ class Subscriber(
             schedule(object : TimerTask() {
                 override fun run() {
                     Log.d("1Wifi", "TIMER: Response timeout for peer: $peerHandle")
+
+
                     synchronized(peerHandleQueue) {
                         currentPeerHandle = null
                         if (peerHandleQueue.isNotEmpty()) {
+                            peerHandleQueue.addLast(peerHandle)
+                            Log.d(
+                                "1Wifi",
+                                "NEWPHONE: we are starting for a new phone because Response timeout in $peerHandle startResponseTimer ${peerHandleQueue.size}"
+                            )
                             processNextPeerHandle()
                         } else {
                             Log.d("1Wifi", "TIMER: Queue is empty after timeout.")
                         }
                     }
                 }
+
+            }, RESPONSE_TIMEOUT)
+        }
+    }
+
+    private fun startResponseTimer2(peerHandle: PeerHandle) {
+        responseTimer?.cancel()
+        //Log.d("1Wifi", "TIMER: Starting response timer for peer handle: $peerHandle")
+        responseTimer = Timer().apply {
+            schedule(object : TimerTask() {
+                override fun run() {
+                    //Log.d("1Wifi", "TIMER: Response timeout for peer: $peerHandle")
+                    //createNetwork(peerHandle,context)
+                    currentSubSession!!.sendMessage(peerHandle,0, "".toByteArray())
+                }
+
             }, RESPONSE_TIMEOUT)
         }
     }
 
     private fun processNextPeerHandle() {
         synchronized(peerHandleQueue) {
-            currentPeerHandle = peerHandleQueue.removeFirstOrNull()
-            Log.d("1Wifi", "PROCESS_NEXT: Processing next peer handle: $currentPeerHandle")
+
+            //Log.d("1Wifi", "NEWPHONE: we are starting for a new phone ${peerHandleQueue.size}")
+            currentPeerHandle = peerHandleQueue.removeFirstOrNull()  // Use poll to remove the head
             currentPeerHandle?.let {
                 sendMessageToPublisher(it)
                 startResponseTimer(it)
-            }?: Log.d("1Wifi", "PROCESS_NEXT: No more peer handles to process.")
+            }
+
         }
     }
 }

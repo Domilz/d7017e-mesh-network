@@ -244,7 +244,7 @@ class Publisher(
                     System.currentTimeMillis()
                 )
             )
-            Log.d("1Wifi", "SUBSCRIBE: Device [$deviceIdentifier] is not in the list. Adding it and allowing connection.")
+            Log.d("1Wifi", "Publisher: Device [$deviceIdentifier] is not in the list. Adding it and allowing connection.")
             true
         }
     }

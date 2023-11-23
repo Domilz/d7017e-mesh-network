@@ -252,6 +252,7 @@ class WifiAwareService : Service() {
                 )
                 CoroutineScope(Dispatchers.IO).launch {
                     publisher.publishUsingWifiAware()
+
                 }
 
                 CoroutineScope(Dispatchers.IO).launch {

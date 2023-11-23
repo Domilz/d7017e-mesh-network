@@ -32,7 +32,11 @@ class BLEService : Service() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
             // TODO: Process the scan result, extract data
-            Log.d("BLEService", "Found BLE device: ${result.device.address} with data: ${result.scanRecord}")
+            //Log.d("BLEService", "Found BLE device: ${result.device.address} with data: ${result.scanRecord}")
+            if (result.device.address == "F2:43:4B:13:A3:15") {
+                var rssi = result.rssi
+                Log.d("BLEService", rssi.toString())
+            }
         }
 
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
