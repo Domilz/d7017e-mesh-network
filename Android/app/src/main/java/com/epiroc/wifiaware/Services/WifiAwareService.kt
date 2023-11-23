@@ -12,6 +12,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
 import android.net.wifi.aware.AttachCallback
 import android.net.wifi.aware.IdentityChangedListener
 import android.net.wifi.aware.WifiAwareManager
@@ -24,7 +25,6 @@ import android.os.Looper
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
@@ -44,9 +44,7 @@ import com.epiroc.wifiaware.workers.NetworkWorker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.io.File
 import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
@@ -56,6 +54,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class WifiAwareService : Service() {
+    private var wifiLock: WifiManager.WifiLock? = null
     private lateinit var cleanUpRunnable: Runnable
     private lateinit var cleanUpHandler: Handler
     private val hasWifiAwareText: MutableState<String> = mutableStateOf("")
@@ -122,24 +121,18 @@ class WifiAwareService : Service() {
                 if (::subscriber.isInitialized) {
                     if(utility.isNotEmpty()) {
                         var didremove = utility.removeIf()
-                        Log.e(
-                            "1Wifi",
-                            "It removed? : $didremove"
-                        )
+                      //  Log.e("1Wifi", "It removed? : $didremove")
                         if (didremove) {
-                            Log.e(
-                                "1Wifi",
-                                "It removed? : $didremove YES"
-                            )
+                           // Log.e("1Wifi", "It removed? : $didremove YES")
                         }
                     } else {
                         utility.incrementTryCount()
-                        Log.e("1Wifi", "recentlyConnectedDevices: ${utility.count()}")
+                        //Log.e("1Wifi", "recentlyConnectedDevices: ${utility.count()}")
                     }
                 } else {
                     Log.e("1Wifi", "subscriber: not init")
                 }
-                Log.d("1Wifi","tryCount: ${utility.getTryCount()}")
+                //Log.d("1Wifi","tryCount: ${utility.getTryCount()}")
                 if (utility.getTryCount() == 10) {
                    /* publisher.getCurrent()?.close()
                     subscriber.getCurrent()?.close()
@@ -230,39 +223,47 @@ class WifiAwareService : Service() {
         Log.d("1Wifi", "Attempting to acquire Wifi Aware session.")
         val attachCallback = object : AttachCallback() {
             override fun onAttached(session: WifiAwareSession) {
+                val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+                wakeLock =
+                    powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag")
+                wakeLock.acquire()
+                val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+                wifiLock = wifiManager.createWifiLock(
+                    WifiManager.WIFI_MODE_FULL_HIGH_PERF,
+                    "MyApp:WifiLockTag"
+                )
+                wifiLock!!.acquire()
                 wifiAwareSession = session
 
-                Timer().schedule(object : TimerTask() {
-                    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-                    override fun run() {
-                        val serviceName = Config.getConfigData()?.getString("service_name")
-                        // Initialize the publisher and subscriber
-                        publisher = Publisher(
-                            ctx = applicationContext,
-                            nanSession = wifiAwareSession!!,
-                            client,
-                            srvcName = serviceName
-                        )
-                        subscriber = Subscriber(
-                            ctx = applicationContext,
-                            nanSession = session,
-                            client,
-                            srvcName = serviceName!!,
-                        )
-                        CoroutineScope(Dispatchers.IO).launch {
-                            publisher.publishUsingWifiAware()
-                        }
+                val serviceName = Config.getConfigData()?.getString("service_name")
+                // Initialize the publisher and subscriber
+                publisher = Publisher(
+                    ctx = applicationContext,
+                    nanSession = wifiAwareSession!!,
+                    client = c,
+                    srvcName = serviceName
+                )
+                subscriber = Subscriber(
+                    ctx = applicationContext,
+                    nanSession = session,
+                    client = c,
+                    srvcName = serviceName!!,
+                    uuid = byteArray
+                )
+                CoroutineScope(Dispatchers.IO).launch {
+                    publisher.publishUsingWifiAware()
 
-                        CoroutineScope(Dispatchers.IO).launch {
-                            subscriber.subscribeToWifiAwareSessions()
-                        }
+                }
 
-
-                    }
-                }, 1000) // Delay in milliseconds
+                CoroutineScope(Dispatchers.IO).launch {
+                    subscriber.subscribeToWifiAwareSessions()
+                }
             }
 
+
+
             override fun onAttachFailed() {
+
                 super.onAttachFailed()
                 wifiAwareSession = null
                 Timer().schedule(object : TimerTask() {
@@ -276,7 +277,13 @@ class WifiAwareService : Service() {
             override fun onAwareSessionTerminated() {
                 super.onAwareSessionTerminated()
                 wifiAwareSession = null
+                wifiLock?.release();
+                wakeLock?.release();
             }
+            //override fun onAwareSessionTerminated() {
+            //    super.onAwareSessionTerminated()
+            //    wifiAwareSession = null
+            //}
         }
 
         val identityChangedListener = object : IdentityChangedListener() {
@@ -288,9 +295,6 @@ class WifiAwareService : Service() {
             if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.NEARBY_WIFI_DEVICES
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 return "Permissions not granted."
