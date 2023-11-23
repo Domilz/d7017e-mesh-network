@@ -76,7 +76,7 @@ class Publisher(
                         if (shouldConnectToDevice(String(message))) {
                             Log.d("1Wifi", "PUBLISH: Message received from peer in publisher $peerHandle")
                             CoroutineScope(Dispatchers.IO).launch {
-                                createNetwork(peerHandle, context)
+                                createNetwork(peerHandle, context,String(message))
                                 Log.d("1Wifi", "PUBLISH: PLEASE TELL ME THIS WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                                 Timer().schedule(object : TimerTask() {
                                     override fun run() {
@@ -100,7 +100,7 @@ class Publisher(
             Log.d("1Wifi", "PUBLISH: Wifi Aware session is not available.")
         }
     }
-    fun createNetwork(peerHandle : PeerHandle, context : Context){
+    fun createNetwork(peerHandle : PeerHandle, context : Context, deviceIdentifier : String){
         this.context = context
         var connectivityManager = ConnectivityManagerHelper.getManager(context)
 
@@ -139,7 +139,7 @@ class Publisher(
 
                         Log.d("NETWORKWIFI", "PUBLISH: Connection successful")
                         CoroutineScope(Dispatchers.IO).launch {
-                            handleClient(clientSocket, connectivityManager)
+                            handleClient(clientSocket,deviceIdentifier)
                             serverSocket?.close()
                         }
                         break  // Break out of the loop if connection is successful
@@ -192,8 +192,14 @@ class Publisher(
         connectivityManager.requestNetwork(myNetworkRequest, networkCallbackPub);
     }
 
-    private fun handleClient(clientSocket: Socket?,connectivityManager : ConnectivityManager ) {
-        Log.d("1Wifi", "PUBLISH: handleClient started.")
+    private fun handleClient(clientSocket: Socket?,deviceIdentifier: String ) {
+        Log.d("1Wifi", "PUBLISH: handleClient started adding phone to list!")
+        utility.add(
+            utility.createDeviceConnection(
+                deviceIdentifier,
+                System.currentTimeMillis()
+            )
+        )
         client.insertSingleMockedReading("publish")
 
         clientSocket!!.getInputStream().use { inputStream ->
@@ -238,12 +244,8 @@ class Publisher(
                 false
             }; false
         } else {
-            utility.add(
-                utility.createDeviceConnection(
-                    deviceIdentifier,
-                    System.currentTimeMillis()
-                )
-            )
+
+
             Log.d("1Wifi", "Publisher: Device [$deviceIdentifier] is not in the list. Adding it and allowing connection.")
             true
         }

@@ -219,7 +219,7 @@ class Subscriber(
             }
         }
         connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackSub)
-        startResponseTimer2(peerHandle)
+        startResponseTimer2(peerHandle,connectivityManager)
     }
 
     private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket, connectivityManager: ConnectivityManager) {
@@ -252,6 +252,7 @@ class Subscriber(
             // After data exchange, process the next peer
             connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
             currentPeerHandle = null
+            responseTimer2?.cancel()
             Log.d("1Wifi", "NEWPHONE: we are starting for a new phone because the information is already sent to the prev one in handleDataExchange ${peerHandleQueue.size}")
             processNextPeerHandle()
         }
@@ -296,15 +297,16 @@ class Subscriber(
         }
     }
 
-    private fun startResponseTimer2(peerHandle: PeerHandle) {
-        responseTimer?.cancel()
+    private fun startResponseTimer2(peerHandle: PeerHandle,connectivityManager: ConnectivityManager) {
+        responseTimer2?.cancel()
         //Log.d("1Wifi", "TIMER: Starting response timer for peer handle: $peerHandle")
-        responseTimer = Timer().apply {
+        responseTimer2 = Timer().apply {
             schedule(object : TimerTask() {
                 override fun run() {
                     //Log.d("1Wifi", "TIMER: Response timeout for peer: $peerHandle")
                     //createNetwork(peerHandle,context)
-                    currentSubSession!!.sendMessage(peerHandle,0, "".toByteArray())
+                    connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
+                    sendMessageToPublisher(peerHandle)
                 }
 
             }, RESPONSE_TIMEOUT)
