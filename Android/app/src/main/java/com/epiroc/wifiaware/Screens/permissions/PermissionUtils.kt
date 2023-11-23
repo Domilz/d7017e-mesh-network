@@ -6,6 +6,8 @@ import android.util.Log
 
 object PermissionUtils {
 
+    // Kolla större än API lvl 31
+
     val servicePermission =
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
             listOf(
@@ -16,7 +18,6 @@ object PermissionUtils {
         }else{
             listOf(
                 Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.NEARBY_WIFI_DEVICES
             )
         }
 

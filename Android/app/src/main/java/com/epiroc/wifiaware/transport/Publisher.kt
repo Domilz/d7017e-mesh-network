@@ -230,7 +230,7 @@ class Publisher (
         }
         Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.tagClient.getReadableOfProvidedSerializedState(client.tagClient.serializedState)}")
 
-        utility.saveToFile(context,client.state)
+        utility.saveToFile(context, client.tagClient.serializedState)
         //Log.d("1Wifi", "PUBLISH: UnregisterNetworkCallback")
         //connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)
     }

@@ -51,7 +51,6 @@ import java.util.TimerTask
 import java.util.UUID
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class WifiAwareService : Service() {
     private var wifiLock: WifiManager.WifiLock? = null
@@ -240,15 +239,14 @@ class WifiAwareService : Service() {
                 publisher = Publisher(
                     ctx = applicationContext,
                     nanSession = wifiAwareSession!!,
-                    client = c,
+                    client = client,
                     srvcName = serviceName
                 )
                 subscriber = Subscriber(
                     ctx = applicationContext,
                     nanSession = session,
-                    client = c,
+                    client = client,
                     srvcName = serviceName!!,
-                    uuid = byteArray
                 )
                 CoroutineScope(Dispatchers.IO).launch {
                     publisher.publishUsingWifiAware()
@@ -278,7 +276,6 @@ class WifiAwareService : Service() {
                 super.onAwareSessionTerminated()
                 wifiAwareSession = null
                 wifiLock?.release();
-                wakeLock?.release();
             }
             //override fun onAwareSessionTerminated() {
             //    super.onAwareSessionTerminated()
@@ -332,3 +329,4 @@ class WifiAwareService : Service() {
     }
 
 }
+
