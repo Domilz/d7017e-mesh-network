@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
@@ -10,6 +11,12 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
     <!-- If your app targets Android 13 (API level 33)
          or higher, you must declare the NEARBY_WIFI_DEVICES permission. -->
@@ -22,9 +29,9 @@
          information, don't include the "maxSdkVersion"
          attribute. -->
     <!-- android:maxSdkVersion="32" /> -->
-
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
     <application
+        android:name=".MainApplication"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -46,7 +53,14 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".Services.BLEService"
+            android:name=".Services.BlePeripheralService"
+            android:foregroundServiceType="dataSync|location"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+
+        <service
+            android:name=".Services.BleScanningService"
             android:foregroundServiceType="dataSync|location"
             android:enabled="true"
             android:exported="false">

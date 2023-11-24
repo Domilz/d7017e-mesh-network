@@ -1,25 +1,46 @@
 package com.epiroc.wifiaware.lib
 
+import android.util.Log
 import tag.Client
 import tag.Tag
+import javax.inject.Inject
 
-object Client {
-    private lateinit var client: Client // Replace with the actual type of your client
+class Client @Inject constructor() {
+    lateinit var tagClient: Client // Replace with the actual type of your client
+    private lateinit var clientName : String
 
-    fun setupClient(clientName: String) : Client? {
-        if (!::client.isInitialized) {
-            client = Tag.getClient().apply {
-                setupClient(clientName)
+    fun setupClient(name: String) {
+        Log.d("Client", "SetupClient")
+        clientName = name
+        if (!::tagClient.isInitialized) {
+            tagClient = Tag.getClient().apply {
+                setupClient(name)
             }
         }
-        return client
+    }
+
+    fun getClientName() : String {
+        if (::clientName.isInitialized) {
+            return clientName
+        } else {
+            throw IllegalStateException("Client not initialized. Something went wrong in MainActivity.")
+        }
     }
 
     fun insertSingleMockedReading(s : String) {
-        if (::client.isInitialized) {
-            client.insertSingleMockedReading(s)
+        if (::tagClient.isInitialized) {
+            tagClient.insertSingleMockedReading(s)
         } else {
             throw IllegalStateException("Client not initialized. Call setupClient() first.")
+        }
+    }
+
+    fun updateReadingOfSelf(rpId : String, rssi : Int) {
+        if (::tagClient.isInitialized) {
+            tagClient.updateReadingofSelf(rpId, rssi)
+            Log.d("TagClient", "updatedReadingOfSelf succeeded")
+        } else {
+            Log.e("TagClient", "updateReadingOfSelf failed: client not initialized")
         }
     }
 }

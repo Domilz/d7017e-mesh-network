@@ -26,7 +26,12 @@ func (client *Client) SetupClient(id string) {
 	client.stateHandler = sh
 }
 
-func (client *Client) GetReadableOfSingleState(state []byte) (string, error) {
+func (client *Client) GetDeserializedState() string {
+	state := client.stateHandler.GetState()
+	return fmt.Sprintf("%v", state)
+}
+
+func (client *Client) GetReadableOfProvidedSerializedState(state []byte) (string, error) {
 	deserializedState, err := utils.DeserializeState(state)
 	if err != nil {
 		return "", err
@@ -35,7 +40,7 @@ func (client *Client) GetReadableOfSingleState(state []byte) (string, error) {
 	return str, nil
 }
 
-func (client *Client) GetState() ([]byte, error) {
+func (client *Client) GetSerializedState() ([]byte, error) {
 	return client.stateHandler.GetSerializedState()
 }
 
