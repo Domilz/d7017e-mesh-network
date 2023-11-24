@@ -224,11 +224,18 @@ class Publisher(
             } catch (e: EOFException) {
                 Log.d("INFOFROMCLIENT", "End of stream reached or the connection was closed.")
             } catch (e: IOException) {
-                Log.e("INFOFROMCLIENT", "I/O exception: ${e.message}")
+                Log.e("INFOFROMCLIENT", "I/O exception: ${e.message} , ${Log.getStackTraceString(e)}")
             }
         }
         Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.getReadableOfSingleState(client.state)}")
+        if(!clientSocket.isClosed){
+            try {
+                clientSocket?.getInputStream()?.close()
+            }catch (e : Exception){
+                Log.d("Publisher", "${e.message}")
+            }
 
+        }
         utility.saveToFile(context,client.state)
         //Log.d("1Wifi", "PUBLISH: UnregisterNetworkCallback")
         //connectivityManager!!.unregisterNetworkCallback(networkCallbackPub)

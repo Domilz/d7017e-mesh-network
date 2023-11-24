@@ -210,11 +210,11 @@ class Subscriber(
             }
 
             override fun onLost(network: Network) {
-               // currentSubSession?.close()
+                // currentSubSession?.close()
                 //currentSubSession = null
-               // clientSocket?.close()
+                // clientSocket?.close()
                 connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
-               // subscribeToWifiAwareSessions()
+                // subscribeToWifiAwareSessions()
                 Log.d("Subscriber", "SUBSCRIBE: Network lost for peer: $peerHandle, subscriber restarted")
             }
         }
