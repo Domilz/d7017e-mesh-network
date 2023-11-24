@@ -230,7 +230,7 @@ class Publisher (
                 Log.e("INFOFROMCLIENT", "I/O exception: ${e.message} , ${Log.getStackTraceString(e)}")
             }
         }
-        Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.getReadableOfSingleState(client.state)}")
+        Log.d("DONEEE", "PUBLISH: All information received we are done $messagesReceived, ${client.tagClient.deserializedState}")
         if(!clientSocket.isClosed){
             try {
                 clientSocket?.getInputStream()?.close()
