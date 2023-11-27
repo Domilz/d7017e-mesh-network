@@ -37,41 +37,41 @@ class Subscriber(
     srvcName: String
 ) {
 
-    private val peerHandleQueue = ArrayDeque<PeerHandle>()
-    private var currentPeerHandle: PeerHandle? = null
-    private var responseTimer: Timer? = null
-    private var responseTimer2: Timer? = null
-    private val RESPONSE_TIMEOUT = 10000L // 10 seconds for example
+    private val _peerHandleQueue = ArrayDeque<PeerHandle>()
+    private var _currentPeerHandle: PeerHandle? = null
+    private var _responseTimer: Timer? = null
+    private var _responseTimer2: Timer? = null
+    private val RESPONSETIMEOUT = 10000L // 10 seconds for example
 
-    private lateinit var clientSocket: Socket
-    private val serviceUUID = client.getClientName().toByteArray()
-    private val serviceName = srvcName
-    private val context = ctx
-    private val client = client
+    private lateinit var _clientSocket: Socket
+    private val _serviceUUID = client.getClientName().toByteArray()
+    private val _serviceName = srvcName
+    private val _context = ctx
+    private val _client = client
 
-    private var wifiAwareSession = nanSession
-    private var currentSubSession: DiscoverySession? = null
+    private var _wifiAwareSession = nanSession
+    private var _currentSubSession: DiscoverySession? = null
 
-    private lateinit var networkCallbackSub: ConnectivityManager.NetworkCallback
-    private lateinit var  currentNetwork : Network
+    private lateinit var _networkCallbackSub: ConnectivityManager.NetworkCallback
+    private lateinit var  _currentNetwork : Network
 
     fun subscribeToWifiAwareSessions() {
         val handler = Handler(Looper.getMainLooper()) // Use the main looper.
         Log.d("Subscriber","SUBSCRIBE: subscribeToWifiAwareSessions called")
 
-        if (wifiAwareSession == null) {
+        if (_wifiAwareSession == null) {
             Log.d("Subscriber","SUBSCRIBE: Wifi Aware session is not available")
             return
         }
 
         val subscribeConfig = SubscribeConfig.Builder()
-            .setServiceName(serviceName)
+            .setServiceName(_serviceName)
             .build()
 
         var discoverySessionCallback = object : DiscoverySessionCallback() {
             override fun onSubscribeStarted(session: SubscribeDiscoverySession) {
                 Log.d("Subscriber", "SUBSCRIBE: Subscribe started.")
-                currentSubSession = session
+                _currentSubSession = session
             }
 
             override fun onServiceDiscovered(
@@ -84,10 +84,10 @@ class Subscriber(
 
                 if (peerHandle != null) {
 
-                    peerHandleQueue.add(peerHandle)
-                    if (peerHandleQueue.size == 1 && currentPeerHandle == null) {
-                        Log.d("Subscriber", "NEWPHONE: we are starting for a new phone because peerHandleQueue.size == 1 && currentPeerHandle == null in onServiceDiscovered ${peerHandleQueue.size}")
-                        currentPeerHandle = peerHandle
+                    _peerHandleQueue.add(peerHandle)
+                    if (_peerHandleQueue.size == 1 && _currentPeerHandle == null) {
+                        Log.d("Subscriber", "NEWPHONE: we are starting for a new phone because peerHandleQueue.size == 1 && currentPeerHandle == null in onServiceDiscovered ${_peerHandleQueue.size}")
+                        _currentPeerHandle = peerHandle
                         processNextPeerHandle()
                     }
                 } else {
@@ -98,24 +98,24 @@ class Subscriber(
             override fun onMessageSendSucceeded(messageId: Int) {
                 super.onMessageSendSucceeded(messageId)
                 //peerHandleQueue.removeFirstOrNull()
-                //Log.e("Subscriber", "SUBSCRIBE: WOOOOHOOOOO onMessageSendSucceeded (this is good) $messageId")
+                Log.e("Subscriber", "SUBSCRIBE: WOOOOHOOOOO onMessageSendSucceeded (this is good) $messageId")
             }
 
             override fun onMessageSendFailed(messageId: Int) {
                 super.onMessageSendFailed(messageId)
-                responseTimer?.cancel()
-                responseTimer2?.cancel()
+                _responseTimer?.cancel()
+                _responseTimer2?.cancel()
                 Log.e("Subscriber", "SUBSCRIBE: BUUUUUUUUUUU onMessageSendFailed (this is bad) $messageId")
             }
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 Log.d("Subscriber", "SUBSCRIBE MSG_RECEIVED: Message received from peer: $peerHandle")
-                responseTimer?.cancel()
+                _responseTimer?.cancel()
 
-                synchronized(peerHandleQueue) {
-                    if (currentPeerHandle == peerHandle) {
+                synchronized(_peerHandleQueue) {
+                    if (_currentPeerHandle == peerHandle) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            createNetwork(peerHandle, context)
+                            createNetwork(peerHandle, _context)
                         }
                     }
                 }
@@ -124,20 +124,20 @@ class Subscriber(
         }
 
         if (ActivityCompat.checkSelfPermission(
-                context,
+                _context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             // Handle permissions here if needed.
         }
-        wifiAwareSession!!.subscribe(subscribeConfig, discoverySessionCallback, handler)
+        _wifiAwareSession!!.subscribe(subscribeConfig, discoverySessionCallback, handler)
     }
 
     fun createNetwork(peerHandle : PeerHandle, context : Context) {
         Log.d("Subscriber", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
 
-        val networkSpecifier = currentSubSession?.let {
+        val networkSpecifier = _currentSubSession?.let {
             WifiAwareNetworkSpecifier.Builder(it, peerHandle)
                 .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
                 .build()
@@ -148,7 +148,7 @@ class Subscriber(
             .build()
         Log.d("NETWORKWIFI","SUBSCRIBER: All necessary wifiaware network things created now awaiting callback")
 
-        networkCallbackSub = object : ConnectivityManager.NetworkCallback() {
+        _networkCallbackSub = object : ConnectivityManager.NetworkCallback() {
             //@RequiresApi(Build.VERSION_CODES.R)
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
                 Log.d("NETWORKWIFI","SUBSCRIBER: onCapabilitiesChanged")
@@ -177,12 +177,12 @@ class Subscriber(
 
                         while (retryCount < maxRetries) {
                             try {
-                                clientSocket = network.socketFactory.createSocket()
-                                clientSocket.soTimeout = 5000 // Set socket timeout (10 seconds for example)
+                                _clientSocket = network.socketFactory.createSocket()
+                                _clientSocket.soTimeout = 5000 // Set socket timeout (10 seconds for example)
 
                                 Log.d("Subscriber","SUBSCRIBER: TRYING TO CONNECT! to port $port")
-                                clientSocket.connect(InetSocketAddress(peerIpv6Addr, port))
-                                handleDataExchange(peerHandle, clientSocket, connectivityManager)
+                                _clientSocket.connect(InetSocketAddress(peerIpv6Addr, port))
+                                handleDataExchange(peerHandle, _clientSocket, connectivityManager)
                                 Log.d("Subscriber","SUBSCRIBER: seems like its done")
                                 break // Break the loop if connection is successful
                             } catch (e: SocketTimeoutException) {
@@ -207,28 +207,28 @@ class Subscriber(
 
             override fun onAvailable(network: Network) {
                 Log.d("Subscriber", "SUBSCRIBE: Network available for peer: $peerHandle")
-                currentNetwork = network
+                _currentNetwork = network
             }
 
             override fun onLost(network: Network) {
                 // currentSubSession?.close()
                 //currentSubSession = null
                 // clientSocket?.close()
-                connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
+                connectivityManager!!.unregisterNetworkCallback(_networkCallbackSub)
                 // subscribeToWifiAwareSessions()
                 Log.d("Subscriber", "SUBSCRIBE: Network lost for peer: $peerHandle, subscriber restarted")
             }
         }
-        connectivityManager?.requestNetwork(myNetworkRequest, networkCallbackSub)
+        connectivityManager?.requestNetwork(myNetworkRequest, _networkCallbackSub)
         startResponseTimer2(peerHandle,connectivityManager)
     }
 
     private fun handleDataExchange(peerHandle: PeerHandle, socket: Socket, connectivityManager: ConnectivityManager) {
         try {
-            responseTimer2?.cancel()
+            _responseTimer2?.cancel()
             Log.d("Subscriber", "SUBSCRIBE: Attempting to send information to: $peerHandle")
-            client.insertSingleMockedReading("Client")
-            val state = client.tagClient.serializedState
+            _client.insertSingleMockedReading("Client")
+            val state = _client.tagClient.serializedState
 
             socket.getOutputStream().use { outputStream ->
                 val size = state.size
@@ -246,16 +246,16 @@ class Subscriber(
             Log.e("Subscriber", "SUBSCRIBE: Error in handleDataExchange: ${e.message}")
         } finally {
             try {
-                clientSocket?.close()
+                _clientSocket?.close()
 
             } catch (e: IOException) {
                 Log.e("Subscriber", "SUBSCRIBE: Error closing socket: ${e.message}")
             }
             // After data exchange, process the next peer
-            connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
-            currentPeerHandle = null
+            connectivityManager!!.unregisterNetworkCallback(_networkCallbackSub)
+            _currentPeerHandle = null
 
-            Log.d("Subscriber", "NEWPHONE: we are starting for a new phone because the information is already sent to the prev one in handleDataExchange ${peerHandleQueue.size}")
+            Log.d("Subscriber", "NEWPHONE: we are starting for a new phone because the information is already sent to the prev one in handleDataExchange ${_peerHandleQueue.size}")
             processNextPeerHandle()
         }
     }
@@ -264,10 +264,10 @@ class Subscriber(
         CoroutineScope(Dispatchers.IO).launch {
             Log.d("Subscriber", "SEND_MSG: Sending message to publisher with peer handle: $peerHandle")
             try{
-                currentSubSession?.sendMessage(
+                _currentSubSession?.sendMessage(
                     peerHandle,
                     0, // Message type (0 for unsolicited)
-                    serviceUUID,
+                    _serviceUUID,
                 )
             }catch (e : Exception){
                 Log.e("1Wifi","Could not send message ${e.message} Stacktrace: ${Log.getStackTraceString(e)}")
@@ -277,57 +277,50 @@ class Subscriber(
     }
 
     private fun startResponseTimer(peerHandle: PeerHandle) {
-        responseTimer?.cancel()
+        _responseTimer?.cancel()
         Log.d("Subscriber", "TIMER: Starting response timer for peer handle: $peerHandle")
-        responseTimer = Timer().apply {
+        _responseTimer = Timer().apply {
             schedule(object : TimerTask() {
                 override fun run() {
                     Log.d("Subscriber", "TIMER: Response timeout for peer: $peerHandle")
-
-
-                    synchronized(peerHandleQueue) {
-                        currentPeerHandle = null
-                        peerHandleQueue.addLast(peerHandle)
+                    synchronized(_peerHandleQueue) {
+                        _currentPeerHandle = null
+                        _peerHandleQueue.addLast(peerHandle)
                         Log.d(
                             "Subscriber",
-                            "NEWPHONE: we are starting for a new phone because Response timeout in $peerHandle startResponseTimer ${peerHandleQueue.size}"
+                            "NEWPHONE: we are starting for a new phone because Response timeout in $peerHandle startResponseTimer ${_peerHandleQueue.size}"
                         )
                         processNextPeerHandle()
 
                     }
                 }
 
-            }, RESPONSE_TIMEOUT)
+            }, RESPONSETIMEOUT)
         }
     }
 
     private fun startResponseTimer2(peerHandle: PeerHandle,connectivityManager: ConnectivityManager) {
-        responseTimer2?.cancel()
-        //Log.d("1Wifi", "TIMER: Starting response timer for peer handle: $peerHandle")
-        responseTimer2 = Timer().apply {
+        _responseTimer2?.cancel()
+        _responseTimer2 = Timer().apply {
             schedule(object : TimerTask() {
                 override fun run() {
                     Log.d("Subscriber", "RETRYING CONNECTION WITH $peerHandle in timer 2")
-                    //createNetwork(peerHandle,context)
-                    connectivityManager!!.unregisterNetworkCallback(networkCallbackSub)
-                    peerHandleQueue.addFirst(peerHandle)
+                    connectivityManager!!.unregisterNetworkCallback(_networkCallbackSub)
+                    _peerHandleQueue.addFirst(peerHandle)
                     processNextPeerHandle()
                 }
 
-            }, RESPONSE_TIMEOUT)
+            }, RESPONSETIMEOUT)
         }
     }
 
     private fun processNextPeerHandle() {
-        synchronized(peerHandleQueue) {
-
-            //Log.d("1Wifi", "NEWPHONE: we are starting for a new phone ${peerHandleQueue.size}")
-            currentPeerHandle = peerHandleQueue.removeFirstOrNull()  // Use poll to remove the head
-            currentPeerHandle?.let {
+        synchronized(_peerHandleQueue) {
+            _currentPeerHandle = _peerHandleQueue.removeFirstOrNull()  // Use poll to remove the head
+            _currentPeerHandle?.let {
                 sendMessageToPublisher(it)
                 startResponseTimer(it)
             }
-
         }
     }
 }
