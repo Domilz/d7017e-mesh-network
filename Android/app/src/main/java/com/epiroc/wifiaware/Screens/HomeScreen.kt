@@ -1,5 +1,6 @@
 package com.epiroc.wifiaware.Screens
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -71,76 +72,21 @@ fun HomeScreen(
             }
         }
     }
-
 }
 
-/*
-Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .clip(CircleShape)
-                .background(Color.Blue, CircleShape)
-                .clickable {
-                    navController.navigate("transport_service_screen"){
-                        popUpTo(Screen.HomeScreen.route){
-                            inclusive = true
-                        }
-                    }
-                },
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                text = "Scanning Service",
-                fontSize = 35.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .clip(CircleShape)
-                .background(Color.Blue, CircleShape)
-                .clickable {
-                    navController.navigate("ble_peripheral_screen"){
-                        popUpTo(Screen.HomeScreen.route){
-                            inclusive = true
-                        }
-                    }
-                },
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                text = "BLE Peripheral",
-                fontSize = 35.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-    }
- */
-
+@SuppressLint("BatteryLife")
 fun checkBatteryOptimizations(context: Context) {
     val packageName = context.packageName
     val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
-    if (pm != null) {
-        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-            Log.d("BatteryOptimization", "App is not on the whitelist. Asking user to disable battery optimization.")
-            // App is not on the whitelist, show dialog to ask user to disable battery optimization
-            val intent = Intent()
-            intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-            intent.data = Uri.parse("package:$packageName")
-            context.startActivity(intent)
-        } else {
-            Log.d("BatteryOptimization", "App is already on the whitelist.")
-        }
+    if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+        Log.d("BatteryOptimization", "App is not on the whitelist. Asking user to disable battery optimization.")
+        // App is not on the whitelist, show dialog to ask user to disable battery optimization
+        val intent = Intent()
+        intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+        intent.data = Uri.parse("package:$packageName")
+        context.startActivity(intent)
     } else {
-        Log.e("BatteryOptimization", "PowerManager is null.")
+        Log.d("BatteryOptimization", "App is already on the whitelist.")
     }
 }

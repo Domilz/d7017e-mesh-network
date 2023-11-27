@@ -1,6 +1,5 @@
 package com.epiroc.wifiaware.Services
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
@@ -8,14 +7,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothManager
-import android.bluetooth.le.BluetoothLeScanner
+
 import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
+
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
@@ -25,18 +19,24 @@ import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.os.ParcelUuid
 import android.os.PowerManager
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.lib.Client
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.UUID
 import javax.inject.Inject
+
+// **** Import these if need be for debugging! **** //
+//
+//import android.bluetooth.le.ScanFilter
+//import android.os.ParcelUuid
+//import java.util.UUID
+//import android.bluetooth.BluetoothGatt
+//import android.bluetooth.BluetoothGattCallback
+//
+//**************************************************//
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
@@ -50,24 +50,27 @@ class BleScanningService : Service() {
         bluetoothAdapter.bluetoothLeScanner
     }
 
-    private val SERVICE_UUID = "527af0f6-83af-11ee-b962-0242ac120002"
+    //private val SERVICE_UUID = "527af0f6-83af-11ee-b962-0242ac120002"
+    private val _binder = LocalBinder()
+    private val _handler = Handler(Looper.getMainLooper())
 
-    private val binder = LocalBinder()
-
-    private val scanningInterval = 10000L // 10 seconds
-    private val idlePeriod = 5000L // 5 seconds
-    private val handler = Handler(Looper.getMainLooper())
-    private lateinit var wakeLock: PowerManager.WakeLock
-
-
-    private val scanFilter = ScanFilter.Builder()
+    /*
+    private val _scanFilter = ScanFilter.Builder()
         .setServiceUuid(ParcelUuid(UUID.fromString(SERVICE_UUID)))
         .build()
+     */
 
-    private val scanSettings = ScanSettings.Builder()
+    private val _scanSettings = ScanSettings.Builder()
         .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
         .setLegacy(false)
         .build()
+
+    private lateinit var _wakeLock: PowerManager.WakeLock
+
+    /*
+    private val scanningInterval = 10000L // 10 seconds
+    private val idlePeriod = 5000L // 5 seconds
+    */
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
@@ -77,7 +80,7 @@ class BleScanningService : Service() {
 
                 val deviceName = result.device.address
                 val rssi = result.rssi
-                Log.d("BLEService", "Device is: ${deviceName} and rssi is ${rssi}")
+                Log.d("BLEService", "Device is: $deviceName and rssi is $rssi")
                 if (rssi != 127 && deviceName != null) {
                     client.updateReadingOfSelf(deviceName, rssi)
                 }
@@ -93,7 +96,7 @@ class BleScanningService : Service() {
             if (results.size > 0) {
                 Log.d("BLEService", "New Batch:")
                 for (result in results) {
-                    handler.postDelayed({
+                    _handler.postDelayed({
                         val deviceName = result.device.name
                         val rssi = result.rssi
                         Log.d("BLEService","From batch: $deviceName: with rssi: $rssi")
@@ -112,13 +115,14 @@ class BleScanningService : Service() {
         }
     }
 
+    /*
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 when (newState) {
                     BluetoothGatt.STATE_CONNECTED -> {
                         val success = gatt.readRemoteRssi()
-                        if (success == true) {
+                        if (success) {
                             Log.d("BleService", "Requested RSSI reading")
                         } else {
                             Log.e("BleService", "Failed to request RSSI reading")
@@ -140,6 +144,7 @@ class BleScanningService : Service() {
             }
         }
     }
+     */
 
     override fun onCreate() {
         super.onCreate()
@@ -211,12 +216,13 @@ class BleScanningService : Service() {
     private fun startScanning() {
         // Start scanning
         //bluetoothLeScanner.startScan(listOf(scanFilter), scanSettings, scanCallback)
-        bluetoothLeScanner.startScan(null, scanSettings, scanCallback)
+        bluetoothLeScanner.startScan(null, _scanSettings, scanCallback)
         Log.d("BLEService", "BLE scanner has started.")
 
         //handler.postDelayed({ stopScanning() }, scanningInterval)
     }
 
+    /*
     private fun stopScanning() {
         bluetoothLeScanner.stopScan(scanCallback)
 
@@ -224,6 +230,7 @@ class BleScanningService : Service() {
 
         //handler.postDelayed({ startScanning() }, idlePeriod)
     }
+    */
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startScanning()
@@ -239,29 +246,30 @@ class BleScanningService : Service() {
     }
 
     inner class LocalBinder : Binder() {
-        fun getService(): BleScanningService = this@BleScanningService
+        //fun getService(): BleScanningService = this@BleScanningService
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return binder
+    override fun onBind(intent: Intent?): IBinder {
+        return _binder
     }
 
+    @SuppressLint("WakelockTimeout")
     private fun acquireWakeLock() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(
+        _wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             "BleScanningService::WakeLock"
         )
 
-        if (!wakeLock.isHeld) {
+        if (!_wakeLock.isHeld) {
             Log.d("BleService", "Acquiring Wake Lock")
-            wakeLock.acquire()
+            _wakeLock.acquire()
         }
     }
 
     private fun releaseWakeLock() {
-        if (wakeLock.isHeld) {
-            wakeLock.release()
+        if (_wakeLock.isHeld) {
+            _wakeLock.release()
         }
     }
 }

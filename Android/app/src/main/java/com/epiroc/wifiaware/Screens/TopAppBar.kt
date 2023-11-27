@@ -16,7 +16,7 @@ import androidx.navigation.NavController
 @Composable
 fun TopAppBar(
     navController: NavController,
-    Content: @Composable (Modifier) -> Unit,
+    content: @Composable (Modifier) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -32,15 +32,12 @@ fun TopAppBar(
                                 )
                             }
                         }
-                    } else {
-                        null
                     }
                 }
-
             )
         },
         content = {padding ->
-            Content(Modifier.padding(padding))
+            content(Modifier.padding(padding))
         }
     )
 }

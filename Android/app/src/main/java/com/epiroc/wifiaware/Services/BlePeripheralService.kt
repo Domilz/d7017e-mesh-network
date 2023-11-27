@@ -7,8 +7,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
@@ -25,29 +23,28 @@ import android.os.IBinder
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
-import com.epiroc.wifiaware.Screens.permissions.PermissionUtils
-import com.epiroc.wifiaware.lib.Client
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import javax.inject.Inject
 
+//import com.epiroc.wifiaware.lib.Client
+
+@Suppress("DEPRECATION")
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
-class BlePeripheralService () : Service() {
+class BlePeripheralService: Service() {
     private val binder = LocalBinder()
 
     private val SERVICE_UUID = UUID.fromString("527af0f6-83af-11ee-b962-0242ac120002")
 
-    @Inject
-    lateinit var client: Client
+    //@Inject
+    //lateinit var client: Client
     @Inject
     lateinit var bluetoothManager : BluetoothManager
 
-    val advertiser by lazy {
+    private val advertiser: BluetoothLeAdvertiser by lazy {
         bluetoothManager.adapter.bluetoothLeAdvertiser
     }
 
@@ -139,7 +136,7 @@ class BlePeripheralService () : Service() {
     private fun stopAdvertising() {
         Log.d("PeripheralService", "Stop advertising")
 
-        advertiser?.stopAdvertising(advertiseCallback)
+        advertiser.stopAdvertising(advertiseCallback)
     }
 
     private fun createNotification(): Notification {
@@ -183,10 +180,10 @@ class BlePeripheralService () : Service() {
 
         if (data != null) {
             Log.d("PeripheralService", "Beacon name: $data")
-            BluetoothAdapter.getDefaultAdapter().setName(data)
+            BluetoothAdapter.getDefaultAdapter().name = data
         } else {
             Log.d("PeripheralService", "Beacon name: BEACON TEST 1")
-            BluetoothAdapter.getDefaultAdapter().setName("RPDefault")
+            BluetoothAdapter.getDefaultAdapter().name = "RPDefault"
         }
         startAdvertising()
         return START_STICKY
@@ -199,10 +196,10 @@ class BlePeripheralService () : Service() {
     }
 
     inner class LocalBinder : Binder() {
-        fun getService(): BlePeripheralService = this@BlePeripheralService
+        //fun getService(): BlePeripheralService = this@BlePeripheralService
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder {
         return binder
     }
 }
