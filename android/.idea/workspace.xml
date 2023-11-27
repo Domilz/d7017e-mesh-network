@@ -19,7 +19,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[RF8N9124WZM]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[R5CW31ZZXAK]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -75,7 +75,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="transport_multiple_devices" />
+        <entry key="$PROJECT_DIR$/.." value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -409,11 +409,6 @@
           <line>73</line>
           <option name="timeStamp" value="130" />
         </line-breakpoint>
-        <line-breakpoint type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/MainActivity.kt</url>
-          <line>79</line>
-          <option name="timeStamp" value="235" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/utility/AwareUtils.kt</url>
           <line>48</line>
@@ -451,33 +446,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>103</line>
+          <line>115</line>
           <option name="timeStamp" value="471" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>231</line>
+          <line>248</line>
           <option name="timeStamp" value="472" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>191</line>
+          <line>206</line>
           <option name="timeStamp" value="473" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>110</line>
+          <line>122</line>
           <option name="timeStamp" value="475" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
-          <line>299</line>
-          <option name="timeStamp" value="479" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt</url>
-          <line>266</line>
-          <option name="timeStamp" value="483" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

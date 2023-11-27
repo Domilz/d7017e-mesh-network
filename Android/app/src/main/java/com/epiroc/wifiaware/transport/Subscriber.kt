@@ -14,10 +14,10 @@ import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,16 +28,15 @@ import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.util.Timer
 import java.util.TimerTask
-import javax.inject.Inject
+import kotlin.math.log
 
-class Subscriber (
+class Subscriber(
     ctx: Context,
     nanSession: WifiAwareSession,
-    private val client: com.epiroc.wifiaware.lib.Client,
-    srvcName: String,
+    client: Client,
+    srvcName: String
 ) {
 
-    private val serviceUUID = client.getClientName().toByteArray()
     private val peerHandleQueue = ArrayDeque<PeerHandle>()
     private var currentPeerHandle: PeerHandle? = null
     private var responseTimer: Timer? = null
@@ -45,8 +44,10 @@ class Subscriber (
     private val RESPONSE_TIMEOUT = 10000L // 10 seconds for example
 
     private lateinit var clientSocket: Socket
+    private val serviceUUID = client.getClientName().toByteArray()
     private val serviceName = srvcName
     private val context = ctx
+    private val client = client
 
     private var wifiAwareSession = nanSession
     private var currentSubSession: DiscoverySession? = null
@@ -97,12 +98,13 @@ class Subscriber (
             override fun onMessageSendSucceeded(messageId: Int) {
                 super.onMessageSendSucceeded(messageId)
                 //peerHandleQueue.removeFirstOrNull()
-                Log.e("Subscriber", "SUBSCRIBE: WOOOOHOOOOO onMessageSendSucceeded (this is good) $messageId")
+                //Log.e("Subscriber", "SUBSCRIBE: WOOOOHOOOOO onMessageSendSucceeded (this is good) $messageId")
             }
 
             override fun onMessageSendFailed(messageId: Int) {
                 super.onMessageSendFailed(messageId)
-
+                responseTimer?.cancel()
+                responseTimer2?.cancel()
                 Log.e("Subscriber", "SUBSCRIBE: BUUUUUUUUUUU onMessageSendFailed (this is bad) $messageId")
             }
 
@@ -261,11 +263,16 @@ class Subscriber (
     private fun sendMessageToPublisher(peerHandle: PeerHandle) {
         CoroutineScope(Dispatchers.IO).launch {
             Log.d("Subscriber", "SEND_MSG: Sending message to publisher with peer handle: $peerHandle")
-            currentSubSession?.sendMessage(
-                peerHandle,
-                0, // Message type (0 for unsolicited)
-                serviceUUID,
-            )
+            try{
+                currentSubSession?.sendMessage(
+                    peerHandle,
+                    0, // Message type (0 for unsolicited)
+                    serviceUUID,
+                )
+            }catch (e : Exception){
+                Log.e("1Wifi","Could not send message ${e.message} Stacktrace: ${Log.getStackTraceString(e)}")
+            }
+
         }
     }
 
@@ -280,16 +287,13 @@ class Subscriber (
 
                     synchronized(peerHandleQueue) {
                         currentPeerHandle = null
-                        if (peerHandleQueue.isNotEmpty()) {
-                            peerHandleQueue.addLast(peerHandle)
-                            Log.d(
-                                "Subscriber",
-                                "NEWPHONE: we are starting for a new phone because Response timeout in $peerHandle startResponseTimer ${peerHandleQueue.size}"
-                            )
-                            processNextPeerHandle()
-                        } else {
-                            Log.d("Subscriber", "TIMER: Queue is empty after timeout.")
-                        }
+                        peerHandleQueue.addLast(peerHandle)
+                        Log.d(
+                            "Subscriber",
+                            "NEWPHONE: we are starting for a new phone because Response timeout in $peerHandle startResponseTimer ${peerHandleQueue.size}"
+                        )
+                        processNextPeerHandle()
+
                     }
                 }
 
