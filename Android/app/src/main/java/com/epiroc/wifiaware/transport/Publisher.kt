@@ -44,6 +44,9 @@ class Publisher (
     private val serviceName = srvcName
     private val wifiAwareSession = nanSession
     private var currentNetwork : Network? = null
+    private var activeConnection : Boolean = false
+    private var responseTimer: Timer? = null
+    private val RESPONSE_TIMEOUT = 25000L // 15 seconds for example
 
     //private lateinit var networkCallbackPub: ConnectivityManager.NetworkCallback
     private var clientSocket: Socket? = null
@@ -75,19 +78,26 @@ class Publisher (
                     }
 
                     override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-
-                        if (shouldConnectToDevice(String(message))) {
+                        Log.d("ActiveConnection", "PUBLISH: current state of activeConnection in onMessageReceived is $activeConnection")
+                        if (shouldConnectToDevice(String(message)) && !activeConnection) {
+                            activeConnection = true
                             Log.d("Publisher", "PUBLISH: Message received from peer in publisher $peerHandle")
                             CoroutineScope(Dispatchers.IO).launch {
                                 createNetwork(peerHandle, context,String(message))
                                 Log.d("Publisher", "PUBLISH: PLEASE TELL ME THIS WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                startResponseTimer()
                                 Timer().schedule(object : TimerTask() {
                                     override fun run() {
-                                        currentPubSession?.sendMessage(
-                                            peerHandle,
-                                            0, // Message type (0 for unsolicited),
-                                            "".toByteArray()
-                                        )
+                                        try {
+                                            currentPubSession?.sendMessage(
+                                                peerHandle,
+                                                0, // Message type (0 for unsolicited),
+                                                "".toByteArray()
+                                            )
+                                        }catch (e : Exception){
+                                            Log.e("1Wifi","Could not send message ${e.message} Stacktrace: ${Log.getStackTraceString(e)}")
+                                        }
+
                                     }
                                 }, 100) // Delay in milliseconds*/
 
@@ -95,6 +105,8 @@ class Publisher (
                             }
 
 
+                        }else{
+                            Log.d("Publisher", "PUBLISH: we are in else in onMessageReceived, activeConnection: $activeConnection")
                         }
                     }
                 }, handler)
@@ -139,7 +151,7 @@ class Publisher (
                             clientSocket!!.close()  // Close any existing client socket
                         }
                         clientSocket = serverSocket?.accept()  // Attempt to accept a connection
-
+                        responseTimer?.cancel()
                         Log.d("NETWORKWIFI", "PUBLISH: Connection successful")
                         CoroutineScope(Dispatchers.IO).launch {
                             handleClient(clientSocket,deviceIdentifier)
@@ -158,6 +170,9 @@ class Publisher (
                     retryCount++
                     Thread.sleep(retryDelayMillis)  // Delay before the next retry
                 }
+
+                Log.d("ActiveConnection", "PUBLISH: current state of activeConnection in onAvailable is $activeConnection")
+                activeConnection = false
 
                 if (retryCount >= maxRetries) {
                     Log.d("NETWORKWIFI", "PUBLISH: Maximum retry attempts reached. Failed to establish connection.")
@@ -191,6 +206,8 @@ class Publisher (
             override fun onLost(network: Network) {
                 Log.d("Publisher", "PUBLISH: Connection lost: $network")
                 serverSocket?.close()
+                Log.d("ActiveConnection", "PUBLISH: current state of activeConnection in onLost is $activeConnection")
+                activeConnection = false
                 //connectivityManager.unregisterNetworkCallback(networkCallbackPub)
             }
         }
@@ -262,4 +279,20 @@ class Publisher (
             true
         }
     }
+
+    private fun startResponseTimer() {
+        responseTimer?.cancel()
+        Log.d("Publisher", "TIMER: Starting response timer")
+        responseTimer = Timer().apply {
+            schedule(object : TimerTask() {
+                override fun run() {
+                    Log.d("Publisher", "TIMER: Response timeout")
+                    activeConnection = false
+                }
+
+            }, RESPONSE_TIMEOUT)
+        }
+    }
 }
+
+
