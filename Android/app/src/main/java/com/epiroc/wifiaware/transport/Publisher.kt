@@ -121,6 +121,8 @@ class Publisher (
             .setNetworkSpecifier(networkSpecifier)
             .build()
 
+        Log.d("NetworkRequest", "Requesting network with specifier: $networkSpecifier")
+
         Log.d("NETWORKWIFI","PUBLISH: All necessary wifi-aware network things created now awaiting callback on port $port and this is port from local ${serverSocket.localPort}")
         val networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
@@ -139,11 +141,8 @@ class Publisher (
                         _clientSocket = serverSocket.accept()  // Attempt to accept a connection
                         _responseTimer?.cancel()
                         Log.d("NETWORKWIFI", "PUBLISH: Connection successful")
-                        CoroutineScope(Dispatchers.IO).launch {
-                            handleClient(_clientSocket,deviceIdentifier)
-                            serverSocket.close()
-
-                        }
+                        handleClient(_clientSocket,deviceIdentifier)
+                        serverSocket.close()
                         break  // Break out of the loop if connection is successful
                     } catch (e: SocketTimeoutException) {
                         Log.d("NETWORKWIFI", "PUBLISH: Socket accept timed out. Retrying... (${retryCount + 1})")
@@ -184,6 +183,7 @@ class Publisher (
                 serverSocket.close()
                 Log.d("ActiveConnection", "PUBLISH: current state of activeConnection in onLost is $_activeConnection")
                 _activeConnection = false
+                connectivityManager.unregisterNetworkCallback(this)
             }
         }
         connectivityManager.requestNetwork(myNetworkRequest, networkCallbackPub)
@@ -264,7 +264,7 @@ class Publisher (
     }
 
     companion object {
-        const val RESPONSETIMEOUT: Long = 25000L // 15 seconds for example
+        const val RESPONSETIMEOUT: Long = 20000L
     }
 }
 

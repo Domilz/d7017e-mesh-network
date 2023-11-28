@@ -87,8 +87,6 @@ class Subscriber(
 
             override fun onMessageSendFailed(messageId: Int) {
                 super.onMessageSendFailed(messageId)
-                _responseTimer?.cancel()
-                _responseTimer2?.cancel()
                 Log.e("Subscriber", "SUBSCRIBE: NOT GOOD onMessageSendFailed (this is bad) $messageId")
             }
 
@@ -121,16 +119,15 @@ class Subscriber(
         Log.d("Subscriber", "SUBSCRIBE: Attempting to establish connection with peer: $peerHandle")
         val connectivityManager = ConnectivityManagerHelper.getManager(context)
 
-        val networkSpecifier = _currentSubSession?.let {
-            WifiAwareNetworkSpecifier.Builder(it, peerHandle)
-                .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
-                .build()
-        }
+        val networkSpecifier = WifiAwareNetworkSpecifier.Builder(_currentSubSession!!, peerHandle)
+            .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
+            .build()
         val myNetworkRequest = NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
             .setNetworkSpecifier(networkSpecifier)
             .build()
-        Log.d("NETWORKWIFI","SUBSCRIBER: All necessary wifi-aware network things created now awaiting callback")
+
+        Log.d("NetworkRequest", "Requesting network with specifier: $networkSpecifier")
 
         _networkCallbackSub = object : ConnectivityManager.NetworkCallback() {
             //@RequiresApi(Build.VERSION_CODES.R)
@@ -172,7 +169,12 @@ class Subscriber(
                             } catch (e: SocketTimeoutException) {
                                 Log.e("Subscriber", "SUBSCRIBE: Socket timeout occurred. Retrying... (${retryCount + 1})")
                             } catch (e: IOException) {
-                                Log.e("Subscriber", "SUBSCRIBE: IO Exception occurred: ${e.message}. Retrying... (${retryCount + 1})")
+                                if (e.message?.contains("ECONNREFUSED") == true) {
+                                    Log.e("Subscriber", "SUBSCRIBE: Connection refused. Breaking the loop.")
+                                    break // Break the loop on ECONNREFUSED
+                                } else {
+                                    Log.e("Subscriber", "SUBSCRIBE: IO Exception occurred: ${e.message}. Retrying... (${retryCount + 1})")
+                                }
                             } catch (e: Exception) {
                                 Log.e("Subscriber", "SUBSCRIBE: ERROR SOCKET COULD NOT BE MADE! ${e.message}")
                                 break // Break on other types of exceptions
@@ -199,6 +201,7 @@ class Subscriber(
                 Log.d("Subscriber", "SUBSCRIBE: Network lost for peer: $peerHandle, subscriber restarted")
             }
         }
+        Log.d("NETWORKWIFI","SUBSCRIBER: All necessary wifi-aware network things created now requesting network ${connectivityManager.activeNetwork.toString()}")
         connectivityManager.requestNetwork(myNetworkRequest, _networkCallbackSub)
         startResponseTimer2(peerHandle,connectivityManager)
     }
@@ -305,6 +308,6 @@ class Subscriber(
     }
 
     companion object {
-        const val RESPONSETIMEOUT = 10000L // 10 seconds for example
+        const val RESPONSETIMEOUT = 20000L // 10 seconds for example
     }
 }
