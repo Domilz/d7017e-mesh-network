@@ -8,16 +8,13 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.aware.*
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
-import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,24 +25,22 @@ import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.util.Timer
 import java.util.TimerTask
-import kotlin.math.log
 
 class Subscriber(
     ctx: Context,
     nanSession: WifiAwareSession,
     client: Client,
-    srvcName: String
+    serviceName: String
 ) {
 
     private val _peerHandleQueue = ArrayDeque<PeerHandle>()
     private var _currentPeerHandle: PeerHandle? = null
     private var _responseTimer: Timer? = null
     private var _responseTimer2: Timer? = null
-    private val RESPONSETIMEOUT = 10000L // 10 seconds for example
 
     private lateinit var _clientSocket: Socket
     private val _serviceUUID = client.getClientName().toByteArray()
-    private val _serviceName = srvcName
+    private val _serviceName = serviceName
     private val _context = ctx
     private val _client = client
 
@@ -59,16 +54,11 @@ class Subscriber(
         val handler = Handler(Looper.getMainLooper()) // Use the main looper.
         Log.d("Subscriber","SUBSCRIBE: subscribeToWifiAwareSessions called")
 
-        if (_wifiAwareSession == null) {
-            Log.d("Subscriber","SUBSCRIBE: Wifi Aware session is not available")
-            return
-        }
-
         val subscribeConfig = SubscribeConfig.Builder()
             .setServiceName(_serviceName)
             .build()
 
-        var discoverySessionCallback = object : DiscoverySessionCallback() {
+        val discoverySessionCallback = object : DiscoverySessionCallback() {
             override fun onSubscribeStarted(session: SubscribeDiscoverySession) {
                 Log.d("Subscriber", "SUBSCRIBE: Subscribe started.")
                 _currentSubSession = session
@@ -95,17 +85,11 @@ class Subscriber(
                 }
             }
 
-            override fun onMessageSendSucceeded(messageId: Int) {
-                super.onMessageSendSucceeded(messageId)
-                //peerHandleQueue.removeFirstOrNull()
-                Log.e("Subscriber", "SUBSCRIBE: WOOOOHOOOOO onMessageSendSucceeded (this is good) $messageId")
-            }
-
             override fun onMessageSendFailed(messageId: Int) {
                 super.onMessageSendFailed(messageId)
                 _responseTimer?.cancel()
                 _responseTimer2?.cancel()
-                Log.e("Subscriber", "SUBSCRIBE: BUUUUUUUUUUU onMessageSendFailed (this is bad) $messageId")
+                Log.e("Subscriber", "SUBSCRIBE: NOT GOOD onMessageSendFailed (this is bad) $messageId")
             }
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
@@ -128,9 +112,9 @@ class Subscriber(
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Handle permissions here if needed.
+           Log.d("1Wifi", "No prem for subscribe")
         }
-        _wifiAwareSession!!.subscribe(subscribeConfig, discoverySessionCallback, handler)
+        _wifiAwareSession.subscribe(subscribeConfig, discoverySessionCallback, handler)
     }
 
     fun createNetwork(peerHandle : PeerHandle, context : Context) {
@@ -146,7 +130,7 @@ class Subscriber(
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
             .setNetworkSpecifier(networkSpecifier)
             .build()
-        Log.d("NETWORKWIFI","SUBSCRIBER: All necessary wifiaware network things created now awaiting callback")
+        Log.d("NETWORKWIFI","SUBSCRIBER: All necessary wifi-aware network things created now awaiting callback")
 
         _networkCallbackSub = object : ConnectivityManager.NetworkCallback() {
             //@RequiresApi(Build.VERSION_CODES.R)
@@ -211,15 +195,11 @@ class Subscriber(
             }
 
             override fun onLost(network: Network) {
-                // currentSubSession?.close()
-                //currentSubSession = null
-                // clientSocket?.close()
-                connectivityManager!!.unregisterNetworkCallback(_networkCallbackSub)
-                // subscribeToWifiAwareSessions()
+                connectivityManager.unregisterNetworkCallback(_networkCallbackSub)
                 Log.d("Subscriber", "SUBSCRIBE: Network lost for peer: $peerHandle, subscriber restarted")
             }
         }
-        connectivityManager?.requestNetwork(myNetworkRequest, _networkCallbackSub)
+        connectivityManager.requestNetwork(myNetworkRequest, _networkCallbackSub)
         startResponseTimer2(peerHandle,connectivityManager)
     }
 
@@ -237,7 +217,7 @@ class Subscriber(
                 outputStream.flush()
                 socket.shutdownOutput()
             }
-            Log.d("DONEEE", "SUBSCRIBE: All information sent we are done")
+            Log.d("DONE", "SUBSCRIBE: All information sent we are done")
         } catch (e: IOException) {
             Log.e("Subscriber", "SUBSCRIBE: IOException in handleDataExchange: ${e.message}")
         } catch (e: SecurityException) {
@@ -246,13 +226,13 @@ class Subscriber(
             Log.e("Subscriber", "SUBSCRIBE: Error in handleDataExchange: ${e.message}")
         } finally {
             try {
-                _clientSocket?.close()
+                _clientSocket.close()
 
             } catch (e: IOException) {
                 Log.e("Subscriber", "SUBSCRIBE: Error closing socket: ${e.message}")
             }
             // After data exchange, process the next peer
-            connectivityManager!!.unregisterNetworkCallback(_networkCallbackSub)
+            connectivityManager.unregisterNetworkCallback(_networkCallbackSub)
             _currentPeerHandle = null
 
             Log.d("Subscriber", "NEWPHONE: we are starting for a new phone because the information is already sent to the prev one in handleDataExchange ${_peerHandleQueue.size}")
@@ -305,7 +285,7 @@ class Subscriber(
             schedule(object : TimerTask() {
                 override fun run() {
                     Log.d("Subscriber", "RETRYING CONNECTION WITH $peerHandle in timer 2")
-                    connectivityManager!!.unregisterNetworkCallback(_networkCallbackSub)
+                    connectivityManager.unregisterNetworkCallback(_networkCallbackSub)
                     _peerHandleQueue.addFirst(peerHandle)
                     processNextPeerHandle()
                 }
@@ -322,5 +302,9 @@ class Subscriber(
                 startResponseTimer(it)
             }
         }
+    }
+
+    companion object {
+        const val RESPONSETIMEOUT = 10000L // 10 seconds for example
     }
 }

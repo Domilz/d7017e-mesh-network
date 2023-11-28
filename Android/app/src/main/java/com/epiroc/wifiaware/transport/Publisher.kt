@@ -16,7 +16,6 @@ import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.transport.network.ConnectivityManagerHelper
 import com.epiroc.wifiaware.transport.utility.WifiAwareUtility
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,90 +27,84 @@ import java.net.Socket
 import java.net.SocketTimeoutException
 import java.util.Timer
 import java.util.TimerTask
-import javax.inject.Inject
 
 class Publisher (
     ctx: Context,
     nanSession: WifiAwareSession,
     private val client: Client,
-    srvcName: String?,
+    serviceName: String?,
 ) {
 
 
     private var _context = ctx
     private var _currentPubSession: DiscoverySession? = null
     private val _utility: WifiAwareUtility = WifiAwareUtility
-    private val _serviceName = srvcName
+    private val _serviceName = serviceName
     private val _wifiAwareSession = nanSession
     private var _currentNetwork : Network? = null
     private var _activeConnection : Boolean = false
     private var _responseTimer: Timer? = null
-    private val RESPONSETIMEOUT = 25000L // 15 seconds for example
     private var _clientSocket: Socket? = null
     private val _messagesReceived: MutableList<String> = mutableListOf()
 
     fun publishUsingWifiAware() {
         Log.d("Publisher", "PUBLISH: Attempting to start publishUsingWifiAware.")
-        if (_wifiAwareSession != null) {
-            Log.d("Publisher", "PUBLISH: ServiceName is set to $_serviceName.")
-            val config = PublishConfig.Builder()
-                .setServiceName(_serviceName!!)
-                .build()
-            val handler = Handler(Looper.getMainLooper())
-            if (ActivityCompat.checkSelfPermission(
-                    _context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                Log.d("Publisher","PUBLISH: NO PREM FOR PUB")
-            } else {
-                Log.d("Publisher","PUBLISH: WE HAVE PREM TO PUBLISH")
-                // Permissions are granted, proceed with publishing.
-                _wifiAwareSession.publish(config, object : DiscoverySessionCallback() {
-                    override fun onPublishStarted(session: PublishDiscoverySession) {
-                        Log.d("Publisher", "PUBLISH: Publish started")
-                        _currentPubSession = session
-
-                    }
-                    override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
-                        Log.d("ActiveConnection", "PUBLISH: current state of activeConnection in onMessageReceived is $_activeConnection")
-                        if (shouldConnectToDevice(String(message)) && !_activeConnection) {
-                            _activeConnection = true
-                            Log.d("Publisher", "PUBLISH: Message received from peer in publisher $peerHandle")
-                            CoroutineScope(Dispatchers.IO).launch {
-                                createNetwork(peerHandle, _context,String(message))
-                                Log.d("Publisher", "PUBLISH: PLEASE TELL ME THIS WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                                startResponseTimer()
-                                Timer().schedule(object : TimerTask() {
-                                    override fun run() {
-                                        try {
-                                            _currentPubSession?.sendMessage(
-                                                peerHandle,
-                                                0, // Message type (0 for unsolicited),
-                                                "".toByteArray()
-                                            )
-                                        }catch (e : Exception){
-                                            Log.e("1Wifi","Could not send message ${e.message} Stacktrace: ${Log.getStackTraceString(e)}")
-                                        }
-
-                                    }
-                                }, 100) // Delay in milliseconds*/
-
-                                Log.d("Publisher", "PUBLISH: sending message now via publisher to $peerHandle")
-                            }
-                        }else{
-                            Log.d("Publisher", "PUBLISH: we are in else in onMessageReceived, activeConnection: $_activeConnection")
-                        }
-                    }
-                }, handler)
-            }
+        Log.d("Publisher", "PUBLISH: ServiceName is set to $_serviceName.")
+        val config = PublishConfig.Builder()
+            .setServiceName(_serviceName!!)
+            .build()
+        val handler = Handler(Looper.getMainLooper())
+        if (ActivityCompat.checkSelfPermission(
+                _context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d("Publisher","PUBLISH: NO PREM FOR PUB")
         } else {
-            Log.d("Publisher", "PUBLISH: Wifi Aware session is not available.")
+            Log.d("Publisher","PUBLISH: WE HAVE PREM TO PUBLISH")
+            // Permissions are granted, proceed with publishing.
+            _wifiAwareSession.publish(config, object : DiscoverySessionCallback() {
+                override fun onPublishStarted(session: PublishDiscoverySession) {
+                    Log.d("Publisher", "PUBLISH: Publish started")
+                    _currentPubSession = session
+
+                }
+                override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
+                    Log.d("ActiveConnection", "PUBLISH: current state of activeConnection in onMessageReceived is $_activeConnection")
+                    if (shouldConnectToDevice(String(message)) && !_activeConnection) {
+                        _activeConnection = true
+                        Log.d("Publisher", "PUBLISH: Message received from peer in publisher $peerHandle")
+                        CoroutineScope(Dispatchers.IO).launch {
+                            createNetwork(peerHandle, _context,String(message))
+                            Log.d("Publisher", "PUBLISH: PLEASE TELL ME THIS WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                            startResponseTimer()
+                            Timer().schedule(object : TimerTask() {
+                                override fun run() {
+                                    try {
+                                        _currentPubSession?.sendMessage(
+                                            peerHandle,
+                                            0, // Message type (0 for unsolicited),
+                                            "".toByteArray()
+                                        )
+                                    }catch (e : Exception){
+                                        Log.e("1Wifi","Could not send message ${e.message} Stacktrace: ${Log.getStackTraceString(e)}")
+                                    }
+
+                                }
+                            }, 100) // Delay in milliseconds*/
+
+                            Log.d("Publisher", "PUBLISH: sending message now via publisher to $peerHandle")
+                        }
+                    }else{
+                        Log.d("Publisher", "PUBLISH: we are in else in onMessageReceived, activeConnection: $_activeConnection")
+                    }
+                }
+            }, handler)
         }
     }
     fun createNetwork(peerHandle : PeerHandle, context : Context, deviceIdentifier : String){
         this._context = context
-        var connectivityManager = ConnectivityManagerHelper.getManager(context)
+        val connectivityManager = ConnectivityManagerHelper.getManager(context)
 
         val serverSocket = ServerSocket(0)
         serverSocket.soTimeout = 5000
@@ -119,16 +112,16 @@ class Publisher (
 
         Log.d("Publisher", "PUBLISHER: We have set new socket ports etc $port")
 
-        var networkSpecifier = WifiAwareNetworkSpecifier.Builder(_currentPubSession!!, peerHandle)
+        val networkSpecifier = WifiAwareNetworkSpecifier.Builder(_currentPubSession!!, peerHandle)
             .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
             .setPort(port)
             .build()
-        var myNetworkRequest = NetworkRequest.Builder()
+        val myNetworkRequest = NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
             .setNetworkSpecifier(networkSpecifier)
             .build()
 
-        Log.d("NETWORKWIFI","PUBLISH: All necessary wifiaware network things created now awaiting callback on port $port and this is port from local ${serverSocket!!.localPort}")
+        Log.d("NETWORKWIFI","PUBLISH: All necessary wifi-aware network things created now awaiting callback on port $port and this is port from local ${serverSocket.localPort}")
         val networkCallbackPub = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 _currentNetwork = network
@@ -143,13 +136,13 @@ class Publisher (
                         if (_clientSocket != null && !_clientSocket!!.isClosed) {
                             _clientSocket!!.close()  // Close any existing client socket
                         }
-                        _clientSocket = serverSocket?.accept()  // Attempt to accept a connection
+                        _clientSocket = serverSocket.accept()  // Attempt to accept a connection
                         _responseTimer?.cancel()
                         Log.d("NETWORKWIFI", "PUBLISH: Connection successful")
                         CoroutineScope(Dispatchers.IO).launch {
                             handleClient(_clientSocket,deviceIdentifier)
-                            serverSocket?.close()
-                            _clientSocket?.close()
+                            serverSocket.close()
+
                         }
                         break  // Break out of the loop if connection is successful
                     } catch (e: SocketTimeoutException) {
@@ -168,7 +161,7 @@ class Publisher (
 
                 if (retryCount >= maxRetries) {
                     Log.d("NETWORKWIFI", "PUBLISH: Maximum retry attempts reached. Failed to establish connection.")
-                    serverSocket?.close()
+                    serverSocket.close()
                     _clientSocket?.close()
                 }
             }
@@ -188,12 +181,12 @@ class Publisher (
 
             override fun onLost(network: Network) {
                 Log.d("Publisher", "PUBLISH: Connection lost: $network")
-                serverSocket?.close()
+                serverSocket.close()
                 Log.d("ActiveConnection", "PUBLISH: current state of activeConnection in onLost is $_activeConnection")
                 _activeConnection = false
             }
         }
-        connectivityManager.requestNetwork(myNetworkRequest, networkCallbackPub);
+        connectivityManager.requestNetwork(myNetworkRequest, networkCallbackPub)
     }
 
     private fun handleClient(clientSocket: Socket?,deviceIdentifier: String ) {
@@ -229,10 +222,10 @@ class Publisher (
                 Log.e("INFOFROMCLIENT", "I/O exception: ${e.message} , ${Log.getStackTraceString(e)}")
             }
         }
-        Log.d("DONEEE", "PUBLISH: All information received we are done $_messagesReceived, ${client.tagClient.deserializedState}")
+        Log.d("DONE", "PUBLISH: All information received we are done $_messagesReceived, ${client.tagClient.deserializedState}")
         if(!clientSocket.isClosed){
             try {
-                clientSocket?.getInputStream()?.close()
+                clientSocket.getInputStream()?.close()
             }catch (e : Exception){
                 Log.d("Publisher", "${e.message}")
             }
@@ -249,7 +242,6 @@ class Publisher (
             val timeSinceLastConnection = currentTime - deviceConnection.timestamp
             if (timeSinceLastConnection < fiveMinutesInMillis) {
                 Log.d("Publisher", "Publisher: Device [$deviceIdentifier] was connected ${timeSinceLastConnection / 1000} seconds ago. Not connecting again.")
-                false
             }; false
         } else {
             Log.d("Publisher", "Publisher: Device [$deviceIdentifier] is not in the list. Adding it and allowing connection.")
@@ -269,6 +261,10 @@ class Publisher (
 
             }, RESPONSETIMEOUT)
         }
+    }
+
+    companion object {
+        const val RESPONSETIMEOUT: Long = 25000L // 15 seconds for example
     }
 }
 

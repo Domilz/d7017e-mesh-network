@@ -1,6 +1,5 @@
 package com.epiroc.wifiaware.Services
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
@@ -8,12 +7,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothManager
-import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
@@ -28,9 +23,7 @@ import android.os.Looper
 import android.os.ParcelUuid
 import android.os.PowerManager
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
 import com.epiroc.wifiaware.lib.Client
@@ -50,8 +43,6 @@ class BleScanningService : Service() {
         bluetoothAdapter.bluetoothLeScanner
     }
 
-    private val SERVICE_UUID = "527af0f6-83af-11ee-b962-0242ac120002"
-
     private val binder = LocalBinder()
 
     private val scanningInterval = 10000L // 10 seconds
@@ -61,7 +52,7 @@ class BleScanningService : Service() {
 
 
     private val scanFilter = ScanFilter.Builder()
-        .setServiceUuid(ParcelUuid(UUID.fromString(SERVICE_UUID)))
+        .setServiceUuid(ParcelUuid(UUID.fromString(SERVICEUUID)))
         .build()
 
     private val scanSettings = ScanSettings.Builder()
@@ -77,14 +68,10 @@ class BleScanningService : Service() {
 
                 val deviceName = result.device.address
                 val rssi = result.rssi
-                Log.d("BLEService", "Device is: ${deviceName} and rssi is ${rssi}")
+                Log.d("BLEService", "Device is: $deviceName and rssi is $rssi")
                 if (rssi != 127 && deviceName != null) {
                     client.updateReadingOfSelf(deviceName, rssi)
                 }
-
-                // 2023-11-22 13:46:59.069 12715-12715 BLEService              com.epiroc.wifiaware                 D  ScanResult{device=F2:43:4B:13:A3:15, scanRecord=ScanRecord [mAdvertiseFlags=6, mServiceUuids=[0000feaa-0000-1000-8000-00805f9b34fb], mServiceSolicitationUuids=[], mManufacturerSpecificData={}, mServiceData={0000feaa-0000-1000-8000-00805f9b34fb=[0, -9, 73, 78, 122, -114, -66, 21, 60, -72, 19, 121, 0, 0, 0, 3, 16, -40, 0, 0]}, mTxPowerLevel=-2147483648, mDeviceName=null, mTransportDiscoveryData=null], rssi=127, timestampNanos=371324353004, eventType=16, primaryPhy=1, secondaryPhy=0, advertisingSid=255, txPower=127, periodicAdvertisingInterval=0}
-                // 2023-11-22 13:47:08.104 12715-12715 BLEService              com.epiroc.wifiaware                 D  ScanResult{device=F2:43:4B:13:A3:15, scanRecord=ScanRecord [mAdvertiseFlags=6, mServiceUuids=[0000feaa-0000-1000-8000-00805f9b34fb], mServiceSolicitationUuids=[], mManufacturerSpecificData={}, mServiceData={0000feaa-0000-1000-8000-00805f9b34fb=[0, -9, 73, 78, 122, -114, -66, 21, 60, -72, 19, 121, 0, 0, 0, 3, 16, -40, 0, 0]}, mTxPowerLevel=-2147483648, mDeviceName=null, mTransportDiscoveryData=null], rssi=-47, timestampNanos=380329916281, eventType=16, primaryPhy=1, secondaryPhy=0, advertisingSid=255, txPower=127, periodicAdvertisingInterval=0}
-                // result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
             }
         }
 
@@ -118,7 +105,7 @@ class BleScanningService : Service() {
                 when (newState) {
                     BluetoothGatt.STATE_CONNECTED -> {
                         val success = gatt.readRemoteRssi()
-                        if (success == true) {
+                        if (success) {
                             Log.d("BleService", "Requested RSSI reading")
                         } else {
                             Log.e("BleService", "Failed to request RSSI reading")
@@ -242,10 +229,11 @@ class BleScanningService : Service() {
         fun getService(): BleScanningService = this@BleScanningService
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder {
         return binder
     }
 
+    @SuppressLint("WakelockTimeout")
     private fun acquireWakeLock() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(
@@ -263,5 +251,9 @@ class BleScanningService : Service() {
         if (wakeLock.isHeld) {
             wakeLock.release()
         }
+    }
+
+    companion object {
+        const val SERVICEUUID = "527af0f6-83af-11ee-b962-0242ac120002"
     }
 }

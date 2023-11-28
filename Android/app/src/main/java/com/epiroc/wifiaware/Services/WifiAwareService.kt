@@ -1,6 +1,7 @@
 package com.epiroc.wifiaware.Services
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -18,7 +19,6 @@ import android.net.wifi.aware.IdentityChangedListener
 import android.net.wifi.aware.WifiAwareManager
 import android.net.wifi.aware.WifiAwareSession
 import android.os.Binder
-import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -45,10 +45,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
-import java.util.UUID
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -58,7 +56,6 @@ class WifiAwareService : Service() {
     private lateinit var cleanUpHandler: Handler
     private val hasWifiAwareText: MutableState<String> = mutableStateOf("")
     private val utility: WifiAwareUtility = WifiAwareUtility
-    private val serviceScope = CoroutineScope(Dispatchers.Main)
     private val binder = LocalBinder()
 
     private var connectivityManager: ConnectivityManager? = null
@@ -79,6 +76,7 @@ class WifiAwareService : Service() {
 
     }
 
+    @SuppressLint("WakelockTimeout")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("1Wifi","WifiAwareService STARTED")
 
@@ -119,7 +117,7 @@ class WifiAwareService : Service() {
 
                 if (::subscriber.isInitialized) {
                     if(utility.isNotEmpty()) {
-                        var didremove = utility.removeIf()
+                        val didremove = utility.removeIf()
                       //  Log.e("1Wifi", "It removed? : $didremove")
                         if (didremove) {
                            // Log.e("1Wifi", "It removed? : $didremove YES")
@@ -154,9 +152,8 @@ class WifiAwareService : Service() {
         Log.d("1Wifi","Service destroyed")
         super.onDestroy()
         if (::wakeLock.isInitialized && wakeLock.isHeld) {
-            wakeLock.release();
+            wakeLock.release()
         }
-        //serviceScope.cancel()
     }
 
     companion object {
@@ -165,18 +162,16 @@ class WifiAwareService : Service() {
 
     private fun createNotificationChannel() {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = "WifiAware Service Channel"
-            val description = "Channel for WifiAware foreground service"
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, channelName, importance).apply {
-                this.description = description
-            }
-
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val channelName = "WifiAware Service Channel"
+        val description = "Channel for WifiAware foreground service"
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val channel = NotificationChannel(CHANNEL_ID, channelName, importance).apply {
+            this.description = description
         }
+
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun createNotification(): Notification {
@@ -201,7 +196,7 @@ class WifiAwareService : Service() {
     // UI function for if WifiAware is available or not.
     private fun wifiAwareState(): String {
         Log.d("1Wifi", "Checking Wifi Aware state.")
-        var wifiAwareAvailable = ""
+        val wifiAwareAvailable = ""
         wifiAwareManager = this.getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager?
         connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val filter = IntentFilter(WifiAwareManager.ACTION_WIFI_AWARE_STATE_CHANGED)
@@ -221,6 +216,7 @@ class WifiAwareService : Service() {
     private fun acquireWifiAwareSession(): String {
         Log.d("1Wifi", "Attempting to acquire Wifi Aware session.")
         val attachCallback = object : AttachCallback() {
+            @SuppressLint("WakelockTimeout")
             override fun onAttached(session: WifiAwareSession) {
                 val powerManager = getSystemService(POWER_SERVICE) as PowerManager
                 wakeLock =
@@ -240,13 +236,13 @@ class WifiAwareService : Service() {
                     ctx = applicationContext,
                     nanSession = wifiAwareSession!!,
                     client = client,
-                    srvcName = serviceName
+                    serviceName = serviceName
                 )
                 subscriber = Subscriber(
                     ctx = applicationContext,
                     nanSession = session,
                     client = client,
-                    srvcName = serviceName!!,
+                    serviceName = serviceName!!,
                 )
                 CoroutineScope(Dispatchers.IO).launch {
                     publisher.publishUsingWifiAware()
@@ -275,12 +271,7 @@ class WifiAwareService : Service() {
             override fun onAwareSessionTerminated() {
                 super.onAwareSessionTerminated()
                 wifiAwareSession = null
-                wifiLock?.release();
-            }
-            //override fun onAwareSessionTerminated() {
-            //    super.onAwareSessionTerminated()
-            //    wifiAwareSession = null
-            //}
+                wifiLock?.release()            }
         }
 
         val identityChangedListener = object : IdentityChangedListener() {
@@ -309,7 +300,7 @@ class WifiAwareService : Service() {
         fun getService(): WifiAwareService = this@WifiAwareService
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder {
         return binder
     }
 

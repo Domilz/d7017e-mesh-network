@@ -34,7 +34,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.epiroc.wifiaware.Screens.permissions.PermissionUtils
-import com.epiroc.wifiaware.Services.BlePeripheralService
 import com.epiroc.wifiaware.Services.BleScanningService
 import com.epiroc.wifiaware.Services.WifiAwareService
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -63,10 +62,10 @@ fun TransportServiceScreen(
     DisposableEffect(
         key1 = lifecycleOwner,
         effect = {
-            Log.d("Wifiaware", "DisposableEffect")
+            Log.d("Wifi-aware", "DisposableEffect")
             val observer = LifecycleEventObserver{_,event ->
                 if(event == Lifecycle.Event.ON_START && !permissionState.allPermissionsGranted){
-                    Log.d("Wifiaware", "Request Permissions")
+                    Log.d("Wifi-aware", "Request Permissions")
                     permissionState.launchMultiplePermissionRequest()
                 }
             }
@@ -80,18 +79,18 @@ fun TransportServiceScreen(
     
 
     LaunchedEffect(key1 = permissionState.allPermissionsGranted) {
-        Log.d("Wifiaware", "Launched Effect")
+        Log.d("Wifi-aware", "Launched Effect")
         if (permissionState.allPermissionsGranted) {
-            Log.d("Wifiaware", "Create intent")
+            Log.d("Wifi-aware", "Create intent")
 
             connection = object : ServiceConnection {
                 override fun onServiceConnected(name: ComponentName?, serviceBinder: IBinder?) {
-                    Log.d("Wifiaware", "onServiceConnected")
+                    Log.d("Wifi-aware", "onServiceConnected")
                     service = (serviceBinder as? WifiAwareService.LocalBinder)?.getService()
                 }
 
                 override fun onServiceDisconnected(name: ComponentName?) {
-                    Log.d("Wifiaware", "onServiceDisconnected")
+                    Log.d("Wifi-aware", "onServiceDisconnected")
                     service = null
                 }
             }
@@ -122,7 +121,7 @@ fun TransportServiceScreen(
                             true
                         } else {
                             // Stop the service
-                            Log.d("Wifiaware", "Stopping service")
+                            Log.d("Wifi-aware", "Stopping service")
                             service?.onDestroy()
                             context.stopService(nanIntent)
                             false

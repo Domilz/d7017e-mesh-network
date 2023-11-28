@@ -14,7 +14,9 @@ class NetworkWorker(appContext: Context, workerParams: WorkerParameters) :
     private val context = appContext
     override fun doWork(): Result {
         return try {
-            val file = File(context.filesDir, Config.getConfigData()?.getString("local_storage_file_name"))
+            val file = File(context.filesDir,
+                Config.getConfigData()?.getString("local_storage_file_name")!!
+            )
 
             if (file.exists() && file.length() > 0) { // Check if file is not empty
                 utility.sendPostRequest(file.readBytes())
