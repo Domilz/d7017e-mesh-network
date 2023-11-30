@@ -143,7 +143,7 @@ class Publisher (
                         if (_clientSocket != null && !_clientSocket!!.isClosed) {
                             _clientSocket!!.close()  // Close any existing client socket
                         }
-                        _clientSocket = serverSocket.accept()  // Attempt to accept a connection (maybe val clientSocket)
+                        _clientSocket = serverSocket.accept()  // Attempt to accept a connection (TODO: maybe val clientSocket)
                         _responseTimer?.cancel()
                         Log.d("NETWORKWIFI", "PUBLISH: Connection successful")
                         CoroutineScope(Dispatchers.IO).launch {
