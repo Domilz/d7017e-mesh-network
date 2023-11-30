@@ -8,7 +8,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.Base64
 
 object WifiAwareUtility {
     private val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
@@ -18,10 +17,6 @@ object WifiAwareUtility {
         if (!recentlyConnectedDevices.contains(deviceIdentifier))
             tryCount = 0
         recentlyConnectedDevices.add(deviceIdentifier)
-    }
-
-    fun remove(deviceIdentifier: DeviceConnection)  {
-        recentlyConnectedDevices.remove(deviceIdentifier)
     }
 
     fun removeIf() : Boolean{
@@ -42,10 +37,6 @@ object WifiAwareUtility {
         return recentlyConnectedDevices.isNotEmpty()
     }
 
-    fun count(): Int {
-        return recentlyConnectedDevices.count()
-    }
-
     fun sendPostRequest(data : ByteArray) {
         val url = URL(Config.getConfigData()?.getString("backend_ip"))
         val connection = url.openConnection() as HttpURLConnection
@@ -54,7 +45,7 @@ object WifiAwareUtility {
         connection.doOutput = true
 
         val outputStream = DataOutputStream(connection.outputStream)
-        var c = data.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toInt().and(0xFF).toString() }
+        val c = data.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toInt().and(0xFF).toString() }
         outputStream.writeBytes(c)
         outputStream.flush()
         outputStream.close()

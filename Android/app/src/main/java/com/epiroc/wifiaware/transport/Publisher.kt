@@ -207,7 +207,6 @@ class Publisher (
                 System.currentTimeMillis()
             )
         )
-        client.insertSingleMockedReading("publish")
 
         clientSocket!!.getInputStream().use { inputStream ->
             val dataInputStream = DataInputStream(inputStream)

@@ -17,7 +17,7 @@ class NetworkWorker(appContext: Context, workerParams: WorkerParameters) :
             val file = File(context.filesDir, Config.getConfigData()?.getString("local_storage_file_name"))
 
             if (file.exists() && file.length() > 0) { // Check if file is not empty
-                utility.sendPostRequest(file.readBytes())
+                utility.sendPostRequest(file.readBytes())  //TODO: Use current client builtin send to server function instead
             // Clear the file after all lines have been processed.
                 file.writeText("")
                 Result.success()
