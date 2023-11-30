@@ -240,7 +240,7 @@ class WifiAwareService : Service() {
                     ctx = applicationContext,
                     nanSession = wifiAwareSession!!,
                     client = client,
-                    srvcName = serviceName
+                    serviceName = serviceName
                 )
                 subscriber = Subscriber(
                     ctx = applicationContext,
