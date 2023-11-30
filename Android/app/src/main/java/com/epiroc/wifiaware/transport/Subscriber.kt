@@ -135,14 +135,9 @@ class Subscriber(
                 Log.d("Subscriber", "SUBSCRIBE: Network capabilities changed for peer: $peerHandle")
                 super.onCapabilitiesChanged(network, networkCapabilities)
 
-                // Check for Wi-Fi Aware capability
                 if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE)) {
-                    // Handle Wi-Fi Aware capabilities here
                     Log.d("NetworkCallback", "Wi-Fi Aware capabilities changed.")
-
-                    // Example: Check for specific capabilities if needed
                     if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-                        // Network has internet capability
                         Log.d("NetworkCallback", "Network has internet capability.")
                     }
 
