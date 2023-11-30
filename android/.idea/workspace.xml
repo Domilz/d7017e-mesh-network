@@ -10,8 +10,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8b580310-508d-4972-9d18-e658d2fa7595" name="Changes" comment="general cleanup">
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/BlePeripheralService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/BlePeripheralService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/BleScanningService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/BleScanningService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -394,7 +394,21 @@
       <option name="project" value="LOCAL" />
       <updated>1701335565466</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="general cleanup">
+      <created>1701336106141</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1701336106141</updated>
+    </task>
+    <task id="LOCAL-00031" summary="general cleanup">
+      <created>1701337232596</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1701337232596</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -453,21 +467,6 @@
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt</url>
           <line>29</line>
           <option name="timeStamp" value="449" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/network/SubscriberNetwork.kt</url>
-          <line>113</line>
-          <option name="timeStamp" value="456" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/network/PublisherNetwork.kt</url>
-          <line>119</line>
-          <option name="timeStamp" value="457" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/network/PublisherNetwork.kt</url>
-          <line>114</line>
-          <option name="timeStamp" value="461" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

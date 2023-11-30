@@ -130,10 +130,18 @@ class BleScanningService : Service() {
         }
     }
 
+    //todo: test if no bluetooth still causes crashes
     override fun onCreate() {
         super.onCreate()
 
         acquireWakeLock()
+
+        // Check if Bluetooth is available on the device
+        if (bluetoothAdapter == null) {
+            Log.e("BLEService", "Bluetooth not available")
+            stopSelf()
+            return
+        }
 
         val intent = Intent(this, MainActivity::class.java).apply {
             flags
