@@ -5,6 +5,9 @@
   "api_endpoint": "https://api.example.com",
   "local_storage_file_name": "MyState.txt",
   "backend_ip": "http://83.233.46.128:4242/debuglog",
+  "subscriber_response_timeout": "10000",
+  "publisher_response_timeout": "25000",
+
   "theme_colors": {
     "primary_color": "#3498db",
     "accent_color": "#2ecc71"

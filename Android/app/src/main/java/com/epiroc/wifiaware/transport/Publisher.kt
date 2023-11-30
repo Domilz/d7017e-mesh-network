@@ -52,14 +52,14 @@ class Publisher (
     private val _utility: WifiAwareUtility = WifiAwareUtility
     private val _wifiAwareSession = nanSession
 
-    private val SERVICE_NAME = serviceName
-    private val RESPONSE_TIMEOUT = 25000L // 15 seconds for example
+    private val _serviceName = serviceName
+    private val _responseTimeout = Config.getConfigData()!!.getString("publisher_response_timeout").toLong() // 15 seconds for example
 
     fun publishUsingWifiAware() {
         Log.d("Publisher", "PUBLISH: Attempting to start publishUsingWifiAware.")
-        Log.d("Publisher", "PUBLISH: ServiceName is set to $SERVICE_NAME.")
+        Log.d("Publisher", "PUBLISH: ServiceName is set to $_serviceName.")
         val config = PublishConfig.Builder()
-            .setServiceName(SERVICE_NAME!!)
+            .setServiceName(_serviceName!!)
             .build()
         val handler = Handler(Looper.getMainLooper())
         if (ActivityCompat.checkSelfPermission(
@@ -267,7 +267,7 @@ class Publisher (
                     Log.d("Publisher", "TIMER: Response timeout")
                     _activeConnection = false
                 }
-            }, RESPONSE_TIMEOUT)
+            }, _responseTimeout)
         }
     }
 }

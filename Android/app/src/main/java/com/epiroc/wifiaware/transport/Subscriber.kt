@@ -41,9 +41,8 @@ class Subscriber(
     private val _serviceUUID = client.getClientName().toByteArray()
     private val _context = ctx
     private val _peerHandleQueue = ArrayDeque<PeerHandle>()
-
     private val _serviceName = srvcName
-    private val _responseTimeout = 10000L // 10 seconds for example //TODO: put int config.json
+    private val _responseTimeout = Config.getConfigData()!!.getString("subscribe_response_timeout").toLong()
 
     private lateinit var _networkCallbackSub: ConnectivityManager.NetworkCallback
     private lateinit var  _currentNetwork : Network

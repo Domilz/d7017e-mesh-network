@@ -51,7 +51,6 @@ class BleScanningService : Service() {
     }
 
     private val SERVICE_UUID = "527af0f6-83af-11ee-b962-0242ac120002"
-
     private val binder = LocalBinder()
 
     private val scanningInterval = 10000L // 10 seconds
@@ -94,7 +93,6 @@ class BleScanningService : Service() {
                     }, 20)
                 }
             }
-            // Handle the results here.
         }
 
         override fun onScanFailed(errorCode: Int) {
