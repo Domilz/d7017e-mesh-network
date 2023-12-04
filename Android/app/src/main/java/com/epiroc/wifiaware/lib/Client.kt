@@ -14,7 +14,8 @@ class Client @Inject constructor() {
         clientName = name
         if (!::tagClient.isInitialized) {
             tagClient = Tag.getClient().apply {
-                setupClient(name, "83.233.46.128:50051")
+                val serverAddress = Config.getConfigData()?.getString("server_address")
+                setupClient(name, serverAddress)
             }
         }
     }

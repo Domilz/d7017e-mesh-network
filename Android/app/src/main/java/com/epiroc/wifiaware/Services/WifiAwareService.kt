@@ -219,7 +219,7 @@ class WifiAwareService : Service() {
 
                 utility.setClient(client) // Set client in a singleton this could be improved
 
-                val serviceName = Config.getConfigData()?.getString("service_name")
+                val serviceName = Config.getConfigData()?.getString("aware_service_name")
                 // Initialize the publisher and subscriber
                 publisher = Publisher(
                     ctx = applicationContext,

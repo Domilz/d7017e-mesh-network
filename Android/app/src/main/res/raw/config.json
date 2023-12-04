@@ -3,12 +3,5 @@
   "aware_service_name": "epiroc_mesh",
   "local_storage_file_name": "MyState.txt",
   "backend_ip": "http://83.233.46.128:4242/debuglog",
-  "theme_colors": {
-    "primary_color": "#3498db",
-    "accent_color": "#2ecc71"
-  },
-  "features": {
-  },
-  "default_settings": {
-  }
+  "server_address": "83.233.46.128:50051"
 }
