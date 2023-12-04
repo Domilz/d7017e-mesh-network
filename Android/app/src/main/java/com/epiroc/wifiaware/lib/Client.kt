@@ -6,7 +6,7 @@ import tag.Tag
 import javax.inject.Inject
 
 class Client @Inject constructor() {
-    lateinit var tagClient: Client // Replace with the actual type of your client
+    lateinit var tagClient: Client
     private lateinit var clientName : String
 
     fun setupClient(name: String) {
@@ -16,6 +16,14 @@ class Client @Inject constructor() {
             tagClient = Tag.getClient().apply {
                 setupClient(name)
             }
+        }
+    }
+
+    fun getClient() : Client{
+        if (!::tagClient.isInitialized) {
+            return tagClient
+        }else {
+            throw IllegalStateException("Client not initialized. Something went wrong in MainActivity.")
         }
     }
 
