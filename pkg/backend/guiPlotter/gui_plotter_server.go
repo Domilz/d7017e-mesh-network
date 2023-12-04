@@ -18,10 +18,15 @@ var upgrader = websocket.Upgrader{
 }
 
 type GUIPlotter struct {
-	clients     map[*WebSocketClient]bool
+	clients     map[*WebSocketClient]tStruct
 	clientsLock sync.Mutex
 	initData    Data
 	dataLock    sync.Mutex
+}
+
+type tStruct struct {
+	b        bool
+	connLock sync.Mutex
 }
 
 type WebSocketClient struct {
@@ -66,7 +71,8 @@ var (
 func SetupGUIPlotter(data Data) *GUIPlotter {
 	guiP := &GUIPlotter{}
 	guiP.initData = data
-	guiP.clients = make(map[*WebSocketClient]bool)
+
+	guiP.clients = make(map[*WebSocketClient]tStruct)
 	guiPlotter = guiP
 	fs := http.FileServer(http.Dir("pkg/backend/guiPlotter/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
@@ -101,7 +107,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 
 	client := &WebSocketClient{conn: conn}
 	guiPlotter.clientsLock.Lock()
-	guiPlotter.clients[client] = true
+	guiPlotter.clients[client] = tStruct{b: true}
 	guiPlotter.clientsLock.Unlock()
 
 	defer func() {
@@ -130,7 +136,11 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 				guiPlotter.dataLock.Unlock()
 				// Marshal the initial data to JSON and send it to the client
 				jsonData, _ := json.Marshal(data)
-				if err := conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+				t := guiPlotter.clients[client]
+				t.connLock.Lock()
+				err := conn.WriteMessage(websocket.TextMessage, jsonData)
+				t.connLock.Unlock()
+				if err != nil {
 					// Handle error
 					return
 				}
@@ -178,10 +188,13 @@ func sendToClients(bytes []byte) {
 
 	for client := range guiPlotter.clients {
 		log.Print("Sending to client")
+		t := guiPlotter.clients[client]
+		t.connLock.Lock()
 		err := client.conn.WriteMessage(websocket.TextMessage, bytes)
 		if err != nil {
 			log.Printf("guiPlotter encountered error during sendToClients, err: %v", err)
 		}
+		t.connLock.Unlock()
 	}
 
 }
