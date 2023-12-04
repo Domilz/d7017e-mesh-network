@@ -25,7 +25,8 @@ type GUIPlotter struct {
 }
 
 type WebSocketClient struct {
-	conn *websocket.Conn
+	conn     *websocket.Conn
+	connLock sync.Mutex
 }
 
 type Tag struct {
@@ -66,6 +67,7 @@ var (
 func SetupGUIPlotter(data Data) *GUIPlotter {
 	guiP := &GUIPlotter{}
 	guiP.initData = data
+
 	guiP.clients = make(map[*WebSocketClient]bool)
 	guiPlotter = guiP
 	fs := http.FileServer(http.Dir("pkg/backend/guiPlotter/static"))
@@ -130,7 +132,10 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 				guiPlotter.dataLock.Unlock()
 				// Marshal the initial data to JSON and send it to the client
 				jsonData, _ := json.Marshal(data)
-				if err := conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+				client.connLock.Lock()
+				err := conn.WriteMessage(websocket.TextMessage, jsonData)
+				client.connLock.Unlock()
+				if err != nil {
 					// Handle error
 					return
 				}
@@ -178,10 +183,13 @@ func sendToClients(bytes []byte) {
 
 	for client := range guiPlotter.clients {
 		log.Print("Sending to client")
+
+		client.connLock.Lock()
 		err := client.conn.WriteMessage(websocket.TextMessage, bytes)
 		if err != nil {
 			log.Printf("guiPlotter encountered error during sendToClients, err: %v", err)
 		}
+		client.connLock.Unlock()
 	}
 
 }
