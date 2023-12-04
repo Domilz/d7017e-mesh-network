@@ -2,6 +2,7 @@ package com.epiroc.wifiaware.transport.utility
 
 import android.content.Context
 import android.util.Log
+import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import java.io.DataOutputStream
 import java.io.File
@@ -12,6 +13,7 @@ import java.net.URL
 object WifiAwareUtility {
     private val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
     private var tryCount = 0
+    private lateinit var client : Client
 
     fun add(deviceIdentifier: DeviceConnection) {
         if (!recentlyConnectedDevices.contains(deviceIdentifier))
@@ -37,26 +39,21 @@ object WifiAwareUtility {
         return recentlyConnectedDevices.isNotEmpty()
     }
 
-    fun sendPostRequest(data : ByteArray) {
-        val url = URL(Config.getConfigData()?.getString("backend_ip"))
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        connection.doOutput = true
+    fun setClient(newClient : Client){
+        client = newClient
+    }
 
-        val outputStream = DataOutputStream(connection.outputStream)
-        val c = data.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toInt().and(0xFF).toString() }
-        outputStream.writeBytes(c)
-        outputStream.flush()
-        outputStream.close()
+    fun getClient() : Client{
+        return client
+    }
 
-        val responseCode = connection.responseCode
-        println("Response Code: $responseCode")
+    fun count(): Int {
+        return recentlyConnectedDevices.count()
+    }
 
-        connection.inputStream.bufferedReader().use {
-            val response = it.readText()
-            println("Response: $response")
-        }
+    fun sendPostRequest() {
+        Log.d("1Wifi","State of client before we send it to server: ${client.tagClient.deserializedState}")
+        client.tagClient.sendStateToServer()
     }
 
     fun incrementTryCount(){

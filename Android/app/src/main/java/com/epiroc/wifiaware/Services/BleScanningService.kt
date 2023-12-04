@@ -56,7 +56,9 @@ class BleScanningService : Service() {
                     result.device.address
                 }
                 Log.d("BLEService", "Device is: $deviceAddress and rssi is $rssi")
+                client.updateReadingOfSelf(deviceName, rssi)
             }
+
         }
 
         override fun onScanFailed(errorCode: Int) {

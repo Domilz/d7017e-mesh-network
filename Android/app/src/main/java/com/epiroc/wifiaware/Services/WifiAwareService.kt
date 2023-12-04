@@ -217,6 +217,8 @@ class WifiAwareService : Service() {
                 wifiLock!!.acquire()
                 wifiAwareSession = session
 
+                utility.setClient(client) // Set client in a singleton this could be improved
+
                 val serviceName = Config.getConfigData()?.getString("service_name")
                 // Initialize the publisher and subscriber
                 publisher = Publisher(
