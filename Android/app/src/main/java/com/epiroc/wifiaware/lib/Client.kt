@@ -6,7 +6,7 @@ import tag.Tag
 import javax.inject.Inject
 
 class Client @Inject constructor() {
-    lateinit var tagClient: Client // Replace with the actual type of your client
+    lateinit var tagClient: Client
     private lateinit var clientName : String
 
     fun setupClient(name: String) {
@@ -14,7 +14,8 @@ class Client @Inject constructor() {
         clientName = name
         if (!::tagClient.isInitialized) {
             tagClient = Tag.getClient().apply {
-                setupClient(name)
+                val serverAddress = Config.getConfigData()?.getString("server_address")
+                setupClient(name, serverAddress)
             }
         }
     }
