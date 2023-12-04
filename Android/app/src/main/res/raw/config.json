@@ -1,8 +1,6 @@
 {
-  "app_name": "TO-DO",
-  "discoveryPassphrase": "epiroc_secret_password123",
-  "service_name": "epiroc_mesh",
-  "api_endpoint": "https://api.example.com",
+  "aware_discovery_passphrase": "epiroc_secret_password123",
+  "aware_service_name": "epiroc_mesh",
   "local_storage_file_name": "MyState.txt",
   "backend_ip": "http://83.233.46.128:4242/debuglog",
   "theme_colors": {

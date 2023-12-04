@@ -51,14 +51,12 @@ class BleScanningService : Service() {
     }
 
     private val SERVICE_UUID = "527af0f6-83af-11ee-b962-0242ac120002"
-
     private val binder = LocalBinder()
 
     private val scanningInterval = 10000L // 10 seconds
     private val idlePeriod = 5000L // 5 seconds
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var wakeLock: PowerManager.WakeLock
-
 
     private val scanFilter = ScanFilter.Builder()
         .setServiceUuid(ParcelUuid(UUID.fromString(SERVICE_UUID)))
@@ -71,20 +69,12 @@ class BleScanningService : Service() {
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            val device = result.device
-
-            if (device.address == "F2:43:4B:13:A3:15") {
-
-                val deviceName = result.device.address
-                val rssi = result.rssi
-                Log.d("BLEService", "Device is: ${deviceName} and rssi is ${rssi}")
-                if (rssi != 127 && deviceName != null) {
-                    client.updateReadingOfSelf(deviceName, rssi)
-                }
-
-                // 2023-11-22 13:46:59.069 12715-12715 BLEService              com.epiroc.wifiaware                 D  ScanResult{device=F2:43:4B:13:A3:15, scanRecord=ScanRecord [mAdvertiseFlags=6, mServiceUuids=[0000feaa-0000-1000-8000-00805f9b34fb], mServiceSolicitationUuids=[], mManufacturerSpecificData={}, mServiceData={0000feaa-0000-1000-8000-00805f9b34fb=[0, -9, 73, 78, 122, -114, -66, 21, 60, -72, 19, 121, 0, 0, 0, 3, 16, -40, 0, 0]}, mTxPowerLevel=-2147483648, mDeviceName=null, mTransportDiscoveryData=null], rssi=127, timestampNanos=371324353004, eventType=16, primaryPhy=1, secondaryPhy=0, advertisingSid=255, txPower=127, periodicAdvertisingInterval=0}
-                // 2023-11-22 13:47:08.104 12715-12715 BLEService              com.epiroc.wifiaware                 D  ScanResult{device=F2:43:4B:13:A3:15, scanRecord=ScanRecord [mAdvertiseFlags=6, mServiceUuids=[0000feaa-0000-1000-8000-00805f9b34fb], mServiceSolicitationUuids=[], mManufacturerSpecificData={}, mServiceData={0000feaa-0000-1000-8000-00805f9b34fb=[0, -9, 73, 78, 122, -114, -66, 21, 60, -72, 19, 121, 0, 0, 0, 3, 16, -40, 0, 0]}, mTxPowerLevel=-2147483648, mDeviceName=null, mTransportDiscoveryData=null], rssi=-47, timestampNanos=380329916281, eventType=16, primaryPhy=1, secondaryPhy=0, advertisingSid=255, txPower=127, periodicAdvertisingInterval=0}
-                // result.device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+            //val device = result.device
+            val deviceName = result.device.address
+            val rssi = result.rssi
+            Log.d("BLEService", "Device is: ${deviceName} and rssi is ${rssi}")
+            if (rssi != 127 && deviceName != null) {
+                client.updateReadingOfSelf(deviceName, rssi)
             }
         }
 
@@ -103,7 +93,6 @@ class BleScanningService : Service() {
                     }, 20)
                 }
             }
-            // Handle the results here.
         }
 
         override fun onScanFailed(errorCode: Int) {
@@ -141,10 +130,18 @@ class BleScanningService : Service() {
         }
     }
 
+    //todo: test if no bluetooth still causes crashes
     override fun onCreate() {
         super.onCreate()
 
         acquireWakeLock()
+
+        // Check if Bluetooth is available on the device
+        if (bluetoothAdapter == null) {
+            Log.e("BLEService", "Bluetooth not available")
+            stopSelf()
+            return
+        }
 
         val intent = Intent(this, MainActivity::class.java).apply {
             flags
@@ -210,10 +207,9 @@ class BleScanningService : Service() {
 
     private fun startScanning() {
         // Start scanning
-        //bluetoothLeScanner.startScan(listOf(scanFilter), scanSettings, scanCallback)
-        bluetoothLeScanner.startScan(null, scanSettings, scanCallback)
+        bluetoothLeScanner.startScan(listOf(scanFilter), scanSettings, scanCallback)
+        //bluetoothLeScanner.startScan(null, scanSettings, scanCallback)
         Log.d("BLEService", "BLE scanner has started.")
-
         //handler.postDelayed({ stopScanning() }, scanningInterval)
     }
 

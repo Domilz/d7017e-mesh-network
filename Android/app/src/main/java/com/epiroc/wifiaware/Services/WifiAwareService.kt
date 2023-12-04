@@ -1,6 +1,7 @@
 package com.epiroc.wifiaware.Services
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -45,12 +46,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
-import java.util.UUID
 import javax.inject.Inject
 
+@Suppress("DEPRECATION")
 @AndroidEntryPoint
 class WifiAwareService : Service() {
     private var wifiLock: WifiManager.WifiLock? = null
@@ -58,7 +58,6 @@ class WifiAwareService : Service() {
     private lateinit var cleanUpHandler: Handler
     private val hasWifiAwareText: MutableState<String> = mutableStateOf("")
     private val utility: WifiAwareUtility = WifiAwareUtility
-    private val serviceScope = CoroutineScope(Dispatchers.Main)
     private val binder = LocalBinder()
 
     private var connectivityManager: ConnectivityManager? = null
@@ -76,9 +75,9 @@ class WifiAwareService : Service() {
         super.onCreate()
         // Initialize WifiAwareManager and WifiAwareSession
         wifiAwareManager = getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager
-
     }
 
+    @SuppressLint("WakelockTimeout")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("1Wifi","WifiAwareService STARTED")
 
@@ -90,11 +89,9 @@ class WifiAwareService : Service() {
         wakeLock.acquire()
 
         // Show notification for the foreground service
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags
-        }
+        val serviceIntent = Intent(this, MainActivity::class.java).apply {}
 
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent,
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, serviceIntent,
             PendingIntent.FLAG_IMMUTABLE)
 
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -118,29 +115,17 @@ class WifiAwareService : Service() {
             override fun run() {
 
                 if (::subscriber.isInitialized) {
-                    if(utility.isNotEmpty()) {
-                        var didremove = utility.removeIf()
-                      //  Log.e("1Wifi", "It removed? : $didremove")
-                        if (didremove) {
-                           // Log.e("1Wifi", "It removed? : $didremove YES")
-                        }
-                    } else {
+                    if(!utility.isNotEmpty()) {     // todo: test this
                         utility.incrementTryCount()
-                        //Log.e("1Wifi", "recentlyConnectedDevices: ${utility.count()}")
                     }
                 } else {
                     Log.e("1Wifi", "subscriber: not init")
                 }
-                //Log.d("1Wifi","tryCount: ${utility.getTryCount()}")
+
                 if (utility.getTryCount() == 10) {
-                   /* publisher.getCurrent()?.close()
-                    subscriber.getCurrent()?.close()
-                    publisher.publishUsingWifiAware()
-                    subscriber.subscribeToWifiAwareSessions()*/
                     utility.setTryCount(0)
                 }
                 cleanUpHandler.postDelayed(this, 1000)
-
             }
         }
         cleanUpHandler.post(cleanUpRunnable)
@@ -149,20 +134,19 @@ class WifiAwareService : Service() {
 
     override fun onDestroy() {
         wifiAwareSession!!.close()
-
         cleanUpHandler.removeCallbacks(cleanUpRunnable)
         Log.d("1Wifi","Service destroyed")
         super.onDestroy()
         if (::wakeLock.isInitialized && wakeLock.isHeld) {
-            wakeLock.release();
+            wakeLock.release()
         }
-        //serviceScope.cancel()
     }
 
     companion object {
         const val CHANNEL_ID = "wifiAwareServiceChannel"
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private fun createNotificationChannel() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -181,11 +165,11 @@ class WifiAwareService : Service() {
 
     private fun createNotification(): Notification {
         // Create an intent that will open your app when the notification is clicked
-        val intent = Intent(this, MainActivity::class.java)
+        val serviceIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
-            intent,
+            serviceIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
@@ -199,9 +183,8 @@ class WifiAwareService : Service() {
     }
 
     // UI function for if WifiAware is available or not.
-    private fun wifiAwareState(): String {
+    private fun wifiAwareState() {
         Log.d("1Wifi", "Checking Wifi Aware state.")
-        var wifiAwareAvailable = ""
         wifiAwareManager = this.getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager?
         connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val filter = IntentFilter(WifiAwareManager.ACTION_WIFI_AWARE_STATE_CHANGED)
@@ -215,12 +198,12 @@ class WifiAwareService : Service() {
             }
         }
         this.registerReceiver(myReceiver, filter)
-        return wifiAwareAvailable
     }
 
     private fun acquireWifiAwareSession(): String {
         Log.d("1Wifi", "Attempting to acquire Wifi Aware session.")
         val attachCallback = object : AttachCallback() {
+            @SuppressLint("WakelockTimeout")
             override fun onAttached(session: WifiAwareSession) {
                 val powerManager = getSystemService(POWER_SERVICE) as PowerManager
                 wakeLock =
@@ -240,7 +223,7 @@ class WifiAwareService : Service() {
                     ctx = applicationContext,
                     nanSession = wifiAwareSession!!,
                     client = client,
-                    srvcName = serviceName
+                    serviceName = serviceName
                 )
                 subscriber = Subscriber(
                     ctx = applicationContext,
@@ -275,12 +258,8 @@ class WifiAwareService : Service() {
             override fun onAwareSessionTerminated() {
                 super.onAwareSessionTerminated()
                 wifiAwareSession = null
-                wifiLock?.release();
+                wifiLock?.release()
             }
-            //override fun onAwareSessionTerminated() {
-            //    super.onAwareSessionTerminated()
-            //    wifiAwareSession = null
-            //}
         }
 
         val identityChangedListener = object : IdentityChangedListener() {
@@ -309,7 +288,7 @@ class WifiAwareService : Service() {
         fun getService(): WifiAwareService = this@WifiAwareService
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder {
         return binder
     }
 

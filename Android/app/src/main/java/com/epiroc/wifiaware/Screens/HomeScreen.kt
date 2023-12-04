@@ -9,8 +9,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,104 +25,59 @@ import androidx.navigation.NavController
 fun HomeScreen(
     navController: NavController
 ) {
-    TopAppBar(navController = navController,
-        ) {
-        Column(
+    Column(
+        modifier = Modifier
+            .padding(top = 16.dp)
+            .fillMaxSize()
+            .background(Color.Black),
+    ) {
+        Row(
             modifier = Modifier
-                .padding()
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Box(
                 modifier = Modifier
-                    .size(300.dp)
-                    .clip(CircleShape)
-                    .background(Color.Blue, CircleShape)
+                    .size(150.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Blue)
                     .clickable {
                         navController.navigate("transport_service_screen")
                     },
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Text(
                     text = "Scanning Service",
-                    fontSize = 35.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
             }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
             Box(
                 modifier = Modifier
-                    .size(300.dp)
-                    .clip(CircleShape)
-                    .background(Color.Blue, CircleShape)
+                    .size(150.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Blue)
                     .clickable {
                         navController.navigate("ble_peripheral_screen")
                     },
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Text(
                     text = "BLE Peripheral",
-                    fontSize = 35.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
             }
         }
     }
-
 }
 
-/*
-Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .clip(CircleShape)
-                .background(Color.Blue, CircleShape)
-                .clickable {
-                    navController.navigate("transport_service_screen"){
-                        popUpTo(Screen.HomeScreen.route){
-                            inclusive = true
-                        }
-                    }
-                },
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                text = "Scanning Service",
-                fontSize = 35.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .clip(CircleShape)
-                .background(Color.Blue, CircleShape)
-                .clickable {
-                    navController.navigate("ble_peripheral_screen"){
-                        popUpTo(Screen.HomeScreen.route){
-                            inclusive = true
-                        }
-                    }
-                },
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                text = "BLE Peripheral",
-                fontSize = 35.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-    }
- */
 
 fun checkBatteryOptimizations(context: Context) {
     val packageName = context.packageName

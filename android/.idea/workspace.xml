@@ -9,9 +9,13 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8b580310-508d-4972-9d18-e658d2fa7595" name="Changes" comment="BLE SCANNING AND Q">
+    <list default="true" id="8b580310-508d-4972-9d18-e658d2fa7595" name="Changes" comment="bluetooth crash fix">
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/HomeScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/TransportServiceScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Screens/TransportServiceScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/raw/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/raw/config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -19,7 +23,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[R5CW31ZZXAK]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[RF8N9124WZM]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -93,28 +97,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;DEBUGGABLE_DEVICE&quot;: &quot;samsung-sm_s916b-R5CW320027V&quot;,
-    &quot;DEBUGGABLE_PROCESS&quot;: &quot;com.epiroc.wifiaware&quot;,
-    &quot;DEBUGGER_ID&quot;: &quot;Auto&quot;,
-    &quot;Git.Branch.Popup.ShowAllRemotes&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;SHOW_ALL_PROCESSES&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.android.tools.idea.devicemanager.tab&quot;: &quot;Physical&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Oliver/StudioProjects/d7017e-mesh-network/Android&quot;,
-    &quot;memory.settings.postsync.last.time.stamp&quot;: &quot;1694681303487&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "DEBUGGABLE_DEVICE": "samsung-sm_s916b-R5CW320027V",
+    "DEBUGGABLE_PROCESS": "com.epiroc.wifiaware",
+    "DEBUGGER_ID": "Auto",
+    "Git.Branch.Popup.ShowAllRemotes": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "SHOW_ALL_PROCESSES": "false",
+    "cidr.known.project.marker": "true",
+    "com.android.tools.idea.devicemanager.tab": "Physical",
+    "last_opened_file_path": "C:/Users/Oliver/StudioProjects/d7017e-mesh-network/Android",
+    "memory.settings.postsync.last.time.stamp": "1694681303487",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Oliver\StudioProjects\d7017e-mesh-network\Android\app\src\main\java\com\epiroc\wifiaware\Screens" />
@@ -360,7 +364,63 @@
       <option name="presentableId" value="LOCAL−00024" />
       <updated>1700737610320</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="publisher cleanup">
+      <created>1701333709970</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1701333709970</updated>
+    </task>
+    <task id="LOCAL-00026" summary="publisher cleanup">
+      <created>1701333781352</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1701333781352</updated>
+    </task>
+    <task id="LOCAL-00027" summary="subscriber cleanup">
+      <created>1701335299134</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1701335299134</updated>
+    </task>
+    <task id="LOCAL-00028" summary="subscriber cleanup">
+      <created>1701335360341</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1701335360341</updated>
+    </task>
+    <task id="LOCAL-00029" summary="general cleanup">
+      <created>1701335565466</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1701335565466</updated>
+    </task>
+    <task id="LOCAL-00030" summary="general cleanup">
+      <created>1701336106141</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1701336106141</updated>
+    </task>
+    <task id="LOCAL-00031" summary="general cleanup">
+      <created>1701337232596</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1701337232596</updated>
+    </task>
+    <task id="LOCAL-00032" summary="bluetooth crash fix">
+      <created>1701338622515</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1701338622515</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -375,9 +435,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="publishing is working and added some unstested code for subscribing" />
-    <MESSAGE value="Sending messages now works" />
-    <MESSAGE value="Cleaned up the code and we now send &quot;real&quot; information. Closes #24" />
     <MESSAGE value="Test" />
     <MESSAGE value="unclear what works atm" />
     <MESSAGE value="WifiAware now kinda works in the background. Some bugs left to iron out!" />
@@ -399,7 +456,11 @@
     <MESSAGE value="Added a peerhandle queue for the subscriber" />
     <MESSAGE value="works better with multiple phones now" />
     <MESSAGE value="BLE SCANNING AND Q" />
-    <option name="LAST_COMMIT_MESSAGE" value="BLE SCANNING AND Q" />
+    <MESSAGE value="publisher cleanup" />
+    <MESSAGE value="subscriber cleanup" />
+    <MESSAGE value="general cleanup" />
+    <MESSAGE value="bluetooth crash fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="bluetooth crash fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -410,59 +471,14 @@
           <option name="timeStamp" value="130" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/utility/AwareUtils.kt</url>
-          <line>48</line>
-          <option name="timeStamp" value="407" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/utility/AwareUtils.kt</url>
-          <line>56</line>
-          <option name="timeStamp" value="434" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt</url>
-          <line>27</line>
+          <line>25</line>
           <option name="timeStamp" value="448" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt</url>
-          <line>29</line>
+          <line>27</line>
           <option name="timeStamp" value="449" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/network/SubscriberNetwork.kt</url>
-          <line>113</line>
-          <option name="timeStamp" value="456" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/network/PublisherNetwork.kt</url>
-          <line>119</line>
-          <option name="timeStamp" value="457" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/network/PublisherNetwork.kt</url>
-          <line>114</line>
-          <option name="timeStamp" value="461" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>115</line>
-          <option name="timeStamp" value="471" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>248</line>
-          <option name="timeStamp" value="472" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>206</line>
-          <option name="timeStamp" value="473" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>122</line>
-          <option name="timeStamp" value="475" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

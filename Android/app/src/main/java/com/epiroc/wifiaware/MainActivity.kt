@@ -1,34 +1,31 @@
 package com.epiroc.wifiaware
 
-import android.content.ComponentName
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.ServiceConnection
 import android.net.Uri
-
 import android.os.Bundle
-import android.os.IBinder
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.epiroc.wifiaware.Screens.Navigation
-import com.epiroc.wifiaware.Services.WifiAwareService
 import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import com.epiroc.wifiaware.ui.theme.WifiAwareTransportTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Random
 import javax.inject.Inject
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var client : Client
     private lateinit var byteArray: ByteArray
 
+    @SuppressLint("BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         Config.loadConfig(this)
 
