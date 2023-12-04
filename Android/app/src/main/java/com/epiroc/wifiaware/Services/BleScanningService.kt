@@ -8,7 +8,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
@@ -50,13 +49,15 @@ class BleScanningService : Service() {
             val deviceAddress : String
             val rssi = result.rssi
             if (rssi != 127) {
-                deviceAddress = if (result.device.name == "rpId1" || result.device.name == "rpId2") {
-                    result.device.name
-                } else {
-                    result.device.address
+                if (result.device.name == "rpId1" || result.device.name == "rpId2") {
+                    deviceAddress = result.device.name
+                    Log.d("BLEService", "Device is: $deviceAddress and rssi is $rssi")
+                    client.updateReadingOfSelf(deviceAddress, rssi)
+                } else if (result.device.address == "F2:43:4B:13:A3:15"){
+                    deviceAddress = result.device.address
+                    Log.d("BLEService", "Device is: $deviceAddress and rssi is $rssi")
+                    client.updateReadingOfSelf(deviceAddress, rssi)
                 }
-                Log.d("BLEService", "Device is: $deviceAddress and rssi is $rssi")
-                client.updateReadingOfSelf(deviceName, rssi)
             }
 
         }

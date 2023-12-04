@@ -43,10 +43,6 @@ object WifiAwareUtility {
         client = newClient
     }
 
-    fun getClient() : Client{
-        return client
-    }
-
     fun count(): Int {
         return recentlyConnectedDevices.count()
     }
