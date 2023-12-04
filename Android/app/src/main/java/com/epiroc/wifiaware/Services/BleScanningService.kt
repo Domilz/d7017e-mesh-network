@@ -38,11 +38,7 @@ class BleScanningService : Service() {
     }
 
     private val binder = LocalBinder()
-
     private lateinit var wakeLock: PowerManager.WakeLock
-
-    private val scanFilter = ScanFilter.Builder()
-        .build()
 
     private val scanSettings = ScanSettings.Builder()
         .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
@@ -54,10 +50,10 @@ class BleScanningService : Service() {
             val deviceAddress : String
             val rssi = result.rssi
             if (rssi != 127) {
-                if (result.device.name == "rpId1" || result.device.name == "rpId2") {
-                    deviceAddress = result.device.name
+                deviceAddress = if (result.device.name == "rpId1" || result.device.name == "rpId2") {
+                    result.device.name
                 } else {
-                    deviceAddress = result.device.address
+                    result.device.address
                 }
                 Log.d("BLEService", "Device is: $deviceAddress and rssi is $rssi")
             }
@@ -138,8 +134,7 @@ class BleScanningService : Service() {
     }
 
     private fun startScanning() {
-        bluetoothLeScanner.startScan(listOf(scanFilter), scanSettings, scanCallback)
-        //bluetoothLeScanner.startScan(null, scanSettings, scanCallback)
+        bluetoothLeScanner.startScan(null, scanSettings, scanCallback)
         Log.d("BLEService", "BLE scanner has started.")
     }
 
