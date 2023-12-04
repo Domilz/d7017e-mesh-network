@@ -1,7 +1,0 @@
-{
-  "aware_discovery_passphrase": "epiroc_secret_password123",
-  "aware_service_name": "epiroc_mesh",
-  "local_storage_file_name": "MyState.txt",
-  "backend_ip": "http://83.233.46.128:4242/debuglog",
-  "server_address": "83.233.46.128:50051"
-}
