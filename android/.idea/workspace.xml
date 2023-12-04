@@ -9,9 +9,14 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8b580310-508d-4972-9d18-e658d2fa7595" name="Changes" comment="BLE SCANNING AND Q">
+    <list default="true" id="8b580310-508d-4972-9d18-e658d2fa7595" name="Changes" comment="test branch">
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/BleScanningService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/BleScanningService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/Services/WifiAwareService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/lib/Client.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/lib/Client.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Subscriber.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/utility/AwareUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/utility/AwareUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -19,7 +24,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[R5CW31ZZXAK]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -360,7 +365,13 @@
       <option name="presentableId" value="LOCAL−00024" />
       <updated>1700737610320</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL−00025" summary="test branch">
+      <created>1701680304191</created>
+      <option name="number" value="LOCAL−00025" />
+      <option name="presentableId" value="LOCAL−00025" />
+      <updated>1701680304191</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -399,7 +410,8 @@
     <MESSAGE value="Added a peerhandle queue for the subscriber" />
     <MESSAGE value="works better with multiple phones now" />
     <MESSAGE value="BLE SCANNING AND Q" />
-    <option name="LAST_COMMIT_MESSAGE" value="BLE SCANNING AND Q" />
+    <MESSAGE value="test branch" />
+    <option name="LAST_COMMIT_MESSAGE" value="test branch" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -411,22 +423,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/utility/AwareUtils.kt</url>
-          <line>48</line>
+          <line>58</line>
           <option name="timeStamp" value="407" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/utility/AwareUtils.kt</url>
-          <line>56</line>
-          <option name="timeStamp" value="434" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt</url>
-          <line>27</line>
+          <line>30</line>
           <option name="timeStamp" value="448" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/workers/NetworkWorker.kt</url>
-          <line>29</line>
+          <line>32</line>
           <option name="timeStamp" value="449" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
@@ -451,7 +458,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/epiroc/wifiaware/transport/Publisher.kt</url>
-          <line>248</line>
+          <line>247</line>
           <option name="timeStamp" value="472" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">

@@ -19,14 +19,6 @@ class Client @Inject constructor() {
         }
     }
 
-    fun getClient() : Client{
-        if (!::tagClient.isInitialized) {
-            return tagClient
-        }else {
-            throw IllegalStateException("Client not initialized. Something went wrong in MainActivity.")
-        }
-    }
-
     fun getClientName() : String {
         if (::clientName.isInitialized) {
             return clientName

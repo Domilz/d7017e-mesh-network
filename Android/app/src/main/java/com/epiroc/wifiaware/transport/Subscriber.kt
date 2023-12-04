@@ -227,7 +227,6 @@ class Subscriber(
         try {
             responseTimer2?.cancel()
             Log.d("Subscriber", "SUBSCRIBE: Attempting to send information to: $peerHandle")
-            client.insertSingleMockedReading("Client")
             val state = client.tagClient.serializedState
 
             socket.getOutputStream().use { outputStream ->
