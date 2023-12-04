@@ -10,20 +10,23 @@ import (
 )
 
 type Client struct {
-	stateHandler *utils.StateHandler
+	stateHandler   *utils.StateHandler
+	backendAddress string
 }
 
 func Main() {
 	client := GetClient()
-	client.SetupClient("MainClient")
-	client.InsertSingleMockedReading("MainTest")
+	client.SetupClient("tagId5", "83.233.46.128:50051")
+	client.InsertSingleMockedReading("tagId17")
 	client.SendStateToServer()
+
 }
 
-func (client *Client) SetupClient(id string) {
+func (client *Client) SetupClient(id string, address string) {
 	sh := &utils.StateHandler{}
 	sh.InitStateHandler(id)
 	client.stateHandler = sh
+	client.backendAddress = address
 }
 
 func (client *Client) GetDeserializedState() string {
@@ -55,13 +58,13 @@ func (client *Client) Insert(serialized []byte) error {
 func (client *Client) InsertSingleMockedReading(tagId string) {
 	reading := &pb.Reading{
 		TagId: tagId,
-		RpId:  "rpId15",
+		RpId:  "rpId19",
 		Rssi:  69,
 		Ts: &timestamp.Timestamp{
 			Seconds: timestamppb.Now().Seconds,
 			Nanos:   timestamppb.Now().Nanos,
 		},
-		IsDirect: 1,
+		IsDirect: 0,
 	}
 	client.stateHandler.InsertSingleReading(reading)
 }
@@ -69,7 +72,7 @@ func (client *Client) InsertSingleMockedReading(tagId string) {
 func (client *Client) SendStateToServer() {
 	s := client.stateHandler.GetState()
 
-	utils.SendToBackend(s)
+	utils.SendToBackend(s, client.backendAddress)
 
 }
 
