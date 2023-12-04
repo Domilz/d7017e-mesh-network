@@ -42,7 +42,7 @@ class Subscriber(
     private val _context = ctx
     private val _peerHandleQueue = ArrayDeque<PeerHandle>()
     private val _serviceName = srvcName
-    private val _responseTimeout = Config.getConfigData()!!.getString("subscribe_response_timeout").toLong()
+    private val _responseTimeout = 10000L
 
     private lateinit var _networkCallbackSub: ConnectivityManager.NetworkCallback
     private lateinit var  _currentNetwork : Network
@@ -118,7 +118,7 @@ class Subscriber(
 
         val networkSpecifier = _currentSubSession?.let {
             WifiAwareNetworkSpecifier.Builder(it, peerHandle)
-                .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
+                .setPskPassphrase(Config.getConfigData()!!.getString("aware_discovery_passphrase"))
                 .build()
         }
 

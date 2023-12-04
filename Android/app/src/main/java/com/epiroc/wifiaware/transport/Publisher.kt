@@ -53,7 +53,7 @@ class Publisher (
     private val _wifiAwareSession = nanSession
 
     private val _serviceName = serviceName
-    private val _responseTimeout = Config.getConfigData()!!.getString("publisher_response_timeout").toLong() // 15 seconds for example
+    private val _responseTimeout = 25000L
 
     fun publishUsingWifiAware() {
         Log.d("Publisher", "PUBLISH: Attempting to start publishUsingWifiAware.")
@@ -119,7 +119,7 @@ class Publisher (
         Log.d("Publisher", "PUBLISHER: We have set new socket ports etc $port")
 
         val networkSpecifier = WifiAwareNetworkSpecifier.Builder(_currentPubSession!!, peerHandle)
-            .setPskPassphrase(Config.getConfigData()!!.getString("discoveryPassphrase"))
+            .setPskPassphrase(Config.getConfigData()!!.getString("aware_discovery_passphrase"))
             .setPort(port)
             .build()
         val myNetworkRequest = NetworkRequest.Builder()
