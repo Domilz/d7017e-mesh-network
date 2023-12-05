@@ -4,8 +4,8 @@ Implementing a mesh network for Epiroc in the course D7017E.
  # Table of content:
  1. [Installation guide](#installation-guide)
     1. [Prerequisites](#prerequisites)
-        1. [Local/Dev Backend Setup](#backend-setup)
-        2. [Local/Dev Android App Setup](#app-setup)
+    2. [Local/Dev Backend Setup](#backend-setup)
+    3. [Local/Dev Android App Setup](#app-setup)
  3. [Project overview](#project-overview)
  4. [Technical objectives](#technical-objectives)
     1. [Protocol](#protocol)
@@ -21,8 +21,7 @@ Implementing a mesh network for Epiroc in the course D7017E.
 2. Android 12L(API level 32) mobile.
 3. Wi-Fi antennas compatible with [Wi-Fi Aware](https://www.wi-fi.org/discover-wi-fi/wi-fi-aware)
 
-#### Local/Dev Backend Setup <a id="backend-setup"></a>
-[MinGW-w64 toolchain]()
+### Local/Dev Backend Setup <a id="backend-setup"></a>
 
 1. Clone repository and navigate to correct folder:
 
@@ -34,7 +33,7 @@ Implementing a mesh network for Epiroc in the course D7017E.
 
    `$ touch .env`
 
-   Add these following fields to the created `.env` file
+   Add these following fields to the created `.env` file:
 
    `SERVER_ADDRESS=Required` The address of the **server**. This can be set up to run on your server or `localhost`, though the Android application requires communication with an actual server to function. <br />
    `SERVER_PORT=Required` The port of the **server**. <br />
@@ -42,12 +41,17 @@ Implementing a mesh network for Epiroc in the course D7017E.
 
 3. Building and running the application.
 
-   To create a binary a Windows operating system, the Go compiler relies on the MinGW-w64 toolchain, which includes GCC (GNU Compiler Collection). Download (here)[https://www.msys2.org/] and follow the instructions on that page. If you are running the application on a **Linux** operating system this is not necessary. Then simply run the script `build_and_run.sh` with the following line in the terminal: 
+   To create a binary a Windows operating system, the Go compiler relies on the MinGW-w64 toolchain, which includes GCC (GNU Compiler Collection). Download it [here](https://www.msys2.org/) and follow the instructions on that page. If you are running the application on a **Linux** operating system this is not necessary. Then simply run the script `build_and_run.sh` with the following line in the terminal: 
 
-   (Gitbash)[https://git-scm.com/downloads]:
-   `./build_and_run.sh`Â´
+   [Gitbash](https://git-scm.com/downloads) and Linux system command lines :
+   `./build_and_run.sh`
 
-  
+   Powershell:
+   `.\build_and_run.sh`
+
+   Command Prompt:
+   `bash build_and_run.sh`
+
 4. After running step three your terminal should output something like this:
 
    ```
@@ -65,6 +69,10 @@ Implementing a mesh network for Epiroc in the course D7017E.
    Server is running on port:  4242
    2023/12/04 15:15:46 grpcServer listening at port : 50051
    ```
+
+### Local/dev Android App Setup <a id="app-setup"></a>
+
+
 ## Project overview <a id="project-overview"></a>
 Our project seeks to support Epiroc in its efforts to improve mine safety and productivity in the quickly developing sector of mine digitalization. They want us to investigate Mesh Networking's potential for enabling vehicle and person tracking in underground spaces. Our project is supposed to be designed specifically for mines that has not yet fully digitized meaning that a connection over WiFi is not available through out the whole mine. To solve this a peer-to-peer positioning protocol is being developed as a part of this project, which also entails looking into options for an efficient transport layer, and developing a backend system with position estimation capabilities and an Android application to tie this all together.
 
