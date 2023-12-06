@@ -96,8 +96,7 @@ func DeserializeState(stateArray []byte) (*pb.State, error) {
 
 func (stateHandler *StateHandler) UpdateReadingofSelf(rpId string, rssi int32) {
 	stateHandler.lock()
-	r := &pb.Reading{TagId: stateHandler.TagId, RpId: rpId, Rssi: rssi, Ts: timestamppb.Now(), IsDirect: 1}
-	stateHandler.readingsMap[stateHandler.TagId] = r
+
 	for _, reading := range stateHandler.readingsMap {
 		if reading.RpId == "null" {
 			reading.RpId = rpId
@@ -106,6 +105,8 @@ func (stateHandler *StateHandler) UpdateReadingofSelf(rpId string, rssi int32) {
 			reading.IsDirect = 0
 		}
 	}
+	r := &pb.Reading{TagId: stateHandler.TagId, RpId: rpId, Rssi: rssi, Ts: timestamppb.Now(), IsDirect: 1}
+	stateHandler.readingsMap[stateHandler.TagId] = r
 	stateHandler.unLock()
 
 }
