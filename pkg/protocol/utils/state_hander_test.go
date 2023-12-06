@@ -20,6 +20,16 @@ func TestInitStateHandler(t *testing.T) {
 	sh.InitStateHandler("666")
 
 	shMock := StateHandler{"666", make(map[string]*pb.Reading), sync.RWMutex{}}
+	r := &pb.Reading{
+		TagId: "666",
+		RpId:  "null",
+		Rssi:  0,
+		Ts: &timestamp.Timestamp{
+			Seconds: 0,
+		},
+		IsDirect: 2,
+	}
+	shMock.readingsMap["666"] = r
 	assert.Equal(t, sh, shMock)
 
 }
@@ -196,6 +206,23 @@ func TestUpdateReadingofSelf(t *testing.T) {
 	sh.InsertSingleReading(mockReading)
 	sh.UpdateReadingofSelf("22222", 5)
 	assert.Equal(t, sh.GetReading("RandomUniqueId").RpId, "22222")
+
+}
+
+func TestAcceptenceTest2(t *testing.T) {
+	sh1 := StateHandler{}
+	sh1.InitStateHandler("tagId1")
+	sh2 := StateHandler{}
+	sh2.InitStateHandler("tagId2")
+
+	state2 := sh2.GetState()
+	sh1.InsertMultipleReadings(state2)
+
+	sh1.UpdateReadingofSelf("rpId1", -10)
+	actualState := sh1.GetState()
+
+	assert.Equal(t, actualState.Readings[0].RpId, "rpId1")
+	assert.Equal(t, actualState.Readings[1].RpId, "rpId1")
 
 }
 

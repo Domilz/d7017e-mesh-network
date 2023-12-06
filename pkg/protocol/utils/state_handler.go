@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -18,6 +19,16 @@ func (stateHandler *StateHandler) InitStateHandler(id string) {
 	stateHandler.lock()
 	stateHandler.TagId = id
 	stateHandler.readingsMap = make(map[string]*pb.Reading)
+	reading := &pb.Reading{
+		TagId: id,
+		RpId:  "null",
+		Rssi:  0,
+		Ts: &timestamp.Timestamp{
+			Seconds: 0,
+		},
+		IsDirect: 2,
+	}
+	stateHandler.readingsMap[id] = reading
 	stateHandler.unLock()
 }
 
@@ -85,6 +96,15 @@ func DeserializeState(stateArray []byte) (*pb.State, error) {
 
 func (stateHandler *StateHandler) UpdateReadingofSelf(rpId string, rssi int32) {
 	stateHandler.lock()
+
+	for _, reading := range stateHandler.readingsMap {
+		if reading.RpId == "null" {
+			reading.RpId = rpId
+			reading.Ts = timestamppb.Now()
+			reading.Rssi = rssi
+			reading.IsDirect = 0
+		}
+	}
 	r := &pb.Reading{TagId: stateHandler.TagId, RpId: rpId, Rssi: rssi, Ts: timestamppb.Now(), IsDirect: 1}
 	stateHandler.readingsMap[stateHandler.TagId] = r
 	stateHandler.unLock()
