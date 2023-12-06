@@ -20,6 +20,16 @@ func TestInitStateHandler(t *testing.T) {
 	sh.InitStateHandler("666")
 
 	shMock := StateHandler{"666", make(map[string]*pb.Reading), sync.RWMutex{}}
+	r := &pb.Reading{
+		TagId: "666",
+		RpId:  "null",
+		Rssi:  0,
+		Ts: &timestamp.Timestamp{
+			Seconds: 0,
+		},
+		IsDirect: 2,
+	}
+	shMock.readingsMap["666"] = r
 	assert.Equal(t, sh, shMock)
 
 }
