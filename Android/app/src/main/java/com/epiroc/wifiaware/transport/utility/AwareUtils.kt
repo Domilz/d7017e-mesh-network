@@ -2,26 +2,23 @@ package com.epiroc.wifiaware.transport.utility
 
 import android.content.Context
 import android.util.Log
+import com.epiroc.wifiaware.lib.Client
 import com.epiroc.wifiaware.lib.Config
 import java.io.DataOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.Base64
 
 object WifiAwareUtility {
     private val recentlyConnectedDevices = mutableListOf<DeviceConnection>()
     private var tryCount = 0
+    private lateinit var client : Client
 
     fun add(deviceIdentifier: DeviceConnection) {
         if (!recentlyConnectedDevices.contains(deviceIdentifier))
             tryCount = 0
         recentlyConnectedDevices.add(deviceIdentifier)
-    }
-
-    fun remove(deviceIdentifier: DeviceConnection)  {
-        recentlyConnectedDevices.remove(deviceIdentifier)
     }
 
     fun removeIf() : Boolean{
@@ -42,30 +39,17 @@ object WifiAwareUtility {
         return recentlyConnectedDevices.isNotEmpty()
     }
 
+    fun setClient(newClient : Client){
+        client = newClient
+    }
+
     fun count(): Int {
         return recentlyConnectedDevices.count()
     }
 
-    fun sendPostRequest(data : ByteArray) {
-        val url = URL(Config.getConfigData()?.getString("backend_ip"))
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        connection.doOutput = true
-
-        val outputStream = DataOutputStream(connection.outputStream)
-        var c = data.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toInt().and(0xFF).toString() }
-        outputStream.writeBytes(c)
-        outputStream.flush()
-        outputStream.close()
-
-        val responseCode = connection.responseCode
-        println("Response Code: $responseCode")
-
-        connection.inputStream.bufferedReader().use {
-            val response = it.readText()
-            println("Response: $response")
-        }
+    fun sendPostRequest() {
+        Log.d("1Wifi","State of client before we send it to server: ${client.tagClient.deserializedState}")
+        client.tagClient.sendStateToServer()
     }
 
     fun incrementTryCount(){

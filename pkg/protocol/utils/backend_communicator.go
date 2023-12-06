@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 	"time"
 
 	pb "github.com/Domilz/d7017e-mesh-network/pkg/protocol/protofiles/tag"
@@ -15,11 +14,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func SendToBackend(state *pb.State) {
+func SendToBackend(state *pb.State, backendAddress string) {
 	flag.Parse()
 
 	// Establish a connection to the gRPC server
-	conn, err := connectToServer()
+	conn, err := connectToServer(backendAddress)
 	if err != nil {
 		log.Fatalf("error connecting to the gRPC server: %v", err)
 	}
@@ -40,7 +39,7 @@ func SendToBackend(state *pb.State) {
 	sendRequestToStream(propagationStream, state)
 
 	// Receive and process the server response
-	go receiveAndProcessResponse(propagationStream)
+	receiveAndProcessResponse(propagationStream)
 	if err != nil {
 		log.Fatalf("error receiving stream: %v", err)
 	}
@@ -52,14 +51,10 @@ func SendToBackend(state *pb.State) {
 		log.Println(err)
 	}
 
-	select {}
-
 }
 
-func connectToServer() (*grpc.ClientConn, error) {
-	SERVER_ADDRESS := os.Getenv("SERVER_ADDRESS")
-	CLIENT_PORT := os.Getenv("CLIENT_PORT")
-	conn, err := grpc.Dial(SERVER_ADDRESS+":"+CLIENT_PORT, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func connectToServer(backendAddress string) (*grpc.ClientConn, error) {
+	conn, err := grpc.Dial(backendAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	return conn, err
 }
 

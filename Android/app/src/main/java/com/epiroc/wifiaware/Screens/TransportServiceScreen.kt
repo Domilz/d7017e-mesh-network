@@ -58,8 +58,6 @@ fun TransportServiceScreen(
     var connection by remember { mutableStateOf<ServiceConnection?>(null) }
     var nanIntent by remember { mutableStateOf<Intent?>(null) }
 
-
-
     DisposableEffect(
         key1 = lifecycleOwner,
         effect = {
@@ -77,7 +75,6 @@ fun TransportServiceScreen(
             }
         }
     )
-    
 
     LaunchedEffect(key1 = permissionState.allPermissionsGranted) {
         Log.d("Wifiaware", "Launched Effect")
@@ -167,14 +164,6 @@ fun TransportServiceScreen(
                     modifier = Modifier.padding(8.dp)
                 )
             }
-            // Conditionally display HomeScreen content when service is running
-            /*if (isServiceRunning) {
-                HomeScreen()
-            }
-
-             */
         }
-
     }
-
 }

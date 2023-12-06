@@ -9,8 +9,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -26,52 +26,62 @@ import androidx.navigation.NavController
 fun HomeScreen(
     navController: NavController
 ) {
-    TopAppBar(navController = navController,
-        ) {
+    TopAppBar(navController = navController) {
         Column(
             modifier = Modifier
-                .padding()
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(top = 16.dp)
+                .fillMaxSize()
+                .background(Color.Black),
         ) {
-            Box(
+            Row(
                 modifier = Modifier
-                    .size(300.dp)
-                    .clip(CircleShape)
-                    .background(Color.Blue, CircleShape)
-                    .clickable {
-                        navController.navigate("transport_service_screen")
-                    },
-                contentAlignment = Alignment.Center
-            ){
-                Text(
-                    text = "Scanning Service",
-                    fontSize = 35.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(300.dp)
-                    .clip(CircleShape)
-                    .background(Color.Blue, CircleShape)
-                    .clickable {
-                        navController.navigate("ble_peripheral_screen")
-                    },
-                contentAlignment = Alignment.Center
-            ){
-                Text(
-                    text = "BLE Peripheral",
-                    fontSize = 35.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .padding(top = 64.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.Blue)
+                        .clickable {
+                            navController.navigate("transport_service_screen")
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Scanning Service",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.Blue)
+                        .clickable {
+                            navController.navigate("ble_peripheral_screen")
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "BLE Peripheral",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
-
 }
 
 fun checkBatteryOptimizations(context: Context) {
