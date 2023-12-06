@@ -199,6 +199,23 @@ func TestUpdateReadingofSelf(t *testing.T) {
 
 }
 
+func TestAcceptenceTest2(t *testing.T) {
+	sh1 := StateHandler{}
+	sh1.InitStateHandler("tagId1")
+	sh2 := StateHandler{}
+	sh2.InitStateHandler("tagId2")
+
+	state2 := sh2.GetState()
+	sh1.InsertMultipleReadings(state2)
+
+	sh1.UpdateReadingofSelf("rpId1", -10)
+	actualState := sh1.GetState()
+
+	assert.Equal(t, actualState.Readings[0].RpId, "rpId1")
+	assert.Equal(t, actualState.Readings[1].RpId, "rpId1")
+
+}
+
 // For testing
 func generateMockReading(count int) []*pb.Reading {
 	var readings []*pb.Reading
