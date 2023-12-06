@@ -74,57 +74,6 @@ fun HomeScreen(
 
 }
 
-/*
-Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .clip(CircleShape)
-                .background(Color.Blue, CircleShape)
-                .clickable {
-                    navController.navigate("transport_service_screen"){
-                        popUpTo(Screen.HomeScreen.route){
-                            inclusive = true
-                        }
-                    }
-                },
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                text = "Scanning Service",
-                fontSize = 35.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .clip(CircleShape)
-                .background(Color.Blue, CircleShape)
-                .clickable {
-                    navController.navigate("ble_peripheral_screen"){
-                        popUpTo(Screen.HomeScreen.route){
-                            inclusive = true
-                        }
-                    }
-                },
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                text = "BLE Peripheral",
-                fontSize = 35.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-    }
- */
-
 fun checkBatteryOptimizations(context: Context) {
     val packageName = context.packageName
     val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
