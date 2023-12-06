@@ -30,8 +30,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.epiroc.wifiaware.MainActivity
 import com.epiroc.wifiaware.R
@@ -49,6 +51,7 @@ import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -277,10 +280,6 @@ class WifiAwareService : Service() {
                 wifiAwareSession = null
                 wifiLock?.release();
             }
-            //override fun onAwareSessionTerminated() {
-            //    super.onAwareSessionTerminated()
-            //    wifiAwareSession = null
-            //}
         }
 
         val identityChangedListener = object : IdentityChangedListener() {
@@ -314,18 +313,19 @@ class WifiAwareService : Service() {
     }
 
     private fun startNetworkWorker() {
+        val workManager = WorkManager.getInstance(this)
+
         // Set up constraints to require network connectivity
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        // Create a WorkRequest for your Worker and set the constraints
-        val networkWorkRequest = OneTimeWorkRequest.Builder(NetworkWorker::class.java)
+        val repeatInterval = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS
+        val networkWorkRequest = PeriodicWorkRequest.Builder(NetworkWorker::class.java, repeatInterval, TimeUnit.MILLISECONDS)
             .setConstraints(constraints)
             .build()
 
-        // Enqueue the work
-        WorkManager.getInstance(this).enqueue(networkWorkRequest)
+        workManager.enqueueUniquePeriodicWork("network_worker", ExistingPeriodicWorkPolicy.KEEP, networkWorkRequest)
     }
 
 }
