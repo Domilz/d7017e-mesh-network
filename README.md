@@ -73,7 +73,9 @@ Implementing a mesh network for Epiroc in the course D7017E.
 ### Local/dev Android App Setup <a id="app-setup"></a>
 
 1. Setting up the required config.json file:
-   Add information to the following fields to the config.json file located under ...\Android\app\src\main\res\raw
+
+   Add information to the following fields to the config.json file located under `...\Android\app\src\main\res\raw`
+   
     ```
     {
    "aware_discovery_passphrase": ,
@@ -84,6 +86,7 @@ Implementing a mesh network for Epiroc in the course D7017E.
     }
     ```
 2. Generating the `.apk` file:
+
     To create the `.apk` file based on the config file, change directory to the root of the project and run the following commands:
 
     Commands on Linux system command lines:
@@ -96,17 +99,21 @@ Implementing a mesh network for Epiroc in the course D7017E.
     > ./gradlew.bat assembleDebug
     ```
 3. Finding the generated `.apk` file:
+   
    After running step two, your terminal should output something like this:
    ```
    BUILD SUCCESSFUL in 52s
    ```
+   
    if that is the case, the generated .apk file can be found under
    ```
    ...\Android\app\build\outputs\apk\debug
    ```
+   
    Otherwise, follow try solving the error in the terminal.
   
-5. Installing the `.apk` on the phone:
+4. Installing the `.apk` on the phone:
+
    Connect the phone to the computer where the .apk file exists. Open the file explorer and
    navigate to the phone directory. Drag and drop the .apk file into the directory. Now
    disconnect the phone from the computer and navigate to the .apk on the phone. Click the
