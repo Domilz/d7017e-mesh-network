@@ -1,6 +1,5 @@
 package com.epiroc.wifiaware.Screens
 
-import android.content.ServiceConnection
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
