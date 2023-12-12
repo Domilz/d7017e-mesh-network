@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +39,7 @@ import com.epiroc.wifiaware.Services.BlePeripheralService
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PeripheralScreen(
     navController: NavController
@@ -48,7 +51,6 @@ fun PeripheralScreen(
     var isPeripheralServiceRunning by remember { mutableStateOf(false) }
     var beacon1 by remember { mutableStateOf(false) }
     var beacon2 by remember { mutableStateOf(false) }
-
 
     var rpID by remember { mutableStateOf("NO:ID:SET") }
 
@@ -86,6 +88,15 @@ fun PeripheralScreen(
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
+            OutlinedTextField(
+                value = rpID,
+                onValueChange = {
+                    rpID = it
+                    beacon1 = false
+                    beacon2 = false
+                },
+                label = { Text("rpid") }
+            )
             Button(onClick = {
                 beacon1 = if (!beacon1) {
                     rpID = "rpId1"
