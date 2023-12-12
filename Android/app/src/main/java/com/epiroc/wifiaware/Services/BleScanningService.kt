@@ -40,7 +40,7 @@ class BleScanningService : Service() {
     private lateinit var wakeLock: PowerManager.WakeLock
 
     private val scanSettings = ScanSettings.Builder()
-        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
         .setLegacy(false)
         .build()
 
@@ -57,6 +57,8 @@ class BleScanningService : Service() {
                     deviceAddress = result.device.address
                     Log.d("BLEService", "Device is: $deviceAddress and rssi is $rssi")
                     client.updateReadingOfSelf(deviceAddress, rssi)
+                }else{
+                    //Log.e("BLEService","THE SCANNING FAILED")
                 }
             }
 
