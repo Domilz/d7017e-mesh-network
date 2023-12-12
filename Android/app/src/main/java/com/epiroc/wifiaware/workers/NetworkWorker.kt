@@ -16,17 +16,8 @@ class NetworkWorker(appContext: Context, workerParams: WorkerParameters) :
 
     override fun doWork(): Result {
         return try {
-            val file = File(context.filesDir, Config.getConfigData()?.getString("local_storage_file_name"))
-
-            if (file.exists() && file.length() > 0) { // Check if file is not empty
-                //utility.sendPostRequest(file.readBytes())client
-                utility.sendPostRequest()
-                // Clear the file after all lines have been processed.
-                file.writeText("")
-                Result.success()
-            }else{
-                Result.retry()
-            }
+            utility.sendPostRequest()
+            Result.success()
         } catch (e: Exception) {
             Result.retry()
         }
