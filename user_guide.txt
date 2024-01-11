@@ -1,0 +1,54 @@
+#------------------------------------------ User guide --------------------------------------------------#
+
+The backend currently has multiple ways to visualize the data. All of the visualizations can be
+reached at IP:Port/function, where IP and port are added in the .env file, and function is what
+kind of visualization is wanted, e.g., localhost:8080/statelog.
+
+Statelog
+ The statelog shows all added readings contained in the backend, which is available at IP:Port/statelog.
+
+Guiplotter
+ GUI plot can be used to get a 3D space representation of all tag readings currently contained in
+ the backend. Each tag can be highlighted to easily find its position in the 3D space. The GUI plot
+ can be reached at IP:Port/plot.
+
+SentLog
+ Sentlog shows the forms that are prepared to be sent to the Epiroc server. All the information
+ in the forms can be seen by clicking on the show data button. The sentlog can be found at
+ IP:Port/sentlog.
+
+#--------------------------------------------------------------------------------------------------------#
+
+Application
+ When the app is installed on the phone the user should read the following information.
+
+App functionality and navigation
+ The app provides two primary functionalities upon launch:
+
+1. Scanning Service - Access this service if you want to enable either Wi-Fi aware or BLE
+ scanning:
+
+ • Start: Enables the Wifi Aware service on the device.
+ • Start BLE Scan: Enables the BLE service to find and connect with nearby BLE periph-
+ erals.
+
+2. BLE Peripheral - Use this service to configure your device as a BLE peripheral. Use the
+"Start advertising" button to initiate the service.
+
+ • Custom RPID: Enter a unique RPID to start advertising your device as a BLE periph-
+ eral.
+ • Predefined RPID: Choose RPID1 or RPID2 to start advertising the device as the chosen
+ RPID.
+
+#--------------------------------------------------------------------------------------------------------#
+
+Important settings on the phone
+When the app is installed on the phone, certain settings for the app need to be modified. Follow
+these instructions:
+ 1. Open the phone and find the location of the installed application
+ 2. Long press on the application icon to open the menu
+ 3. Click on the information icon in the top right corner
+ 4. Navigate into "Battery" under section "Usage"
+ 5. Make sure that "Unrestricted" is selected
+
+#--------------------------------------------------------------------------------------------------------#
