@@ -2,26 +2,34 @@
 Implementing a mesh network for Epiroc in the course D7017E.
 
  # Table of content:
- 1. [Installation guide](#installation-guide)
-    1. [Prerequisites](#prerequisites)
-    2. [Local/Dev Backend Setup](#backend-setup)
-    3. [Local/Dev Android App Setup](#app-setup)
- 3. [Project overview](#project-overview)
- 4. [Technical objectives](#technical-objectives)
-    1. [Protocol](#protocol)
-    2. [Transport](#transport)
-    3. [Android Application](#android-application)
-    4. [Backend](#backend)
-  5. [Roadmap](#roadmap)
+- [d7017e - Mesh network for position propagation in underground mines](#d7017e---mesh-network-for-position-propagation-in-underground-mines)
+- [Table of content:](#table-of-content)
+  - [Installation guide](#installation-guide)
+    - [Backend and Android](#backend-and-android)
+      - [Prerequisites ](#prerequisites-)
+      - [Local/Dev Backend Setup ](#localdev-backend-setup-)
+      - [Local/dev Android App Setup ](#localdev-android-app-setup-)
+    - [Gomobile bindings](#gomobile-bindings)
+      - [Prerequisites](#prerequisites)
+      - [Protocol binding](#protocol-binding)
+  - [Project overview ](#project-overview-)
+  - [Techical objectives ](#techical-objectives-)
+    - [Protocol ](#protocol-)
+    - [Transport ](#transport-)
+    - [Android application ](#android-application-)
+  - [Backend ](#backend-)
+  - [Roadmap ](#roadmap-)
 
 ## Installation guide
 
-### Prerequisites <a id="prerequisites"></a>
+### Backend and Android
+
+#### Prerequisites <a id="prerequisites"></a>
 1. [Go](https://go.dev/)
 2. Android 12L(API level 32) mobile.
 3. Wi-Fi antennas compatible with [Wi-Fi Aware](https://www.wi-fi.org/discover-wi-fi/wi-fi-aware)
 
-### Local/Dev Backend Setup <a id="backend-setup"></a>
+#### Local/Dev Backend Setup <a id="backend-setup"></a>
 
 1. Clone repository and navigate to correct folder:
 
@@ -70,7 +78,7 @@ Implementing a mesh network for Epiroc in the course D7017E.
    2023/12/04 15:15:46 grpcServer listening at port : 50051
    ```
 
-### Local/dev Android App Setup <a id="app-setup"></a>
+#### Local/dev Android App Setup <a id="app-setup"></a>
 
 1. Setting up the required config.json file:
 
@@ -118,6 +126,37 @@ Implementing a mesh network for Epiroc in the course D7017E.
    navigate to the phone directory. Drag and drop the .apk file into the directory. Now
    disconnect the phone from the computer and navigate to the .apk on the phone. Click the
    .apk file and install the app. When the installation is finished, simply open the app.
+
+### Gomobile bindings
+These instructions is for development and when functionality have been added to the protocol. The protocol then has to be binded to the android application and replace the current .aar file.
+
+#### Prerequisites
+1. [Go](https://go.dev/)
+2. [Gomobile](https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile)
+   
+#### Protocol binding
+1. Navigate to project folder and generate bindings:
+
+      `$ cd d7017e-mesh-network`
+
+      `$ gomobile bind -v -o Android/app/libs/tagclient.aar -target=android ./pkg/protcol/tag`
+
+2. Sync project with gradle files:
+   
+   Through command line:
+
+      `$ cd ./Android`
+      
+      `$ ./gradlew build`
+   
+   With Android Studio:
+
+      `Open Android project with Android Studio`
+
+      `File > Sync Project with Gradle Files`
+
+
+    
 
 
 ## Project overview <a id="project-overview"></a>
